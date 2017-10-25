@@ -4,9 +4,11 @@
 #include <sstream>
 #include <algorithm>
 #include <exception>
-
-#include <iostream>
 #include <cstdio>
+#include <iostream>
+#include <cstlib>
+
+
 #include <regex>
 
 using namespace std;
@@ -88,19 +90,19 @@ PDB::PDB(const string& fname)
          defined.push_back(readField(line.substr(76,2),tmpstr));
          atomtypes.push_back(tmpstr);
 
-         if(line_count>214079 or line_count<5) {
-            cout << atomnames.back() << endl;
-            cout << resnames.back() << endl;
-            cout << chainids.back() << endl;
-            //cout << chainids.back() << endl;
-            //cout << ss.str() << endl;
-            //cout << tmpstr << endl;
-         }
+         //@@@ if(line_count>214079 or line_count<5) {
+         //@@@    cout << atomnames.back() << endl;
+         //@@@    cout << resnames.back() << endl;
+         //@@@    cout << chainids.back() << endl;
+         //@@@    //cout << chainids.back() << endl;
+         //@@@    //cout << ss.str() << endl;
+         //@@@    //cout << tmpstr << endl;
+         //@@@ }
          defineds.push_back(defined);
          continue;
       }
       if(line.substr(0,5)=="CRYST") {
-         size_t start = line.find_first_of(" \t\r");
+         size_t start = line.find_first_of(" \t\r\n\f\v");
          if(start!=string::npos) {
             //istrstream line_stream(line.substr(start).c_str());
             stringstream ss(line.substr(start));
@@ -123,7 +125,57 @@ PDB::PDB(const string& fname)
    fs.close();
 }
 
+void PDB::centerAlignedPrint4(FILE *fp, const string& s) {
+   string tmpstr;
+   switch(s.size()) {
+      case 1: tmpstr = " " + s + "  "; // _A__
+              break;
+      case 2: tmpstr = " " + s + " ";  // _AB_
+              break;
+      case 3: tmpstr = " " + s;        // _ABC
+              break;
+      case 4: tmpstr = s;
+              break;
+   }
+   fprintf(fp, "%s", tmpstr.c_str());
+}
+
 void PDB::write2file(const string& fname) const {
+   FILE *fp = fopen(fname.c_str(),"w");
+   if(!fp) {
+      cerr << "libpdb internal error: cannot open "<<fname;
+      abort();
+   }
+   auto iter = nonatomlines.begin();
+   for(auto index; index < atomnames.size(); ++index) {
+      //wait for nonatomlines
+      size_t linenumber = linenumbers[index];
+      while(iter->first < linenumber) {
+         fprintf(fp, "%s\n", (iter->second).c_str());
+         iter++;
+      }
+
+      //writting ATOM
+      fprintf(fp, "ATOM  ");
+      if(index >= 99998) {
+         fprintf(fp, "***** ");
+      } else {
+         fprintf(fp, "%5d ", index + 1);
+      }
+      centerAlignedPrint4(fp, atomnames[index]);
+      fprintf(fp," %4s%c%4d    %8.3f%8.3f%8.3f%6.2f%6.2f",
+            resnames[index], chainids[index],
+            resids[index], xs[index], ys[index], zs[index],
+            occs[index], tempfs[index]);
+      fprintf(fp,"      %4s%2s\n", segnames[index], atomtypes[index]);
+   }
+
+   //write the left nonatomlines
+   while(iter != nonatomlines.end()) {
+      fprintf(fp, "%s\n", (iter->second).c_str());
+      iter++;
+   }
+   fclose(fp);
 }
 
 //void PDB::eraseSpace(string& str) {
