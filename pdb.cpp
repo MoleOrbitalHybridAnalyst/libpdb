@@ -123,7 +123,7 @@ PDB::PDB(const string& fname)
    fs.close();
 }
 
-void write2file(const string& fname) const {
+void PDB::write2file(const string& fname) const {
 }
 
 //void PDB::eraseSpace(string& str) {
