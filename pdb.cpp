@@ -83,7 +83,7 @@ PDB::PDB(const string& fname)
 
          tmpstr = " ";
          defined.push_back(readField(line.substr(72,4),tmpstr));
-         resnames.push_back(tmpstr);
+         segnames.push_back(tmpstr);
          tmpstr = " ";
          defined.push_back(readField(line.substr(76,2),tmpstr));
          atomtypes.push_back(tmpstr);
