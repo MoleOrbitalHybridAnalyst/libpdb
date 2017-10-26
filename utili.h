@@ -38,7 +38,7 @@ inline bool readField(const std::string& s, float& t) {
 }
 
 template <>
-bool readField(const std::string& s, std::string& t) {
+inline bool readField(const std::string& s, std::string& t) {
    t = s;
    t.erase(std::remove_if(t.begin(),t.end(),::isspace),t.end());
    if(t=="\0") {
@@ -47,6 +47,7 @@ bool readField(const std::string& s, std::string& t) {
       return true;
    }
 }
+
 
 }
 #endif

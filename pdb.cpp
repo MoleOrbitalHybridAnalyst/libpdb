@@ -184,20 +184,40 @@ void PDB::write2file(const string& fname) const {
    fclose(fp);
 }
 
-vector<pair<size_t,PDBField>> PDB::checkUndefined() const {
-   vector<pair<size_t,PDBField>> results;
+vector<pair<size_t,string>> PDB::checkUndefined() const {
+   vector<pair<size_t,string>> results;
    for(auto iter = defineds.begin(); iter != defineds.end(); ++iter) {
       for(auto iter2 = iter->begin(); iter2 != iter->end(); ++iter2) {
          if(*iter2 == false) {
-            pair<size_t,PDBField> result;
+            pair<size_t,string> result;
             result.first = iter - defineds.begin();
-            result.second = static_cast<PDBField>(iter2 - iter->begin());
+            result.second = 
+               transField(static_cast<PDBField>(iter2 - iter->begin()));
             results.push_back(result);
          }
       }
    }
    return results;
 }
+
+string PDB::transField(const PDBField& pdbfield) const {
+   switch(pdbfield) {
+      case atomname: return "atomname";
+      case resname: return "resname";
+      case segname: return "segname";
+      case atomtype: return "atomtype";
+      case chainid: return "chainid";
+      case resid: return "resid";
+      case x: return "x";
+      case y: return "y";
+      case z: return "z";
+      case occ: return "occ";
+      case tempf: return "tempf";
+      default: return "\0";
+   }
+}
+
+
 //void PDB::eraseSpace(string& str) {
 //   str.erase(remove_if(str.begin(),str.end(),::isspace),str.end());
 //}

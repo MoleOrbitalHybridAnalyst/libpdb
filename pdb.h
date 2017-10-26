@@ -1,3 +1,5 @@
+#ifndef __LIBPDB_H
+#define __LIBPDB_H
 #include<string>
 #include<vector>
 
@@ -24,6 +26,7 @@ class PDB {
    std::vector<std::vector<bool>> defineds;
    float boxlens[3];
    void centerAlignedPrint4(FILE *fp, const std::string& s) const;
+   std::string transField(const PDBField& pdbfield) const;
 
    //void eraseSpace(std::string& str);
 
@@ -31,7 +34,12 @@ public:
    PDB() = default;
    explicit PDB(const std::string& fname);
    void write2file(const std::string& fname) const;
-   std::vector<std::pair<size_t,PDBField>> checkUndefined() const;
+   std::vector<std::pair<size_t,std::string>> checkUndefined() const;
+/// guess one chainid according to segname; return false if segname undefined
+   bool guessOneChainid(size_t index);
+/// guess all the chainids; return false if anyone fails
+   bool guessAllChainids(size_t index);
 };
 
 }
+#endif
