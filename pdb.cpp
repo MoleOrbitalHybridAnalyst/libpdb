@@ -6,7 +6,7 @@
 #include <exception>
 #include <cstdio>
 #include <iostream>
-#include <cstlib>
+#include <cstdlib>
 
 
 #include <regex>
@@ -125,7 +125,7 @@ PDB::PDB(const string& fname)
    fs.close();
 }
 
-void PDB::centerAlignedPrint4(FILE *fp, const string& s) {
+void PDB::centerAlignedPrint4(FILE *fp, const string& s) const {
    string tmpstr;
    switch(s.size()) {
       case 1: tmpstr = " " + s + "  "; // _A__
@@ -147,7 +147,7 @@ void PDB::write2file(const string& fname) const {
       abort();
    }
    auto iter = nonatomlines.begin();
-   for(auto index; index < atomnames.size(); ++index) {
+   for(size_t index = 0; index < atomnames.size(); ++index) {
       //wait for nonatomlines
       size_t linenumber = linenumbers[index];
       while(iter->first < linenumber) {
@@ -160,14 +160,15 @@ void PDB::write2file(const string& fname) const {
       if(index >= 99998) {
          fprintf(fp, "***** ");
       } else {
-         fprintf(fp, "%5d ", index + 1);
+         fprintf(fp, "%5d ", int(index) + 1);
       }
       centerAlignedPrint4(fp, atomnames[index]);
-      fprintf(fp," %4s%c%4d    %8.3f%8.3f%8.3f%6.2f%6.2f",
-            resnames[index], chainids[index],
+      fprintf(fp," %-4s%c%4d    %8.3f%8.3f%8.3f%6.2f%6.2f",
+            resnames[index].c_str(), chainids[index],
             resids[index], xs[index], ys[index], zs[index],
             occs[index], tempfs[index]);
-      fprintf(fp,"      %4s%2s\n", segnames[index], atomtypes[index]);
+      fprintf(fp,"      %-4s%2s\n", 
+            segnames[index].c_str(), atomtypes[index].c_str());
    }
 
    //write the left nonatomlines

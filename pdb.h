@@ -21,7 +21,7 @@ class PDB {
    std::vector<std::pair<size_t,std::string>> nonatomlines;
    std::vector<std::vector<bool>> defineds;
    float boxlens[3];
-   void centerAlignedPrint4(FILE *fp, const std::string& s);
+   void centerAlignedPrint4(FILE *fp, const std::string& s) const;
 
    //void eraseSpace(std::string& str);
 
