@@ -131,7 +131,8 @@ PDB::PDB(const string& fname)
    nAtoms = atomnames.size();
 }
 
-void PDB::centerAlignedPrint4(FILE *fp, const string& s) const {
+void PDB::centerAlignedPrint4(FILE *fp, const string& s) const 
+{
    string tmpstr;
    switch(s.size()) {
       case 1: tmpstr = " " + s + "  "; // _A__
@@ -146,7 +147,8 @@ void PDB::centerAlignedPrint4(FILE *fp, const string& s) const {
    fprintf(fp, "%s", tmpstr.c_str());
 }
 
-void PDB::write2file(const string& fname) const {
+void PDB::write2file(const string& fname) const 
+{
    FILE *fp = fopen(fname.c_str(),"w");
    if(!fp) {
       cerr << "libpdb internal error: cannot open "<<fname;
@@ -185,7 +187,8 @@ void PDB::write2file(const string& fname) const {
    fclose(fp);
 }
 
-vector<pair<size_t,string>> PDB::checkUndefined() const {
+vector<pair<size_t,string>> PDB::checkUndefined() const 
+{
    vector<pair<size_t,string>> results;
    for(auto iter = defineds.begin(); iter != defineds.end(); ++iter) {
       for(auto iter2 = iter->begin(); iter2 != iter->end(); ++iter2) {
@@ -201,7 +204,8 @@ vector<pair<size_t,string>> PDB::checkUndefined() const {
    return results;
 }
 
-string PDB::transField(const PDBField& pdbfield) const {
+string PDB::transField(const PDBField& pdbfield) const 
+{
    switch(pdbfield) {
       case atomname: return "atomname";
       case resname: return "resname";
@@ -218,7 +222,8 @@ string PDB::transField(const PDBField& pdbfield) const {
    }
 }
 
-bool PDB::guessOneChainid(size_t index) {
+bool PDB::guessOneChainid(const size_t index) 
+{
    if(defineds[index][chainid]) {
       return true;
    }
@@ -230,7 +235,8 @@ bool PDB::guessOneChainid(size_t index) {
    return false;
 }
 
-bool PDB::guessAllChainids() {
+bool PDB::guessAllChainids() 
+{
    bool f = true;
    for(size_t index = 0; index < nAtoms; ++index) {
       if(!guessOneChainid(index)) f = false;
@@ -238,6 +244,70 @@ bool PDB::guessAllChainids() {
    return f;
 }
 
+bool PDB::guessOneSegname(const size_t index) 
+{
+   if(defineds[index][segname]) {
+      return true;
+   }
+   if(defineds[index][chainid]) {
+      segnames[index] = string(1,chainids[index]);
+      defineds[index][segname] = true;
+      return true;
+   } 
+   return false;
+}
+
+bool PDB::guessAllSegnames() 
+{
+   bool f = true;
+   for(size_t index = 0; index < nAtoms; ++index) {
+      if(!guessOneSegname(index)) f = false;
+   }
+   return f;
+}
+
+bool PDB::guessOneAtomtype(const size_t index) 
+{
+   if(defineds[index][atomtype]) {
+      return true;
+   }
+   if(defineds[index][atomname]) {
+      string atomname = atomnames[index];
+      if(atomname == "CLA") {
+         atomtype[index]="CL";
+      } else (atomname == "POT") {
+         atomtype[index]="K";
+      } else (atomname == "SOD") {
+         atomtype[index]="NA";
+      } else {
+         atomtype[index] = string(1,atomname[0]);
+      }
+      defineds[index][chainid] = true;
+      return true;
+   } 
+   return false;
+}
+
+bool PDB::guessAllAtomtypes() 
+{
+   bool f = true;
+   for(size_t index = 0; index < nAtoms; ++index) {
+      if(!guessOneAtomtype(index)) f = false;
+   }
+   return f;
+}
+
+void PDB::swapFields(const size_t i1, const size_t i2, 
+      const vector<PDBField>& fields)
+{
+   for(auto iter = fields.begin(); iter != fields.end(); ++iter) {
+      //TODO swap and also defineds!!
+      switch(*iter) {
+         case x: swapAB(xs[i1], xs[i2]);
+      }
+      swapAB(defineds[i1][*iter], defineds[i2][*iter]);
+   }
+}
 
 //void PDB::eraseSpace(string& str) {
 //   str.erase(remove_if(str.begin(),str.end(),::isspace),str.end());

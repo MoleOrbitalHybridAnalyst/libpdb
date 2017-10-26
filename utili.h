@@ -7,7 +7,8 @@
 namespace PDB_NS {
 
 template <class T>
-inline bool readField(const std::string& s, T& t) {
+inline bool readField(const std::string& s, T& t) 
+{
    if(s.find_first_not_of(" \t\r\n\f\v") != std::string::npos) {
       std::stringstream ss(s);
       ss >> t; 
@@ -18,7 +19,8 @@ inline bool readField(const std::string& s, T& t) {
 }
 
 template <>
-inline bool readField(const std::string& s, int& t) {
+inline bool readField(const std::string& s, int& t) 
+{
    if(s.find_first_not_of(" \t\r\n\f\v") != std::string::npos) {
       t = std::stoi(s); 
       return true;
@@ -28,7 +30,8 @@ inline bool readField(const std::string& s, int& t) {
 }
 
 template <>
-inline bool readField(const std::string& s, float& t) {
+inline bool readField(const std::string& s, float& t) 
+{
    if(s.find_first_not_of(" \t\r\n\f\v") != std::string::npos) {
       t = std::stof(s); 
       return true;
@@ -38,7 +41,8 @@ inline bool readField(const std::string& s, float& t) {
 }
 
 template <>
-inline bool readField(const std::string& s, std::string& t) {
+inline bool readField(const std::string& s, std::string& t) 
+{
    t = s;
    t.erase(std::remove_if(t.begin(),t.end(),::isspace),t.end());
    if(t=="\0") {
@@ -46,6 +50,12 @@ inline bool readField(const std::string& s, std::string& t) {
    } else {
       return true;
    }
+}
+
+template <class T, class T>
+inline void swapAB(T& a, T&b) 
+{
+   T c = a; a = b; b = c;
 }
 
 

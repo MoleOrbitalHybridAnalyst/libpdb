@@ -34,11 +34,25 @@ public:
    PDB() = default;
    explicit PDB(const std::string& fname);
    void write2file(const std::string& fname) const;
+/// get all the undefined pairs(atom_index, pdbfiled)
    std::vector<std::pair<size_t,std::string>> checkUndefined() const;
 /// guess one chainid according to segname; return false if segname undefined
-   bool guessOneChainid(size_t index);
+   bool guessOneChainid(const size_t index);
 /// guess all the chainids; return false if anyone fails
    bool guessAllChainids();
+/// guess one segname according to chainid; return false if chainid undefined
+   bool guessOneSegname(const size_t index);
+/// guess all the segnames; return false if anyone fails
+   bool guessAllSegnames();
+/// guess one atomtype according to atomname; return false if atomname undefined
+   bool guessOneAtomtype(const size_t index);
+/// guess all the atomtypes; return false if anyone fails
+   bool guessAllAtomtypes();
+/// swap specific fields for two atoms
+   void swapFields(const size_t i1, const size_t i2,
+         const std::vector<PDBField>& fields);
+   void swapFields(const size_t i1, const size_t i2, const PDBField& field);
+/// reorder 
 };
 
 }
