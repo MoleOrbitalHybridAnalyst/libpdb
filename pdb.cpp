@@ -223,26 +223,26 @@ string PDB::transField(const PDBField& pdbfield) const
       case PDBField::atomname: return "atomname";
       case PDBField::resname: return "resname";
       case PDBField::segname: return "segname";
-      case atomtype: return "atomtype";
-      case chainid: return "chainid";
-      case resid: return "resid";
-      case x: return "x";
-      case y: return "y";
-      case z: return "z";
-      case occ: return "occ";
-      case tempf: return "tempf";
+      case PDBField::atomtype: return "atomtype";
+      case PDBField::chainid: return "chainid";
+      case PDBField::resid: return "resid";
+      case PDBField::x: return "x";
+      case PDBField::y: return "y";
+      case PDBField::z: return "z";
+      case PDBField::occ: return "occ";
+      case PDBField::tempf: return "tempf";
       default: return "\0";
    }
 }
 
 bool PDB::guessOneChainid(const size_t index) 
 {
-   if(defineds[index][chainid]) {
+   if(defineds[index][PDBField::chainid]) {
       return true;
    }
    if(defineds[index][PDBField::segname]) {
       chainids[index] = segnames[index][0];
-      defineds[index][chainid] = true;
+      defineds[index][PDBField::chainid] = true;
       return true;
    } 
    return false;
@@ -262,7 +262,7 @@ bool PDB::guessOneSegname(const size_t index)
    if(defineds[index][PDBField::segname]) {
       return true;
    }
-   if(defineds[index][chainid]) {
+   if(defineds[index][PDBField::chainid]) {
       segnames[index] = string(1,chainids[index]);
       defineds[index][PDBField::segname] = true;
       return true;
@@ -281,7 +281,7 @@ bool PDB::guessAllSegnames()
 
 bool PDB::guessOneAtomtype(const size_t index) 
 {
-   if(defineds[index][atomtype]) {
+   if(defineds[index][PDBField::atomtype]) {
       return true;
    }
    if(defineds[index][PDBField::atomname]) {
@@ -295,7 +295,7 @@ bool PDB::guessOneAtomtype(const size_t index)
       } else {
          atomtypes[index] = string(1,atomname[0]);
       }
-      defineds[index][chainid] = true;
+      defineds[index][PDBField::chainid] = true;
       return true;
    } 
    return false;
@@ -320,13 +320,13 @@ void PDB::swapFields(const size_t i1, const size_t i2,
    for(auto iter = fields.begin(); iter != fields.end(); ++iter) {
       // swap and also defineds!!
       switch(*iter) {
-         case x: swap(xs[i1], xs[i2]); 
+         case PDBField::x: swap(xs[i1], xs[i2]); 
                  break;
-         case y: swap(ys[i1], ys[i2]); 
+         case PDBField::y: swap(ys[i1], ys[i2]); 
                  break;
-         case z: swap(zs[i1], zs[i2]);
+         case PDBField::z: swap(zs[i1], zs[i2]);
                  break;
-         case resid: swap(resids[i1], resids[i2]);
+         case PDBField::resid: swap(resids[i1], resids[i2]);
                  break;
          case PDBField::atomname: swap(atomnames[i1],atomnames[i2]);
                  break;
@@ -334,13 +334,13 @@ void PDB::swapFields(const size_t i1, const size_t i2,
                  break;
          case PDBField::segname: swap(segnames[i1], segnames[i2]);
                  break;
-         case chainid: swap(chainids[i1], chainids[i2]);
+         case PDBField::chainid: swap(chainids[i1], chainids[i2]);
                  break;
-         case atomtype: swap(atomtypes[i1], atomtypes[i2]);
+         case PDBField::atomtype: swap(atomtypes[i1], atomtypes[i2]);
                  break;
-         case occ: swap(occs[i1], occs[i2]);
+         case PDBField::occ: swap(occs[i1], occs[i2]);
                  break;
-         case tempf: swap(tempfs[i1], tempfs[i2]);
+         case PDBField::tempf: swap(tempfs[i1], tempfs[i2]);
          default: break;
       }
       swap(defineds[i1][*iter], defineds[i2][*iter]);
@@ -355,7 +355,7 @@ void PDB::swapFields(const size_t i1, const size_t i2,
 
 void PDB::swapCoordinates(const size_t i1, const size_t i2)
 {
-   PDBField xyz[3] = {x, y, z};
+   PDBField xyz[3] = {PDBField::x, PDBField::y, PDBField::z};
    swapFields(i1, i2, vector<PDBField>(xyz, xyz + 3));
 }
 

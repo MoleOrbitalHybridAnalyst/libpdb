@@ -16,7 +16,15 @@ class PDBDef {
    std::unordered_multimap<PDBField,float> defflt;
    std::unordered_multimap<PDBField,int> defint;
 
+public:
+   std::unordered_multimap<PDBField,std::string>& getDefstr() const;
 };
+
+inline
+std::unordered_multimap<PDBField,std::string>& getDefstr() const
+{   
+   return defstr;
+}
 
 }
 
