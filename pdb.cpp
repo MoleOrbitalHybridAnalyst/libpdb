@@ -303,11 +303,59 @@ void PDB::swapFields(const size_t i1, const size_t i2,
    for(auto iter = fields.begin(); iter != fields.end(); ++iter) {
       //TODO swap and also defineds!!
       switch(*iter) {
-         case x: swapAB(xs[i1], xs[i2]);
+         case x: swapAB(xs[i1], xs[i2]); 
+                 break;
+         case y: swapAB(ys[i1], ys[i2]); 
+                 break;
+         case z: swapAB(zs[i1], zs[i2]);
+                 break;
+         case resid: swapAB(resids[i1], resids[i2]);
+                 break;
+         case atomname: swapAB(atomnames[i1],atomnames[i2]);
+                 break;
+         case resname: swapAB(resnames[i1], resnames[i2]);
+                 break;
+         case segname: swapAB(segnames[i1], segnames[i2]);
+                 break;
+         case chainid: swapAB(chainids[i1], chainids[i2]);
+                 break;
+         case atomtype: swapAB(atomtypes[i1], atomtypes[i2]);
+                 break;
+         case occ: swapAB(occs[i1], occs[i2]);
+                 break;
+         case tempf: swapAB(tempfs[i1], tempfs[i2]);
+         default: break;
       }
       swapAB(defineds[i1][*iter], defineds[i2][*iter]);
    }
 }
+
+void PDB::swapFields(const size_t i1, const size_t i2, 
+      const PDBField& field)
+{
+   swapFields(i1, i2, vector<PDBField>(1,field));
+}
+
+void PDB::swapCoordinates(const size_t i1, const size_t i2)
+{
+   PDBField[3] xyz = {x, y, z};
+   swapFields(i1, i2, vector<PDBField>(xyz, xyz + 3));
+}
+
+size_t reorderWater(bool guess, const PDBDef& def) {
+   if(guess) {
+      guessAllChainids();
+      guessAllSegnames();
+      guessAllAtomtypes();
+   }
+   if(check) {
+      //TODO check whether all the things involving def defined
+   }
+   //TODO real part of reorder
+   return 0;
+}
+
+
 
 //void PDB::eraseSpace(string& str) {
 //   str.erase(remove_if(str.begin(),str.end(),::isspace),str.end());
