@@ -6,6 +6,8 @@ namespace PDB_NS {
 /// line size for complete atomtype
 const size_t minLineSize = 78;
 const size_t pdbLineSize = 78;
+enum PDBField { atomname = 0, resname = 1, segname = 9, atomtype = 10, 
+      chainid = 2, resid = 3, x = 4, y = 5, z = 6, occ = 7, tempf = 8};
 /// line size for complete z coordinate
 //const size_t errLineSize = 54;
 //const bool autoComplete = true;
@@ -29,6 +31,7 @@ public:
    PDB() = default;
    explicit PDB(const std::string& fname);
    void write2file(const std::string& fname) const;
+   std::vector<std::pair<size_t,PDBField>> checkUndefined() const;
 };
 
 }

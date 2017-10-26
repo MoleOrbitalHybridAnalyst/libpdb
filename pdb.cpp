@@ -10,6 +10,8 @@
 
 
 #include <regex>
+#include <chrono>
+using namespace std::chrono;
 
 using namespace std;
 using namespace PDB_NS;
@@ -105,8 +107,11 @@ PDB::PDB(const string& fname)
          size_t start = line.find_first_of(" \t\r\n\f\v");
          if(start!=string::npos) {
             //istrstream line_stream(line.substr(start).c_str());
+            //auto t1 = high_resolution_clock::now();
             stringstream ss(line.substr(start));
             ss >> boxlens[0] >> boxlens[1] >> boxlens[2];
+            //auto t2 = high_resolution_clock::now();
+            //cout << duration_cast<duration<double>>(t2-t1).count() << endl;
          }
           printf("%f %f %f\n",boxlens[0],boxlens[1],boxlens[2]);
          pair<size_t,string> linepair(line_count,line);
@@ -179,6 +184,20 @@ void PDB::write2file(const string& fname) const {
    fclose(fp);
 }
 
+vector<pair<size_t,PDBField>> PDB::checkUndefined() const {
+   vector<pair<size_t,PDBField>> results;
+   for(auto iter = defineds.begin(); iter != defineds.end(); ++iter) {
+      for(auto iter2 = iter->begin(); iter2 != iter->end(); ++iter2) {
+         if(*iter2 == false) {
+            pair<size_t,PDBField> result;
+            result.first = iter - defineds.begin();
+            result.second = static_cast<PDBField>(iter2 - iter->begin());
+            results.push_back(result);
+         }
+      }
+   }
+   return results;
+}
 //void PDB::eraseSpace(string& str) {
 //   str.erase(remove_if(str.begin(),str.end(),::isspace),str.end());
 //}
