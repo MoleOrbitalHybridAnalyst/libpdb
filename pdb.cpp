@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <utility>
 #include <exception>
 #include <cstdio>
 #include <iostream>
@@ -15,6 +16,18 @@ using namespace std::chrono;
 
 using namespace std;
 using namespace PDB_NS;
+
+//static constexpr size_t atomname = PDBField::atomname;
+//static constexpr size_t resname = PDBField::resname;
+//static constexpr size_t segname = PDBField::segname;
+//static constexpr size_t atomtype = PDBField::atomtype;
+//static constexpr size_t chainid = PDBField::chainid;
+//static constexpr size_t resid = PDBField::resid;
+//static constexpr size_t x = PDBField::x;
+//static constexpr size_t y = PDBField::y;
+//static constexpr size_t z = PDBField::z;
+//static constexpr size_t occ = PDBField::occ;
+//static constexpr size_t tempf = PDBField::tempf;
 
 PDB::PDB(const string& fname) 
 {
@@ -37,7 +50,7 @@ PDB::PDB(const string& fname)
          //}
          linenumbers.push_back(line_count);
          line.resize(pdbLineSize,' ');
-         //TODO atomnames, resnames, ...
+         // atomnames, resnames, ...
          vector<bool> defined;
 
          string tmpstr;
@@ -151,7 +164,7 @@ void PDB::write2file(const string& fname) const
 {
    FILE *fp = fopen(fname.c_str(),"w");
    if(!fp) {
-      cerr << "libpdb internal error: cannot open "<<fname;
+      cerr << "libpdb internal error: cannot open "<<fname<<'\n';
       abort();
    }
    auto iter = nonatomlines.begin();
@@ -207,9 +220,9 @@ vector<pair<size_t,string>> PDB::checkUndefined() const
 string PDB::transField(const PDBField& pdbfield) const 
 {
    switch(pdbfield) {
-      case atomname: return "atomname";
-      case resname: return "resname";
-      case segname: return "segname";
+      case PDBField::atomname: return "atomname";
+      case PDBField::resname: return "resname";
+      case PDBField::segname: return "segname";
       case atomtype: return "atomtype";
       case chainid: return "chainid";
       case resid: return "resid";
@@ -227,7 +240,7 @@ bool PDB::guessOneChainid(const size_t index)
    if(defineds[index][chainid]) {
       return true;
    }
-   if(defineds[index][segname]) {
+   if(defineds[index][PDBField::segname]) {
       chainids[index] = segnames[index][0];
       defineds[index][chainid] = true;
       return true;
@@ -246,12 +259,12 @@ bool PDB::guessAllChainids()
 
 bool PDB::guessOneSegname(const size_t index) 
 {
-   if(defineds[index][segname]) {
+   if(defineds[index][PDBField::segname]) {
       return true;
    }
    if(defineds[index][chainid]) {
       segnames[index] = string(1,chainids[index]);
-      defineds[index][segname] = true;
+      defineds[index][PDBField::segname] = true;
       return true;
    } 
    return false;
@@ -271,16 +284,16 @@ bool PDB::guessOneAtomtype(const size_t index)
    if(defineds[index][atomtype]) {
       return true;
    }
-   if(defineds[index][atomname]) {
+   if(defineds[index][PDBField::atomname]) {
       string atomname = atomnames[index];
       if(atomname == "CLA") {
-         atomtype[index]="CL";
-      } else (atomname == "POT") {
-         atomtype[index]="K";
-      } else (atomname == "SOD") {
-         atomtype[index]="NA";
+         atomtypes[index]="CL";
+      } else if(atomname == "POT") {
+         atomtypes[index]="K";
+      } else if(atomname == "SOD") {
+         atomtypes[index]="NA";
       } else {
-         atomtype[index] = string(1,atomname[0]);
+         atomtypes[index] = string(1,atomname[0]);
       }
       defineds[index][chainid] = true;
       return true;
@@ -300,33 +313,37 @@ bool PDB::guessAllAtomtypes()
 void PDB::swapFields(const size_t i1, const size_t i2, 
       const vector<PDBField>& fields)
 {
+   if(i1 >= nAtoms and i2 >= nAtoms) {
+      cerr << "libpdb error: index exceeds natom when swapping\n";
+      abort();
+   }
    for(auto iter = fields.begin(); iter != fields.end(); ++iter) {
-      //TODO swap and also defineds!!
+      // swap and also defineds!!
       switch(*iter) {
-         case x: swapAB(xs[i1], xs[i2]); 
+         case x: swap(xs[i1], xs[i2]); 
                  break;
-         case y: swapAB(ys[i1], ys[i2]); 
+         case y: swap(ys[i1], ys[i2]); 
                  break;
-         case z: swapAB(zs[i1], zs[i2]);
+         case z: swap(zs[i1], zs[i2]);
                  break;
-         case resid: swapAB(resids[i1], resids[i2]);
+         case resid: swap(resids[i1], resids[i2]);
                  break;
-         case atomname: swapAB(atomnames[i1],atomnames[i2]);
+         case PDBField::atomname: swap(atomnames[i1],atomnames[i2]);
                  break;
-         case resname: swapAB(resnames[i1], resnames[i2]);
+         case PDBField::resname: swap(resnames[i1], resnames[i2]);
                  break;
-         case segname: swapAB(segnames[i1], segnames[i2]);
+         case PDBField::segname: swap(segnames[i1], segnames[i2]);
                  break;
-         case chainid: swapAB(chainids[i1], chainids[i2]);
+         case chainid: swap(chainids[i1], chainids[i2]);
                  break;
-         case atomtype: swapAB(atomtypes[i1], atomtypes[i2]);
+         case atomtype: swap(atomtypes[i1], atomtypes[i2]);
                  break;
-         case occ: swapAB(occs[i1], occs[i2]);
+         case occ: swap(occs[i1], occs[i2]);
                  break;
-         case tempf: swapAB(tempfs[i1], tempfs[i2]);
+         case tempf: swap(tempfs[i1], tempfs[i2]);
          default: break;
       }
-      swapAB(defineds[i1][*iter], defineds[i2][*iter]);
+      swap(defineds[i1][*iter], defineds[i2][*iter]);
    }
 }
 
@@ -338,11 +355,12 @@ void PDB::swapFields(const size_t i1, const size_t i2,
 
 void PDB::swapCoordinates(const size_t i1, const size_t i2)
 {
-   PDBField[3] xyz = {x, y, z};
+   PDBField xyz[3] = {x, y, z};
    swapFields(i1, i2, vector<PDBField>(xyz, xyz + 3));
 }
 
-size_t PDB::reorderWater(bool guess,bool check,bool reorder,const PDBDef& def)
+size_t PDB::reorderWater(bool guess, bool check, bool reorder,
+      const PDBDef& defo, const PDBDef& defh)
 {
    if(guess) {
       guessAllChainids();
@@ -357,6 +375,11 @@ size_t PDB::reorderWater(bool guess,bool check,bool reorder,const PDBDef& def)
    }
    //TODO real part of reorder
    return 0;
+}
+
+size_t PDB::reorderWater(const PDBDef& defo, const PDBDef& defh)
+{
+   return reorderWater(false, false, false, defo, defh);
 }
 
 

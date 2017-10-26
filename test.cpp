@@ -22,5 +22,10 @@ int main(int argc, char **argv) {
    }
    pdb.write2file("write2.pdb");
 
+   vector<PDBField> fields(1,PDBField::x);
+   pdb.swapFields(214082,214083,fields);
+   //pdb.swapCoordinates(214082,214083);
+   pdb.write2file("write3.pdb");
+
    return 0;
 }

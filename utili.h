@@ -52,11 +52,12 @@ inline bool readField(const std::string& s, std::string& t)
    }
 }
 
-template <class T, class T>
-inline void swapAB(T& a, T&b) 
-{
-   T c = a; a = b; b = c;
-}
+//#include <type_traits>
+//template <class T>
+//inline void swapAB(std::remove_reference<T>::type & a, std::remove_reference<T>::type &b) 
+//{
+//   T c = a; a = b; b = c;
+//}
 
 
 }

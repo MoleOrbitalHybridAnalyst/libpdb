@@ -42,10 +42,10 @@ public:
    const std::vector<float>& getOccs() const;
    const std::vector<float>& getTempfs() const;
    const std::string& getAtomname(size_t index) const;
-   const std::string& getResnames(size_t index) const;
-   const std::string& getSegnames(size_t index) const;
-   const std::string& getAtomtypes(size_t index) const;
-   size_t getLinenumbers(size_t index) const;
+   const std::string& getResname(size_t index) const;
+   const std::string& getSegname(size_t index) const;
+   const std::string& getAtomtype(size_t index) const;
+   size_t getLinenumber(size_t index) const;
    char getChainid(size_t index) const;
    float getX(size_t index) const;
    float getY(size_t index) const;
@@ -81,16 +81,13 @@ public:
    void swapFields(const size_t i1, const size_t i2, const PDBField& field);
 /// swap coordinates of two atoms
    void swapCoordinates(const size_t i1, const size_t i2);
+///
+   bool isMatched(size_t index, const PDBDef& def) const;
 /// reorder water atoms
-//TODO PDBDef class
-typedef PDBField PDBDef;
 /// useful with a poorly made PDB
    size_t reorderWater(bool guess, bool check, bool reorder,
          const PDBDef& defo, const PDBDef& defh);
 /// useful with a very strict PDB (noguess, nocheck, noreorder)
-   size_t reorderWater(const PDBDef& defo, const PDBDef& defh); 
-/// useful with a very strict PDB but waters are not in the order of OHHOHH...
-/// (noguess nocheck reorder)
    size_t reorderWater(const PDBDef& defo, const PDBDef& defh); 
 
 };

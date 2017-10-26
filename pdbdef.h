@@ -12,11 +12,12 @@ class PDBDef {
    //std::vector<std::pair<PDBField,std::string>> defstr;
    //std::vector<std::pair<PDBField,float>> defflt;
    //std::vector<std::pair<PDBField,int>> defint;
-   //std::vector<std::pair<PDBField,char>> defc;
-   std::unordered_map<PDBField,std::string> defstr;
-   std::unordered_map<PDBField,float> defflt;
-   std::unordered_map<PDBField,int> defint;
-   std::unordered_map<PDBField,char> defc;
+   std::unordered_multimap<PDBField,std::string> defstr;
+   std::unordered_multimap<PDBField,float> defflt;
+   std::unordered_multimap<PDBField,int> defint;
+
+};
+
 }
 
 #endif
