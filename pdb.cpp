@@ -342,7 +342,8 @@ void PDB::swapCoordinates(const size_t i1, const size_t i2)
    swapFields(i1, i2, vector<PDBField>(xyz, xyz + 3));
 }
 
-size_t reorderWater(bool guess, const PDBDef& def) {
+size_t PDB::reorderWater(bool guess,bool check,bool reorder,const PDBDef& def)
+{
    if(guess) {
       guessAllChainids();
       guessAllSegnames();
@@ -350,6 +351,9 @@ size_t reorderWater(bool guess, const PDBDef& def) {
    }
    if(check) {
       //TODO check whether all the things involving def defined
+   }
+   if(reorder) { //reorder H and O
+      //TODO reorder
    }
    //TODO real part of reorder
    return 0;

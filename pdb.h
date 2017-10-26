@@ -1,18 +1,11 @@
 #ifndef __LIBPDB_H
 #define __LIBPDB_H
-#include<string>
-#include<vector>
+#include <string>
+#include <vector>
+#include "pdbdef.h"
+#include "general.h"
 
 namespace PDB_NS {
-
-/// line size for complete atomtype
-const size_t minLineSize = 78;
-const size_t pdbLineSize = 78;
-enum PDBField { atomname = 0, resname = 1, segname = 9, atomtype = 10, 
-      chainid = 2, resid = 3, x = 4, y = 5, z = 6, occ = 7, tempf = 8};
-/// line size for complete z coordinate
-//const size_t errLineSize = 54;
-//const bool autoComplete = true;
 
 class PDB {
 //pdb file format:
@@ -91,9 +84,14 @@ public:
 /// reorder water atoms
 //TODO PDBDef class
 typedef PDBField PDBDef;
-   size_t reorderWater(bool guess, bool check, const PDBDef& def);
-   size_t reorderWater(bool check, const PDBDef& def); //default guess
-   size_t reorderWater(const PDBDef& def); //default guess, nocheck
+/// useful with a poorly made PDB
+   size_t reorderWater(bool guess, bool check, bool reorder,
+         const PDBDef& defo, const PDBDef& defh);
+/// useful with a very strict PDB (noguess, nocheck, noreorder)
+   size_t reorderWater(const PDBDef& defo, const PDBDef& defh); 
+/// useful with a very strict PDB but waters are not in the order of OHHOHH...
+/// (noguess nocheck reorder)
+   size_t reorderWater(const PDBDef& defo, const PDBDef& defh); 
 
 };
 
