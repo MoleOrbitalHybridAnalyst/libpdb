@@ -225,12 +225,12 @@ bool PDB::guessOneChainid(size_t index) {
    if(defineds[index][segname]) {
       chainids[index] = segnames[index][0];
       defineds[index][chainid] = true;
-   } else {
-      return false;
-   }
+      return true;
+   } 
+   return false;
 }
 
-bool PDB::guessAllChainids(size_t index) {
+bool PDB::guessAllChainids() {
    bool f = true;
    for(size_t index = 0; index < nAtoms; ++index) {
       if(!guessOneChainid(index)) f = false;

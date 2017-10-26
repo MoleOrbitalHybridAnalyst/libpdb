@@ -38,7 +38,7 @@ public:
 /// guess one chainid according to segname; return false if segname undefined
    bool guessOneChainid(size_t index);
 /// guess all the chainids; return false if anyone fails
-   bool guessAllChainids(size_t index);
+   bool guessAllChainids();
 };
 
 }

@@ -12,5 +12,15 @@ int main(int argc, char **argv) {
       cout << "undefined " << iter->second << " of atom " << iter->first+1
          << "\n";
    }
+   cout << "************\n";
+
+   pdb.guessAllChainids();
+   undefineds = pdb.checkUndefined();
+   for(auto iter=undefineds.begin();iter!=undefineds.end();iter++) {
+      cout << "undefined " << iter->second << " of atom " << iter->first+1
+         << "\n";
+   }
+   pdb.write2file("write2.pdb");
+
    return 0;
 }
