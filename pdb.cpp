@@ -128,6 +128,7 @@ PDB::PDB(const string& fname)
       }
    }
    fs.close();
+   nAtoms = atomnames.size();
 }
 
 void PDB::centerAlignedPrint4(FILE *fp, const string& s) const {
@@ -215,6 +216,26 @@ string PDB::transField(const PDBField& pdbfield) const {
       case tempf: return "tempf";
       default: return "\0";
    }
+}
+
+bool PDB::guessOneChainid(size_t index) {
+   if(defineds[index][chainid]) {
+      return true;
+   }
+   if(defineds[index][segname]) {
+      chainids[index] = segnames[index][0];
+      defineds[index][chainid] = true;
+   } else {
+      return false;
+   }
+}
+
+bool PDB::guessAllChainids(size_t index) {
+   bool f = true;
+   for(size_t index = 0; index < nAtoms; ++index) {
+      if(!guessOneChainid(index)) f = false;
+   }
+   return f;
 }
 
 

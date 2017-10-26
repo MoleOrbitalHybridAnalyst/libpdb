@@ -24,7 +24,7 @@ class PDB {
    std::vector<float> xs, ys ,zs, occs, tempfs;
    std::vector<std::pair<size_t,std::string>> nonatomlines;
    std::vector<std::vector<bool>> defineds;
-   float boxlens[3];
+   float boxlens[3]; size_t nAtoms;
    void centerAlignedPrint4(FILE *fp, const std::string& s) const;
    std::string transField(const PDBField& pdbfield) const;
 
