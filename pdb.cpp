@@ -363,7 +363,7 @@ void PDB::swapCoordinates(const size_t i1, const size_t i2)
 }
 
 size_t PDB::reorderWater(bool guess, bool check, bool reorder,
-      const PDBDef& defo, const PDBDef& defh)
+      const PDBDef& defo, const PDBDef& defh, const PDBDef& defhyd)
 {
    if(guess) {
       guessAllChainids();
@@ -373,74 +373,107 @@ size_t PDB::reorderWater(bool guess, bool check, bool reorder,
    if(check) {
       for(size_t index = 0; index < nAtoms; ++index) {
          auto defstr = defo.getDefstr();
-         //auto defstr = defo.defstr;
          for(auto iter = defstr.begin(); iter != defstr.end(); ++iter) {
             if(!defineds[index][static_cast<size_t>(iter->first)]) {
-               cerr<< "libpdb: undefined "<< transField(iter->first)<<
-                  " of atom " << index + 1; abort();
+               cerr<< "libpdb error: undefined "<< transField(iter->first)<<
+                  " of atom " << index + 1<<'\n'; abort();
             }
          }
          defstr = defh.getDefstr();
          for(auto iter = defstr.begin(); iter != defstr.end(); ++iter) {
             if(!defineds[index][static_cast<size_t>(iter->first)]) {
-               cerr<< "libpdb: undefined "<< transField(iter->first)<<
-                  " of atom " << index + 1; abort();
+               cerr<< "libpdb error: undefined "<< transField(iter->first)<<
+                  " of atom " << index + 1<<'\n'; abort();
             }
          }
          auto defflt = defo.getDefflt();
          for(auto iter = defflt.begin(); iter != defflt.end(); ++iter) {
             if(!defineds[index][static_cast<size_t>(iter->first)]) {
-               cerr<< "libpdb: undefined "<< transField(iter->first)<<
-                  " of atom " << index + 1; abort();
+               cerr<< "libpdb error: undefined "<< transField(iter->first)<<
+                  " of atom " << index + 1<<'\n'; abort();
             }
          }
          defflt = defh.getDefflt();
          for(auto iter = defflt.begin(); iter != defflt.end(); ++iter) {
             if(!defineds[index][static_cast<size_t>(iter->first)]) {
-               cerr<< "libpdb: undefined "<< transField(iter->first)<<
-                  " of atom " << index + 1; abort();
+               cerr<< "libpdb error: undefined "<< transField(iter->first)<<
+                  " of atom " << index + 1<<'\n'; abort();
             }
          }
          auto defint = defh.getDefint();
          for(auto iter = defint.begin(); iter != defint.end(); ++iter) {
             if(!defineds[index][static_cast<size_t>(iter->first)]) {
-               cerr<< "libpdb: undefined "<< transField(iter->first)<<
-                  " of atom " << index + 1; abort();
+               cerr<< "libpdb error: undefined "<< transField(iter->first)<<
+                  " of atom " << index + 1<<'\n'; abort();
             }
          }
          defint = defo.getDefint();
          for(auto iter = defint.begin(); iter != defint.end(); ++iter) {
             if(!defineds[index][static_cast<size_t>(iter->first)]) {
-               cerr<< "libpdb: undefined "<< transField(iter->first)<<
-                  " of atom " << index + 1; abort();
+               cerr<< "libpdb error: undefined "<< transField(iter->first)<<
+                  " of atom " << index + 1<<'\n'; abort();
             }
          }
          auto defchr = defh.getDefchr();
          for(auto iter = defchr.begin(); iter != defchr.end(); ++iter) {
             if(!defineds[index][static_cast<size_t>(iter->first)]) {
-               cerr<< "libpdb: undefined "<< transField(iter->first)<<
-                  " of atom " << index + 1; abort();
+               cerr<< "libpdb error: undefined "<< transField(iter->first)<<
+                  " of atom " << index + 1<<'\n'; abort();
             }
          }
          defchr = defo.getDefchr();
          for(auto iter = defchr.begin(); iter != defchr.end(); ++iter) {
             if(!defineds[index][static_cast<size_t>(iter->first)]) {
-               cerr<< "libpdb: undefined "<< transField(iter->first)<<
-                  " of atom " << index + 1; abort();
+               cerr<< "libpdb error: undefined "<< transField(iter->first)<<
+                  " of atom " << index + 1<<'\n'; abort();
             }
          }
       }
    }
-   if(reorder) { //reorder H and O
-      //TODO reorder
+   //Lv1 index vector gives real atom index by dereference once
+   vector<size_t> oindexesLv1, hindexesLv1;
+   for(size_t index = 0; index < nAtoms; ++index) {
+      if(isMatched(index, defo)) oindexesLv1.push_back(index);
+      if(isMatched(index, defh)) hindexesLv1.push_back(index);
    }
-   //TODO real part of reorder
-   return 0;
+   size_t hydindex; int count_hyd=0;
+   for(auto iter = oindexesLv1.begin(); iter != oindexesLv1.end(); ++iter) {
+      if(isMatched(*iter, defhyd)) {
+         if(count_hyd > 1) {
+            cerr << "libpdb error: more than one hydronium\n"; abort();
+         }
+         hydindex = *iter; count_hyd++;
+      }
+   }
+   if(!count_hyd) {
+      cerr << "libpdb error: no hydronium found\n"; abort();
+   }
+   //cout << oindexesLv1.size() << ' ' << hindexesLv1.size() << endl;
+   if(hindexesLv1.size() != 2*oindexesLv1.size() + 1) {
+      cerr << "libpdb error: number of hydrogens and "<<
+                     "number of oxygens do not match\n";
+      abort();
+   }
+   if(reorder) { 
+      //TODO reorder H and O so that they are in the order of OHHOHH... 
+      //and throw H and O to the bottom of the pdb
+      //defined allfields for swaping two atoms completely
+      PDBField tmparr[11] = {PDBField::atomname,PDBField::resname,
+         PDBField::segname,PDBField::atomtype,PDBField::chainid,PDBField::resid,
+      PDBField::x,PDBField::y,PDBField::z,PDBField::occ,PDBField::tempf};
+      vector<PDBField> allfields(tmparr, tmparr + 11);
+      cerr << "libpdb warning: reorder not implememted yet\n";
+   }
+   //now every O has two following H's
+   vector<size_t> hindexesLv1Bck = hindexesLv1;
+
+   return hydindex;
 }
 
-size_t PDB::reorderWater(const PDBDef& defo, const PDBDef& defh)
+size_t PDB::reorderWater(
+      const PDBDef& defo, const PDBDef& defh, const PDBDef& defhyd)
 {
-   return reorderWater(false, false, false, defo, defh);
+   return reorderWater(false, false, false, defo, defh, defhyd);
 }
 
 array<float,3> PDB::pbcDistance(const array<float,3>& x1,
@@ -458,6 +491,52 @@ array<float,3> PDB::pbcDistance(size_t i1, size_t i2) const
    x2[0] = xs[i2]; x2[1] = ys[i2]; x2[2] = zs[i2];
    return pbcDistance(x1, x2);
 }
+
+bool PDB::isMatched(size_t index, const PDBDef& def) const
+{
+   if(!isMatched(atomnames[index], def, PDBField::atomname)) return false;
+   if(!isMatched(resnames[index], def, PDBField::resname)) return false;
+   if(!isMatched(segnames[index], def, PDBField::segname)) return false;
+   if(!isMatched(atomtypes[index], def, PDBField::atomtype)) return false;
+   if(!isMatched(chainids[index], def, PDBField::chainid)) return false;
+   return true;
+}
+
+//bool PDB::isMatched(size_t index, const PDBdef& def) const
+//{
+//   if(index > nAtoms) 
+//      return false;
+//   bool result = false;
+//   while((auto search = def.find(PDBField::atomname)) != def.end()) {
+//      if(search->second == atomnames[index]) {
+//         result = true; break;
+//      }
+//   }
+//   if(!result) return false;
+//   result = false;
+//   while((auto search = def.find(PDBField::resname)) != def.end()) {
+//      if(search->second == resnames[index]) {
+//         result = true; break;
+//      }
+//   }
+//   if(!result) return false;
+//   result = false;
+//   while((auto search = def.find(PDBField::segname)) != def.end()) {
+//      if(search->second == segnames[index]) {
+//         result = true; break;
+//      }
+//   }
+//   if(!result) return false;
+//   result = false;
+//   while((auto search = def.find(PDBField::segname)) != def.end()) {
+//      if(search->second == segnames[index]) {
+//         result = true; break;
+//      }
+//   }
+//
+//   return true;
+//
+//}
 
 
 //void PDB::eraseSpace(string& str) {

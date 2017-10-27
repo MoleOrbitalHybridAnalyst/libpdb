@@ -4,6 +4,7 @@
 #include <vector>
 #include <array>
 #include <cmath>
+#include <unordered_map>
 #include "pdbdef.h"
 #include "general.h"
 
@@ -91,14 +92,25 @@ public:
    void swapFields(const size_t i1, const size_t i2, const PDBField& field);
 /// swap coordinates of two atoms
    void swapCoordinates(const size_t i1, const size_t i2);
-///
+/// check whether an atom matches the def in atomname resname segname atomtype
+/// chainid resid
    bool isMatched(size_t index, const PDBDef& def) const;
+   bool isMatched(const std::string& s, const PDBDef& def, PDBField f) const;
+   bool isMatched(char c, const PDBDef& def, PDBField f) const;
+   bool isMatched(int n, const PDBDef& def, PDBField f) const;
+   bool isMatched(float x, const PDBDef& def, PDBField f) const;
+/// check whehter the given string field could match
+   //bool isStrMatched(size_t index, const PDBDef& def, PDBField f) const;
+   //bool isStrMatched(size_t index, const PDBDef& def) const;
+
+   //bool isAtomnameMatched(size_t index, const PDBDef& def) const;
 /// reorder water atoms
 /// useful with a poorly made PDB
    size_t reorderWater(bool guess, bool check, bool reorder,
-         const PDBDef& defo, const PDBDef& defh);
+         const PDBDef& defo, const PDBDef& defh, const PDBDef& defhyd);
 /// useful with a very strict PDB (noguess, nocheck, noreorder)
-   size_t reorderWater(const PDBDef& defo, const PDBDef& defh); 
+   size_t reorderWater(const PDBDef& defo, 
+         const PDBDef& defh, const PDBDef& defhyd); 
 
 };
 
@@ -239,8 +251,11 @@ bool PDB::setAtomname(size_t index, const std::string& s)
 {
    if(index >= nAtoms)
       return false;
-   else
+   else {
       atomnames[index] = s;
+      defineds[index][static_cast<size_t>(PDBField::atomname)] = true;
+      return true;
+   }
 }
 
 inline
@@ -248,8 +263,11 @@ bool PDB::setResname(size_t index, const std::string& s)
 {
    if(index >= nAtoms)
       return false;
-   else
+   else {
       resnames[index] = s;
+      defineds[index][static_cast<size_t>(PDBField::resname)] = true;
+      return true;
+   }
 }
 
 inline
@@ -257,8 +275,11 @@ bool PDB::setSegname(size_t index, const std::string& s)
 {
    if(index >= nAtoms)
       return false;
-   else
+   else {
       segnames[index] = s;
+      defineds[index][static_cast<size_t>(PDBField::segname)] = true;
+      return true;
+   }
 }
 
 inline
@@ -266,8 +287,11 @@ bool PDB::setAtomtype(size_t index, const std::string& s)
 {
    if(index >= nAtoms)
       return false;
-   else
+   else {
       atomtypes[index] = s;
+      defineds[index][static_cast<size_t>(PDBField::atomtype)] = true;
+      return true;
+   }
 }
 
 inline
@@ -275,8 +299,11 @@ bool PDB::setChainid(size_t index, char c)
 {
    if(index >= nAtoms)
       return false;
-   else
+   else {
       chainids[index] = c;
+      defineds[index][static_cast<size_t>(PDBField::chainid)] = true;
+      return true;
+   }
 }
 
 inline
@@ -284,8 +311,11 @@ bool PDB::setX(size_t index, float f)
 {
    if(index >= nAtoms)
       return false;
-   else
+   else {
       xs[index] = f;
+      defineds[index][static_cast<size_t>(PDBField::x)] = true;
+      return true;
+   }
 }
 
 inline
@@ -293,8 +323,11 @@ bool PDB::setY(size_t index, float f)
 {
    if(index >= nAtoms)
       return false;
-   else
+   else {
       ys[index] = f;
+      defineds[index][static_cast<size_t>(PDBField::y)] = true;
+      return true;
+   }
 }
 
 inline
@@ -302,8 +335,11 @@ bool PDB::setZ(size_t index, float f)
 {
    if(index >= nAtoms)
       return false;
-   else
+   else {
       zs[index] = f;
+      defineds[index][static_cast<size_t>(PDBField::z)] = true;
+      return true;
+   }
 }
 
 inline
@@ -311,8 +347,11 @@ bool PDB::setOcc(size_t index, float f)
 {
    if(index >= nAtoms)
       return false;
-   else
+   else {
       occs[index] = f;
+      defineds[index][static_cast<size_t>(PDBField::occ)] = true;
+      return true;
+   }
 }
 
 inline
@@ -320,8 +359,11 @@ bool PDB::setTempf(size_t index, float f)
 {
    if(index >= nAtoms)
       return false;
-   else
+   else {
       tempfs[index] = f;
+      defineds[index][static_cast<size_t>(PDBField::tempf)] = true;
+      return true;
+   }
 }
 
 inline
@@ -330,6 +372,43 @@ float PDB::pbcDiff(double x1, double x2, int dim) const
    float diff = x2 - x1;
    int n = static_cast<int>(std::floor(diff / boxlens[dim] + 0.5));
    return diff - n * boxlens[dim];
+}
+
+inline bool PDB::isMatched(const std::string& s, const PDBDef& def, PDBField f) const {
+   //TODO is there a way to get corresponding vector name by f?
+   auto range = def.getDefstr().equal_range(f);
+   if(range.first == range.second) return true;
+   for(auto iter = range.first; iter != range.second; ++iter) {
+      if(s == iter->second) return true;
+   }
+   return false;
+}
+
+inline bool PDB::isMatched(char c, const PDBDef& def, PDBField f) const {
+   auto range = def.getDefchr().equal_range(f);
+   if(range.first == range.second) return true;
+   for(auto iter = range.first; iter != range.second; ++iter) {
+      if(c == iter->second) return true;
+   }
+   return false;
+}
+
+inline bool PDB::isMatched(int n, const PDBDef& def, PDBField f) const {
+   auto range = def.getDefint().equal_range(f);
+   if(range.first == range.second) return true;
+   for(auto iter = range.first; iter != range.second; ++iter) {
+      if(n == iter->second) return true;
+   }
+   return false;
+}
+
+inline bool PDB::isMatched(float x, const PDBDef& def, PDBField f) const {
+   auto range = def.getDefflt().equal_range(f);
+   if(range.first == range.second) return true;
+   for(auto iter = range.first; iter != range.second; ++iter) {
+      if(x == iter->second) return true;
+   }
+   return false;
 }
 
 }
