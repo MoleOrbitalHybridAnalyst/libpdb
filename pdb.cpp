@@ -322,30 +322,30 @@ void PDB::swapFields(const size_t i1, const size_t i2,
    for(auto iter = fields.begin(); iter != fields.end(); ++iter) {
       // swap and also defineds!!
       switch(*iter) {
-         case PDBField::x: swap(xs[i1], xs[i2]); 
+         case PDBField::x: std::swap(xs[i1], xs[i2]); 
                  break;
-         case PDBField::y: swap(ys[i1], ys[i2]); 
+         case PDBField::y: std::swap(ys[i1], ys[i2]); 
                  break;
-         case PDBField::z: swap(zs[i1], zs[i2]);
+         case PDBField::z: std::swap(zs[i1], zs[i2]);
                  break;
-         case PDBField::resid: swap(resids[i1], resids[i2]);
+         case PDBField::resid: std::swap(resids[i1], resids[i2]);
                  break;
-         case PDBField::atomname: swap(atomnames[i1],atomnames[i2]);
+         case PDBField::atomname: std::swap(atomnames[i1],atomnames[i2]);
                  break;
-         case PDBField::resname: swap(resnames[i1], resnames[i2]);
+         case PDBField::resname: std::swap(resnames[i1], resnames[i2]);
                  break;
-         case PDBField::segname: swap(segnames[i1], segnames[i2]);
+         case PDBField::segname: std::swap(segnames[i1], segnames[i2]);
                  break;
-         case PDBField::chainid: swap(chainids[i1], chainids[i2]);
+         case PDBField::chainid: std::swap(chainids[i1], chainids[i2]);
                  break;
-         case PDBField::atomtype: swap(atomtypes[i1], atomtypes[i2]);
+         case PDBField::atomtype: std::swap(atomtypes[i1], atomtypes[i2]);
                  break;
-         case PDBField::occ: swap(occs[i1], occs[i2]);
+         case PDBField::occ: std::swap(occs[i1], occs[i2]);
                  break;
-         case PDBField::tempf: swap(tempfs[i1], tempfs[i2]);
+         case PDBField::tempf: std::swap(tempfs[i1], tempfs[i2]);
          default: break;
       }
-      swap(defineds[i1][static_cast<size_t>(*iter)], 
+      std::swap(defineds[i1][static_cast<size_t>(*iter)], 
                            defineds[i2][static_cast<size_t>(*iter)]);
    }
 }
@@ -465,7 +465,56 @@ size_t PDB::reorderWater(bool guess, bool check, bool reorder,
       cerr << "libpdb warning: reorder not implememted yet\n";
    }
    //now every O has two following H's
-   vector<size_t> hindexesLv1Bck = hindexesLv1;
+   vector<size_t> hindexesLv1bck = hindexesLv1;
+   for(auto io = oindexesLv1.begin(); io != oindexesLv1.end(); ++io) {
+      //countj* are Lv2 indexes
+      size_t countj1 = size_tMax, countj2 = size_tMax; countj = 0;
+      for(auto jh = hindexesLv1.begin(); jh != hindexesLv1.end(); ++jh) {
+         float d1, d2, d2_;
+         if(*jh == size_tMax) continue;
+         if(countj1 == size_tMax) {
+            d1 = pbcDistance2(*io, *jh);
+            countj1 = countj;
+         } else if(countj2 == size_tMax) {
+            d2 = pbcDistance2(*io, *jh);
+            countj2 = countj;
+            if(d1 > d2) {
+               std::swap(d1, d2);
+               std::swap(countj1, countj2);
+            }
+         } else {
+            d2_ = pbcDistance2(*io, *jh);
+            if(d2_ < d2 and d2_ > d1) {
+               d2 = d2_; countj2 = countj;
+            } else if(d2_ < d1 and d2_ > d2) {
+               d1 = d2_; countj1 = countj;
+            } else if(d2_ < d1 and d2_ < d2) {
+               if(d1 < d2) {
+                  d2 = d2_; countj2 = countj;
+               } else {
+                  d1 = d2_; countj1 = countj;
+               }
+            }
+         }
+         int flag = 0;
+         for(size_t countj = 0; countj < hindexesLv1bck.size(); countj++) {
+            if(hindexesLv1bck[countj] == *io + 1) {
+               flag++; hindexesLv1[countj] = size_tMax;
+            }
+            if(hindexesLv1bck[countj] == *io + 2) {
+               flag++; hindexesLv1[countj] = size_tMax;
+            }
+         }
+         if(flag != 2) {
+            cerr << "libpdb error: cannot find two hydrogens of atom "
+               <<*io+1 << '\n';
+            abort();
+         }
+         swapCoordinates(*io+1, hindexesLv1bck[countj1]);
+         swapCoordinates(*io+2, hindexesLv1bck[countj2]);
+         countj++;
+      }
+   }
 
    return hydindex;
 }

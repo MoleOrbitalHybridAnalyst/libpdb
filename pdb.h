@@ -40,6 +40,7 @@ public:
          const std::array<float,3>& x2) const;
 /// calculate pbc distance of two atoms
    std::array<float,3> pbcDistance(size_t i1, size_t i2) const;
+   float pbcDistance2(size_t i1, size_t i2) const;
 /// get things
    const std::vector<std::string>& getAtomnames() const;
    const std::vector<std::string>& getResnames() const;
@@ -409,6 +410,12 @@ inline bool PDB::isMatched(float x, const PDBDef& def, PDBField f) const {
       if(x == iter->second) return true;
    }
    return false;
+}
+
+inline float PDB::pbcDistance2(size_t i1, size_t i2) const
+{
+   auto x = pdbDistance(i1, i2);
+   return x[0]*x[0] + x[1]*x[1] + x[2]*x[2];
 }
 
 }

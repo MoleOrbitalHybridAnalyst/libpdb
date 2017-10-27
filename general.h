@@ -2,11 +2,13 @@
 #define __LIBPDB_GENERAL_H
 
 #include <string>
+#include <limits>
 
 namespace PDB_NS {
 /// line size for complete atomtype
 const size_t minLineSize = 78;
 const size_t pdbLineSize = 78;
+const size_t size_tMax = std::numeric_limits<size_t>::max();
 //enum class PDBField : size_t { atomname = 0, resname = 1, segname = 9, atomtype = 10, 
 enum class PDBField { atomname = 0, resname = 1, segname = 9, atomtype = 10, 
       chainid = 2, resid = 3, x = 4, y = 5, z = 6, occ = 7, tempf = 8, unknown = 11};
