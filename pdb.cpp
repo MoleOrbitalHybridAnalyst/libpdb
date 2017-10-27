@@ -217,23 +217,23 @@ vector<pair<size_t,string>> PDB::checkUndefined() const
    return results;
 }
 
-string PDB::transField(const PDBField& pdbfield) const 
-{
-   switch(pdbfield) {
-      case PDBField::atomname: return "atomname";
-      case PDBField::resname: return "resname";
-      case PDBField::segname: return "segname";
-      case PDBField::atomtype: return "atomtype";
-      case PDBField::chainid: return "chainid";
-      case PDBField::resid: return "resid";
-      case PDBField::x: return "x";
-      case PDBField::y: return "y";
-      case PDBField::z: return "z";
-      case PDBField::occ: return "occ";
-      case PDBField::tempf: return "tempf";
-      default: return "\0";
-   }
-}
+//string PDB::transField(const PDBField& pdbfield) const 
+//{
+//   switch(pdbfield) {
+//      case PDBField::atomname: return "atomname";
+//      case PDBField::resname: return "resname";
+//      case PDBField::segname: return "segname";
+//      case PDBField::atomtype: return "atomtype";
+//      case PDBField::chainid: return "chainid";
+//      case PDBField::resid: return "resid";
+//      case PDBField::x: return "x";
+//      case PDBField::y: return "y";
+//      case PDBField::z: return "z";
+//      case PDBField::occ: return "occ";
+//      case PDBField::tempf: return "tempf";
+//      default: return "\0";
+//   }
+//}
 
 bool PDB::guessOneChainid(const size_t index) 
 {

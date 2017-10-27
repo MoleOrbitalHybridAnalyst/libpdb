@@ -17,13 +17,32 @@ class PDBDef {
    std::unordered_multimap<PDBField,int> defint;
 
 public:
+   PDBDef() = default;
+   PDBDef(const std::string& deffn);
+   void pushBack(PDBField,const std::string&);
+   void pushBack(PDBField,const float);
+   void pushBack(PDBField,const int);
    const std::unordered_multimap<PDBField,std::string>& getDefstr() const;
+   const std::unordered_multimap<PDBField,float>& getDefflt() const;
+   const std::unordered_multimap<PDBField,int>& getDefint() const;
 };
 
 inline
 const std::unordered_multimap<PDBField,std::string>& PDBDef::getDefstr() const
 {   
    return defstr;
+}
+
+inline
+const std::unordered_multimap<PDBField,float>& PDBDef::getDefflt() const
+{   
+   return defflt;
+}
+
+inline
+const std::unordered_multimap<PDBField,int>& PDBDef::getDefint() const
+{   
+   return defint;
 }
 
 }

@@ -19,7 +19,7 @@ class PDB {
    std::vector<std::vector<bool>> defineds;
    float boxlens[3]; size_t nAtoms;
    void centerAlignedPrint4(FILE *fp, const std::string& s) const;
-   std::string transField(const PDBField& pdbfield) const;
+   //std::string transField(const PDBField& pdbfield) const;
 
    //void eraseSpace(std::string& str);
 
