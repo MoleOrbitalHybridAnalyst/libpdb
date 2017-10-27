@@ -17,30 +17,37 @@ enum class PDBField { atomname = 0, resname = 1, segname = 9, atomtype = 10,
 inline
 bool isString(PDBField f) {
    return (f==PDBField::atomname or f==PDBField::resname or f==PDBField::segname
-         or f==PDBField::atomtype or f==PDBField::chainid) ? true : false;
+         or f==PDBField::atomtype);
 }
 
 inline
 bool isString(const std::string& s) {
-   return (s=="atomname" or s=="resname" or s=="segname" or s=="atomtype"
-         or s=="chainid") ? true : false;
+   return (s=="atomname" or s=="resname" or s=="segname" or s=="atomtype");
+}
+
+inline bool isChar(PDBField f) {
+   return f==PDBField::chainid;
+}
+
+inline bool isChar(const std::string& s) {
+   return s=="chainid";
 }
 
 inline bool isInt(PDBField f) {
-   return f==PDBField::resid ? true : false;
+   return f==PDBField::resid;
 }
 
 inline bool isInt(const std::string& s) {
-   return s=="resid" ? true : false;
+   return s=="resid";
 }
 
 inline bool isFloat(PDBField f) {
    return (f==PDBField::x or f==PDBField::y or f==PDBField::z or 
-         f==PDBField::occ or f==PDBField::tempf) ? true : false;
+         f==PDBField::occ or f==PDBField::tempf);
 }
 
 inline bool isFloat(const std::string& s) {
-   return (s=="x" or s=="y" or s=="z" or s=="occ" or s=="tempf") ? true : false;
+   return (s=="x" or s=="y" or s=="z" or s=="occ" or s=="tempf");
 }
 
 inline const std::string transField(PDBField pdbfield) {

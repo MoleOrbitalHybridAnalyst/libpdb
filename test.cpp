@@ -1,5 +1,6 @@
 #include "pdb.h"
 #include <iostream>
+#include <array>
 
 using namespace std;
 using namespace PDB_NS;
@@ -9,7 +10,7 @@ int main(int argc, char **argv) {
    pdb.write2file("write.pdb");
    auto undefineds = pdb.checkUndefined();
    for(auto iter=undefineds.begin();iter!=undefineds.end();iter++) {
-      cout << "undefined " << iter->second << " of atom " << iter->first+1
+      cout << "undefined " << transField(iter->second) << " of atom " << iter->first+1
          << "\n";
    }
    cout << "************\n";
@@ -17,7 +18,7 @@ int main(int argc, char **argv) {
    pdb.guessAllChainids();
    undefineds = pdb.checkUndefined();
    for(auto iter=undefineds.begin();iter!=undefineds.end();iter++) {
-      cout << "undefined " << iter->second << " of atom " << iter->first+1
+      cout << "undefined " << transField(iter->second) << " of atom " << iter->first+1
          << "\n";
    }
 
@@ -26,7 +27,7 @@ int main(int argc, char **argv) {
    pdb.guessAllAtomtypes();
    undefineds = pdb.checkUndefined();
    for(auto iter=undefineds.begin();iter!=undefineds.end();iter++) {
-      cout << "undefined " << iter->second << " of atom " << iter->first+1
+      cout << "undefined " << transField(iter->second) << " of atom " << iter->first+1
          << "\n";
    }
    pdb.write2file("write2.pdb");
@@ -40,6 +41,9 @@ int main(int argc, char **argv) {
    //pdbdef
    cout << "************\n";
    PDBDef pdbdef("def1");
+   pdbdef.pushBack(PDBField::x, -1.0f);
+   pdbdef.pushBack(PDBField::resid, 908);
+   pdbdef.pushBack(PDBField::atomname, "OH2");
    auto defstr = pdbdef.getDefstr();
    for(auto iter=defstr.begin();iter!=defstr.end();++iter) {
       cout << "select "<< transField(iter->first)<< " as "<<iter->second<<'\n';
@@ -52,6 +56,19 @@ int main(int argc, char **argv) {
    for(auto iter=defint.begin();iter!=defint.end();++iter) {
       cout << "select "<< transField(iter->first)<< " as "<<iter->second<<'\n';
    }
+   auto defchr = pdbdef.getDefchr();
+   for(auto iter=defchr.begin();iter!=defchr.end();++iter) {
+      cout << "select "<< transField(iter->first)<< " as "<<iter->second<<'\n';
+   }
+
+   //pbc
+   array<float,3> x1 = {1,2,3}, x2 = {1000, 50, -1000}, x3 = {90, -90, 5000};
+   auto d1 = pdb.pbcDistance(x1, x2);
+   auto d2 = pdb.pbcDistance(x1, x3);
+   cout << d1[0] << ' ' << d1[1] << ' ' << d1[2] << '\n';
+   cout << d2[0] << ' ' << d2[1] << ' ' << d2[2] << '\n';
+
+
 
    return 0;
 }

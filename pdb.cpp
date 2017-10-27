@@ -200,16 +200,18 @@ void PDB::write2file(const string& fname) const
    fclose(fp);
 }
 
-vector<pair<size_t,string>> PDB::checkUndefined() const 
+//vector<pair<size_t,string>> PDB::checkUndefined() const 
+vector<pair<size_t,PDBField>> PDB::checkUndefined() const 
 {
-   vector<pair<size_t,string>> results;
+   vector<pair<size_t,PDBField>> results;
    for(auto iter = defineds.begin(); iter != defineds.end(); ++iter) {
       for(auto iter2 = iter->begin(); iter2 != iter->end(); ++iter2) {
          if(*iter2 == false) {
-            pair<size_t,string> result;
+            pair<size_t,PDBField> result;
             result.first = iter - defineds.begin();
             result.second = 
-               transField(static_cast<PDBField>(iter2 - iter->begin()));
+               static_cast<PDBField>(iter2 - iter->begin());
+               //transField(static_cast<PDBField>(iter2 - iter->begin()));
             results.push_back(result);
          }
       }
@@ -383,6 +385,21 @@ size_t PDB::reorderWater(const PDBDef& defo, const PDBDef& defh)
    return reorderWater(false, false, false, defo, defh);
 }
 
+array<float,3> PDB::pbcDistance(const array<float,3>& x1,
+                           const array<float,3>& x2) const 
+{
+   array<float,3> diff;
+   for(int i=0; i < 3; ++i) diff[i] = pbcDiff(x1[i], x2[i], i);
+   return diff;
+}
+
+array<float,3> PDB::pbcDistance(size_t i1, size_t i2) const 
+{
+   array<float,3> x1, x2;
+   x1[0] = xs[i1]; x1[1] = ys[i1]; x1[2] = zs[i1];
+   x2[0] = xs[i2]; x2[1] = ys[i2]; x2[2] = zs[i2];
+   return pbcDistance(x1, x2);
+}
 
 
 //void PDB::eraseSpace(string& str) {

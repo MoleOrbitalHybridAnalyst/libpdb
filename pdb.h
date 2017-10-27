@@ -2,6 +2,8 @@
 #define __LIBPDB_H
 #include <string>
 #include <vector>
+#include <array>
+#include <cmath>
 #include "pdbdef.h"
 #include "general.h"
 
@@ -19,6 +21,8 @@ class PDB {
    std::vector<std::vector<bool>> defineds;
    float boxlens[3]; size_t nAtoms;
    void centerAlignedPrint4(FILE *fp, const std::string& s) const;
+/// calculate pbc distance pbc(x2-x1)
+   float pbcDiff(double x1, double x2, int dim) const;
    //std::string transField(const PDBField& pdbfield) const;
 
    //void eraseSpace(std::string& str);
@@ -27,8 +31,14 @@ public:
    PDB() = default;
    explicit PDB(const std::string& fname);
    void write2file(const std::string& fname) const;
-/// get all the undefined pairs(atom_index, pdbfiled)
-   std::vector<std::pair<size_t,std::string>> checkUndefined() const;
+/// get all the undefined pairs(atom_index, str(pdbfiled))
+   //std::vector<std::pair<size_t,std::string>> checkUndefined() const;
+   std::vector<std::pair<size_t,PDBField>> checkUndefined() const;
+/// calculate pbc distance pbc(x2-x1)
+   std::array<float,3> pbcDistance(const std::array<float,3>& x1,
+         const std::array<float,3>& x2) const;
+/// calculate pbc distance of two atoms
+   std::array<float,3> pbcDistance(size_t i1, size_t i2) const;
 /// get things
    const std::vector<std::string>& getAtomnames() const;
    const std::vector<std::string>& getResnames() const;
@@ -312,6 +322,14 @@ bool PDB::setTempf(size_t index, float f)
       return false;
    else
       tempfs[index] = f;
+}
+
+inline
+float PDB::pbcDiff(double x1, double x2, int dim) const
+{
+   float diff = x2 - x1;
+   int n = static_cast<int>(std::floor(diff / boxlens[dim] + 0.5));
+   return diff - n * boxlens[dim];
 }
 
 }
