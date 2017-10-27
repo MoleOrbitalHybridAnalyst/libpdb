@@ -12,10 +12,10 @@ class PDBDef {
    //std::vector<std::pair<PDBField,std::string>> defstr;
    //std::vector<std::pair<PDBField,float>> defflt;
    //std::vector<std::pair<PDBField,int>> defint;
-   std::unordered_multimap<PDBField,std::string> defstr;
-   std::unordered_multimap<PDBField,float> defflt;
-   std::unordered_multimap<PDBField,int> defint;
-   std::unordered_multimap<PDBField,char> defchr;
+   std::unordered_multimap<PDBField,std::string> _defstr;
+   std::unordered_multimap<PDBField,float> _defflt;
+   std::unordered_multimap<PDBField,int> _defint;
+   std::unordered_multimap<PDBField,char> _defchr;
 
 public:
    PDBDef() = default;
@@ -33,25 +33,25 @@ public:
 inline
 const std::unordered_multimap<PDBField,std::string>& PDBDef::getDefstr() const
 {   
-   return defstr;
+   return _defstr;
 }
 
 inline
 const std::unordered_multimap<PDBField,float>& PDBDef::getDefflt() const
 {   
-   return defflt;
+   return _defflt;
 }
 
 inline
 const std::unordered_multimap<PDBField,int>& PDBDef::getDefint() const
 {   
-   return defint;
+   return _defint;
 }
 
 inline
 const std::unordered_multimap<PDBField,char>& PDBDef::getDefchr() const
 {   
-   return defchr;
+   return _defchr;
 }
 
 }
