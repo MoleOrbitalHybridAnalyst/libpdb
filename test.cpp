@@ -20,8 +20,18 @@ int main(int argc, char **argv) {
       cout << "undefined " << iter->second << " of atom " << iter->first+1
          << "\n";
    }
+
+   cout << "************\n";
+   pdb.guessAllSegnames();
+   pdb.guessAllAtomtypes();
+   undefineds = pdb.checkUndefined();
+   for(auto iter=undefineds.begin();iter!=undefineds.end();iter++) {
+      cout << "undefined " << iter->second << " of atom " << iter->first+1
+         << "\n";
+   }
    pdb.write2file("write2.pdb");
 
+   double x = 3.1415926;
    vector<PDBField> fields(1,PDBField::x);
    pdb.swapFields(214082,214083,fields);
    //pdb.swapCoordinates(214082,214083);

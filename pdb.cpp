@@ -237,12 +237,12 @@ string PDB::transField(const PDBField& pdbfield) const
 
 bool PDB::guessOneChainid(const size_t index) 
 {
-   if(defineds[index][PDBField::chainid]) {
+   if(defineds[index][static_cast<size_t>(PDBField::chainid)]) {
       return true;
    }
-   if(defineds[index][PDBField::segname]) {
+   if(defineds[index][static_cast<size_t>(PDBField::segname)]) {
       chainids[index] = segnames[index][0];
-      defineds[index][PDBField::chainid] = true;
+      defineds[index][static_cast<size_t>(PDBField::chainid)] = true;
       return true;
    } 
    return false;
@@ -259,12 +259,12 @@ bool PDB::guessAllChainids()
 
 bool PDB::guessOneSegname(const size_t index) 
 {
-   if(defineds[index][PDBField::segname]) {
+   if(defineds[index][static_cast<size_t>(PDBField::segname)]) {
       return true;
    }
-   if(defineds[index][PDBField::chainid]) {
+   if(defineds[index][static_cast<size_t>(PDBField::chainid)]) {
       segnames[index] = string(1,chainids[index]);
-      defineds[index][PDBField::segname] = true;
+      defineds[index][static_cast<size_t>(PDBField::segname)] = true;
       return true;
    } 
    return false;
@@ -281,10 +281,10 @@ bool PDB::guessAllSegnames()
 
 bool PDB::guessOneAtomtype(const size_t index) 
 {
-   if(defineds[index][PDBField::atomtype]) {
+   if(defineds[index][static_cast<size_t>(PDBField::atomtype)]) {
       return true;
    }
-   if(defineds[index][PDBField::atomname]) {
+   if(defineds[index][static_cast<size_t>(PDBField::atomname)]) {
       string atomname = atomnames[index];
       if(atomname == "CLA") {
          atomtypes[index]="CL";
@@ -295,7 +295,7 @@ bool PDB::guessOneAtomtype(const size_t index)
       } else {
          atomtypes[index] = string(1,atomname[0]);
       }
-      defineds[index][PDBField::chainid] = true;
+      defineds[index][static_cast<size_t>(PDBField::atomtype)] = true;
       return true;
    } 
    return false;
@@ -343,7 +343,8 @@ void PDB::swapFields(const size_t i1, const size_t i2,
          case PDBField::tempf: swap(tempfs[i1], tempfs[i2]);
          default: break;
       }
-      swap(defineds[i1][*iter], defineds[i2][*iter]);
+      swap(defineds[i1][static_cast<size_t>(*iter)], 
+                           defineds[i2][static_cast<size_t>(*iter)]);
    }
 }
 
