@@ -36,6 +36,22 @@ int main(int argc, char **argv) {
    pdb.swapFields(214082,214083,fields);
    //pdb.swapCoordinates(214082,214083);
    pdb.write2file("write3.pdb");
+   
+   //pdbdef
+   cout << "************\n";
+   PDBDef pdbdef("def1");
+   auto defstr = pdbdef.getDefstr();
+   for(auto iter=defstr.begin();iter!=defstr.end();++iter) {
+      cout << "select "<< transField(iter->first)<< " as "<<iter->second<<'\n';
+   }
+   auto defflt = pdbdef.getDefflt();
+   for(auto iter=defflt.begin();iter!=defflt.end();++iter) {
+      cout << "select "<< transField(iter->first)<< " as "<<iter->second<<'\n';
+   }
+   auto defint = pdbdef.getDefint();
+   for(auto iter=defint.begin();iter!=defint.end();++iter) {
+      cout << "select "<< transField(iter->first)<< " as "<<iter->second<<'\n';
+   }
 
    return 0;
 }
