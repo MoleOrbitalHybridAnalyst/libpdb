@@ -372,6 +372,7 @@ float PDB::pbcDiff(double x1, double x2, int dim) const
 {
    float diff = x2 - x1;
    int n = static_cast<int>(std::floor(diff / boxlens[dim] + 0.5));
+   //int n = 0;
    return diff - n * boxlens[dim];
 }
 
@@ -414,7 +415,7 @@ inline bool PDB::isMatched(float x, const PDBDef& def, PDBField f) const {
 
 inline float PDB::pbcDistance2(size_t i1, size_t i2) const
 {
-   auto x = pdbDistance(i1, i2);
+   auto x = pbcDistance(i1, i2);
    return x[0]*x[0] + x[1]*x[1] + x[2]*x[2];
 }
 

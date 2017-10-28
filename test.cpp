@@ -49,6 +49,7 @@ int main(int argc, char **argv) {
    pdb.swapFields(214082,214083,fields);
    //pdb.swapCoordinates(214082,214083);
    pdb.write2file("write3.pdb");
+   pdb.swapFields(214082,214083,fields);
    
    //pdbdef
    cout << "************\n";
@@ -94,6 +95,7 @@ int main(int argc, char **argv) {
 
    t2 = high_resolution_clock::now();
    cout << "reordering costs "<<duration_cast<duration<double>>(t2-t1).count()<<endl;
+   pdb.write2file("write4.pdb");
 
 
 

@@ -10,9 +10,9 @@
 #include <cstdlib>
 
 
-#include <regex>
-#include <chrono>
-using namespace std::chrono;
+//#include <regex>
+//#include <chrono>
+//using namespace std::chrono;
 
 using namespace std;
 using namespace PDB_NS;
@@ -39,15 +39,6 @@ PDB::PDB(const string& fname)
    while(getline(fs, line)) {
       line_count++;
       if(line.substr(0,4)=="ATOM") {
-         //if(line.size()<minLineSize) {
-         //   // TODO move this err to a check function 
-         //   //cerr << "WARNING: Incomplete line at line "<<line_count<<" in "
-         //   //   << fname << endl;
-         //   incomplete = true;
-         //}
-         //if(line.size()<errLineSize) {
-         //    //throw an err
-         //}
          linenumbers.push_back(line_count);
          line.resize(pdbLineSize,' ');
          // atomnames, resnames, ...
@@ -105,14 +96,6 @@ PDB::PDB(const string& fname)
          defined.push_back(readField(line.substr(76,2),tmpstr));
          atomtypes.push_back(tmpstr);
 
-         //@@@ if(line_count>214079 or line_count<5) {
-         //@@@    cout << atomnames.back() << endl;
-         //@@@    cout << resnames.back() << endl;
-         //@@@    cout << chainids.back() << endl;
-         //@@@    //cout << chainids.back() << endl;
-         //@@@    //cout << ss.str() << endl;
-         //@@@    //cout << tmpstr << endl;
-         //@@@ }
          defineds.push_back(defined);
          continue;
       }
@@ -126,7 +109,7 @@ PDB::PDB(const string& fname)
             //auto t2 = high_resolution_clock::now();
             //cout << duration_cast<duration<double>>(t2-t1).count() << endl;
          }
-          printf("%f %f %f\n",boxlens[0],boxlens[1],boxlens[2]);
+         //@@@  printf("%f %f %f\n",boxlens[0],boxlens[1],boxlens[2]);
          pair<size_t,string> linepair(line_count,line);
          nonatomlines.push_back(linepair);
          continue;
@@ -316,7 +299,8 @@ void PDB::swapFields(const size_t i1, const size_t i2,
       const vector<PDBField>& fields)
 {
    if(i1 >= nAtoms and i2 >= nAtoms) {
-      cerr << "libpdb error: index exceeds natom when swapping\n";
+      cerr << "libpdb error: index "
+         << i1 << ' ' << i2 << " exceeds natom when swapping\n";
       abort();
    }
    for(auto iter = fields.begin(); iter != fields.end(); ++iter) {
@@ -436,7 +420,7 @@ size_t PDB::reorderWater(bool guess, bool check, bool reorder,
       if(isMatched(index, defo)) oindexesLv1.push_back(index);
       if(isMatched(index, defh)) hindexesLv1.push_back(index);
    }
-   size_t hydindex; int count_hyd=0;
+   size_t hydindex = 0; int count_hyd=0;
    for(auto iter = oindexesLv1.begin(); iter != oindexesLv1.end(); ++iter) {
       if(isMatched(*iter, defhyd)) {
          if(count_hyd > 1) {
@@ -462,60 +446,71 @@ size_t PDB::reorderWater(bool guess, bool check, bool reorder,
          PDBField::segname,PDBField::atomtype,PDBField::chainid,PDBField::resid,
       PDBField::x,PDBField::y,PDBField::z,PDBField::occ,PDBField::tempf};
       vector<PDBField> allfields(tmparr, tmparr + 11);
-      cerr << "libpdb warning: reorder not implememted yet\n";
+      cerr << "libpdb warning: assemble water not implememted yet\n";
    }
-   //now every O has two following H's
-   vector<size_t> hindexesLv1bck = hindexesLv1;
+   //now every O has two following H's (assumption)
+   //modified version of my implementation in python
+   //vector<size_t> hindexesLv1bck(hindexesLv1);
+   auto starth = hindexesLv1.begin();
    for(auto io = oindexesLv1.begin(); io != oindexesLv1.end(); ++io) {
-      //countj* are Lv2 indexes
-      size_t countj1 = size_tMax, countj2 = size_tMax; countj = 0;
-      for(auto jh = hindexesLv1.begin(); jh != hindexesLv1.end(); ++jh) {
-         float d1, d2, d2_;
-         if(*jh == size_tMax) continue;
-         if(countj1 == size_tMax) {
-            d1 = pbcDistance2(*io, *jh);
-            countj1 = countj;
-         } else if(countj2 == size_tMax) {
-            d2 = pbcDistance2(*io, *jh);
-            countj2 = countj;
-            if(d1 > d2) {
-               std::swap(d1, d2);
-               std::swap(countj1, countj2);
-            }
-         } else {
-            d2_ = pbcDistance2(*io, *jh);
-            if(d2_ < d2 and d2_ > d1) {
-               d2 = d2_; countj2 = countj;
-            } else if(d2_ < d1 and d2_ > d2) {
-               d1 = d2_; countj1 = countj;
-            } else if(d2_ < d1 and d2_ < d2) {
-               if(d1 < d2) {
-                  d2 = d2_; countj2 = countj;
-               } else {
-                  d1 = d2_; countj1 = countj;
-               }
-            }
-         }
-         int flag = 0;
-         for(size_t countj = 0; countj < hindexesLv1bck.size(); countj++) {
-            if(hindexesLv1bck[countj] == *io + 1) {
-               flag++; hindexesLv1[countj] = size_tMax;
-            }
-            if(hindexesLv1bck[countj] == *io + 2) {
-               flag++; hindexesLv1[countj] = size_tMax;
-            }
-         }
-         if(flag != 2) {
-            cerr << "libpdb error: cannot find two hydrogens of atom "
-               <<*io+1 << '\n';
-            abort();
-         }
-         swapCoordinates(*io+1, hindexesLv1bck[countj1]);
-         swapCoordinates(*io+2, hindexesLv1bck[countj2]);
-         countj++;
+      //j*Lv2 are Lv2 indexes if defined as j*Lv2[i] = i
+      starth += 2;
+      size_t j1Lv2, j2Lv2, jLv2 = 0;
+      float d1 = pbcDistance2(*io, *io + 1);
+      float d2 = pbcDistance2(*io, *io + 2);
+      j1Lv2 = starth - hindexesLv1.begin() - 2;
+      j2Lv2 = j1Lv2 + 1;
+      jLv2 = j2Lv2 + 1;
+      if(d1 > d2) {
+         std::swap(d1, d2);
+         std::swap(j1Lv2, j2Lv2);
       }
+
+      for(auto jh = starth; jh != hindexesLv1.end(); ++jh) {
+         float d = pbcDistance2(*io, *jh);
+         if(d < d2 and d > d1) {
+            d2 = d; j2Lv2 = jLv2;
+         } else if(d < d1 and d > d2) {
+            d1 = d; j1Lv2 = jLv2;
+         } else if(d < d1 and d < d2) {
+            if(d1 < d2) {
+               d2 = d; j2Lv2 = jLv2;
+            } else {
+               d1 = d; j1Lv2 = jLv2;
+            }
+         }
+         jLv2++;
+      }
+      swapCoordinates(*io+1, hindexesLv1[j1Lv2]);
+      swapCoordinates(*io+2, hindexesLv1[j2Lv2]);
    }
 
+// slow because of frequent swapping
+//   auto starth = hindexesLv1.begin() + 2;
+//   for(auto io = oindexesLv1.begin(); io != oindexesLv1.end(); ++io) {
+//      float d1 = pbcDistance2(*io, *io + 1);
+//      float d2 = pbcDistance2(*io, *io + 2);
+//      if(d1 > d2) swapCoordinates(*io + 1, *io + 2);
+//      for(auto jh = starth; jh != hindexesLv1.end(); ++jh) {
+//         float d = pbcDistance2(*io, *jh);
+//         if(d < d2) swapCoordinates(*io + 2, *jh);
+//         if(d1 > d2) swapCoordinates(*io + 1, *io + 2);
+//      }
+//      starth += 2;
+//   }
+
+   float mindist2 = 
+      boxlens[0]*boxlens[0] + boxlens[1]*boxlens[1] + boxlens[2]*boxlens[2];
+   for(auto io = oindexesLv1.begin(); io != oindexesLv1.end(); ++io) {
+      //double d = pbcDistance2(*io, hindexesLv1bck.back());
+      double d = pbcDistance2(*io, hindexesLv1.back());
+      if(d < mindist2) {
+         mindist2 = d; hydindex = *io;
+      }
+   }
+   swapCoordinates(hydindex, oindexesLv1.back());
+   swapCoordinates(hydindex + 1, oindexesLv1.back() + 1);
+   swapCoordinates(hydindex + 2, oindexesLv1.back() + 2);
    return hydindex;
 }
 
