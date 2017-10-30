@@ -18,45 +18,38 @@ inline bool readField(const std::string& s, T& t)
    }
 }
 
-template <>
-inline bool readField(const std::string& s, int& t) 
-{
-   if(s.find_first_not_of(" \t\r\n\f\v") != std::string::npos) {
-      t = std::stoi(s); 
-      return true;
-   } else {
-      return false;
-   }
-}
-
-template <>
-inline bool readField(const std::string& s, float& t) 
-{
-   if(s.find_first_not_of(" \t\r\n\f\v") != std::string::npos) {
-      t = std::stof(s); 
-      return true;
-   } else {
-      return false;
-   }
-}
-
-template <>
-inline bool readField(const std::string& s, std::string& t) 
-{
-   t = s;
-   t.erase(std::remove_if(t.begin(),t.end(),::isspace),t.end());
-   if(t=="\0") {
-      t = " "; return false;
-   } else {
-      return true;
-   }
-}
-
-//#include <type_traits>
-//template <class T>
-//inline void swapAB(std::remove_reference<T>::type & a, std::remove_reference<T>::type &b) 
+//template <>
+//inline bool readField(const std::string& s, int& t) 
 //{
-//   T c = a; a = b; b = c;
+//   if(s.find_first_not_of(" \t\r\n\f\v") != std::string::npos) {
+//      t = std::stoi(s); 
+//      return true;
+//   } else {
+//      return false;
+//   }
+//}
+//
+//template <>
+//inline bool readField(const std::string& s, float& t) 
+//{
+//   if(s.find_first_not_of(" \t\r\n\f\v") != std::string::npos) {
+//      t = std::stof(s); 
+//      return true;
+//   } else {
+//      return false;
+//   }
+//}
+//
+//template <>
+//inline bool readField(const std::string& s, std::string& t) 
+//{
+//   t = s;
+//   t.erase(std::remove_if(t.begin(),t.end(),::isspace),t.end());
+//   if(t=="\0") {
+//      t = " "; return false;
+//   } else {
+//      return true;
+//   }
 //}
 
 

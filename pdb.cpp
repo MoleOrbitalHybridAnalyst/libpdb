@@ -69,7 +69,14 @@ PDB::PDB(const string& fname)
          //    cerr << "WARNING: No resid at line "<<line_count<<" in "
          //        << fname << endl;
          //}
-         defined.push_back(readField(line.substr(22,4),resid));
+         //try {
+            defined.push_back(readField(line.substr(22,4),resid));
+         //}
+         //catch(invalid_argument &) {
+         //   cerr << "libpdb warning: cannot read resid at line "
+         //      << line_count << " in " << fname << endl;
+         //   defined.push_back(false);
+         //}
          resids.push_back(resid);
 
          float tmpflt;

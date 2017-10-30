@@ -65,6 +65,7 @@ public:
    float getZ(size_t index) const;
    float getOcc(size_t index) const;
    float getTempf(size_t index) const;
+   const std::array<float,3>& getCoordinates(size_t index) const;
 /// set things
    bool setAtomname(size_t index, const std::string & s);
    bool setResname(size_t index, const std::string & s);
@@ -423,6 +424,13 @@ inline float PDB::pbcDistance2(size_t i1, size_t i2) const
 inline size_t PDB::getNatoms() const
 {
    return nAtoms;
+}
+
+inline 
+const std::array<float,3>& getCoordinates(size_t index) const
+{
+   std::array<float,3> coord = {xs[index], ys[index], zs[index]};
+   return coord;
 }
 
 }
