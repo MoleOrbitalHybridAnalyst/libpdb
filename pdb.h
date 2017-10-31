@@ -429,8 +429,7 @@ inline size_t PDB::getNatoms() const
 inline 
 std::array<float,3> PDB::getCoordinates(size_t index) const
 {
-   std::array<float,3> coord = {xs[index], ys[index], zs[index]};
-   return coord;
+   return std::array<float,3>({xs[index], ys[index], zs[index]});
 }
 
 }
