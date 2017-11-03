@@ -350,7 +350,8 @@ void PDB::swapFields(const size_t i1, const size_t i2,
 void PDB::swapFields(const size_t i1, const size_t i2)
 {
    PDBField fields[11] = { PDBField::atomname, PDBField::resname, PDBField::segname, PDBField::atomtype, PDBField::chainid, PDBField::resid, PDBField::x, PDBField::y, PDBField::z, PDBField::occ, PDBField::tempf};
-   swapFields(i1, i2, fields);
+   vector<PDBField> fields_vec(fields, fields + 11);
+   swapFields(i1, i2, fields_vec);
 }
 
 void PDB::swapCoordinates(const size_t i1, const size_t i2)
@@ -572,6 +573,7 @@ bool PDB::moveTo(const size_t i1, const size_t i2)
    if(i1 >= nAtoms or i2 >= nAtoms) return false;
    for(size_t walker = i1; walker != i2; walker += step) 
       swapFields(i1, i2);
+   return true;
 }
 
 bool PDB::assembleWater(bool guess, bool check,
@@ -656,6 +658,7 @@ bool PDB::assembleWater(bool guess, bool check,
       abort();
    }
    // first put an asuumed hyd to the bottom
+   return true;
 }
 
 bool PDB::moveToWithIndexes(const size_t i1, const size_t i2,
