@@ -432,11 +432,14 @@ size_t PDB::reorderWater(bool guess, bool check, bool reorder,
       //TODO reorder H and O so that they are in the order of OHHOHH... 
       //and throw H and O to the bottom of the pdb
       //defined allfields for swaping two atoms completely
-      PDBField tmparr[11] = {PDBField::atomname,PDBField::resname,
-         PDBField::segname,PDBField::atomtype,PDBField::chainid,PDBField::resid,
-      PDBField::x,PDBField::y,PDBField::z,PDBField::occ,PDBField::tempf};
-      vector<PDBField> allfields(tmparr, tmparr + 11);
-      cerr << "libpdb warning: assemble water not implememted yet\n";
+      //PDBField tmparr[11] = {PDBField::atomname,PDBField::resname,
+      //   PDBField::segname,PDBField::atomtype,PDBField::chainid,PDBField::resid,
+      //PDBField::x,PDBField::y,PDBField::z,PDBField::occ,PDBField::tempf};
+      //vector<PDBField> allfields(tmparr, tmparr + 11);
+      //cerr << "libpdb warning: assemble water not implememted yet\n";
+      if(!assembleWater(false, false, defo, defh)) {
+         cerr << "libpdb error: assemble water failed\n"; abort();
+      }
    }
    //now every O has two following H's 
    //Lv1 index vector gives real atom index by dereference once
@@ -658,6 +661,20 @@ bool PDB::assembleWater(bool guess, bool check,
       abort();
    }
    // first put an asuumed hyd to the bottom
+   auto ith = hindexesLv1.begin();
+   auto ito = oindexesLv1.begin();
+   size_t opos = nAtoms - 4, hpos = nAtoms - 1;
+   moveToWithIndexes(*ito, opos); ito ++; opos -= 3;
+   moveToWithIndexes(*ith, hpos); ith ++; hpos --;
+   moveToWithIndexes(*ith, hpos); ith ++; hpos --;
+   moveToWithIndexes(*ith, hpos); ith ++; hpos -= 2;
+   for(;ito != oindexesLv1.end(); ++ito)  {
+      moveToWithIndexes(*ito, opos); ito++; opos -= 3;
+   }
+   for(;ith != hindexesLv1.end(); ith += 2)  {
+      moveToWithIndexes(*ith, hpos); ith++; hpos--;
+      moveToWithIndexes(*(ith + 1), hpos); ith++; hpos--; hpos-;
+   }
    return true;
 }
 
