@@ -24,6 +24,9 @@ class PDB {
    void centerAlignedPrint4(FILE *fp, const std::string& s) const;
 /// calculate pbc distance pbc(x2-x1)
    float pbcDiff(double x1, double x2, int dim) const;
+/// call moveTo and handle with two index lists //TODO using ...
+   bool moveToWithIndexes(const size_t i1, const size_t i2,
+                        std::vector<size_t>& list1, std::vector<size_t>& list2);
    //std::string transField(const PDBField& pdbfield) const;
 
    //void eraseSpace(std::string& str);
@@ -117,10 +120,9 @@ public:
          const PDBDef& defh, const PDBDef& defhyd); 
 /// move an atom (i1) to the given position (i2) keeping the order of others
    bool moveTo(const size_t i1, const size_t i2);
-/// assemble water such that they are in the order OHHOHHOHH...
+/// assemble water such that they are in the order OHHOHHOHH...OHHH
    bool assemebleWater( bool guess,
          bool check, const PDBDef& defo, const PDBDef& defh);
-
 };
 
 inline

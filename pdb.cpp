@@ -427,6 +427,17 @@ size_t PDB::reorderWater(bool guess, bool check, bool reorder,
          }
       }
    }
+   if(reorder) { 
+      //TODO reorder H and O so that they are in the order of OHHOHH... 
+      //and throw H and O to the bottom of the pdb
+      //defined allfields for swaping two atoms completely
+      PDBField tmparr[11] = {PDBField::atomname,PDBField::resname,
+         PDBField::segname,PDBField::atomtype,PDBField::chainid,PDBField::resid,
+      PDBField::x,PDBField::y,PDBField::z,PDBField::occ,PDBField::tempf};
+      vector<PDBField> allfields(tmparr, tmparr + 11);
+      cerr << "libpdb warning: assemble water not implememted yet\n";
+   }
+   //now every O has two following H's 
    //Lv1 index vector gives real atom index by dereference once
    vector<size_t> oindexesLv1, hindexesLv1;
    for(size_t index = 0; index < nAtoms; ++index) {
@@ -451,17 +462,6 @@ size_t PDB::reorderWater(bool guess, bool check, bool reorder,
                      "number of oxygens do not match\n";
       abort();
    }
-   if(reorder) { 
-      //TODO reorder H and O so that they are in the order of OHHOHH... 
-      //and throw H and O to the bottom of the pdb
-      //defined allfields for swaping two atoms completely
-      PDBField tmparr[11] = {PDBField::atomname,PDBField::resname,
-         PDBField::segname,PDBField::atomtype,PDBField::chainid,PDBField::resid,
-      PDBField::x,PDBField::y,PDBField::z,PDBField::occ,PDBField::tempf};
-      vector<PDBField> allfields(tmparr, tmparr + 11);
-      cerr << "libpdb warning: assemble water not implememted yet\n";
-   }
-   //now every O has two following H's (assumption)
    //modified version of my implementation in python
    //vector<size_t> hindexesLv1bck(hindexesLv1);
    auto starth = hindexesLv1.begin();
@@ -574,8 +574,8 @@ bool PDB::moveTo(const size_t i1, const size_t i2)
       swapFields(i1, i2);
 }
 
-bool PDB::assembleWater(bool guess,
-      bool check, const PDBDef& defo, const PDBDef& defh)
+bool PDB::assembleWater(bool guess, bool check,
+      const PDBDef& defo, const PDBDef& defh)//, const PDBDef& defhyd)
 {
    if(guess) {
       guessAllChainids();
@@ -643,6 +643,66 @@ bool PDB::assembleWater(bool guess,
          }
       }
    }
+   // real assembling stuff
+   vector<size_t> oindexesLv1, hindexesLv1;
+   for(size_t index = 0; index < nAtoms; ++index) {
+      if(isMatched(index, defo)) oindexesLv1.push_back(index);
+      if(isMatched(index, defh)) hindexesLv1.push_back(index);
+   }
+   //cout << oindexesLv1.size() << ' ' << hindexesLv1.size() << endl;
+   if(hindexesLv1.size() != 2*oindexesLv1.size() + 1) {
+      cerr << "libpdb error: number of hydrogens and "<<
+                     "number of oxygens do not match\n";
+      abort();
+   }
+   // first put an asuumed hyd to the bottom
+}
+
+bool PDB::moveToWithIndexes(const size_t i1, const size_t i2,
+      vector<size_t>& list1, vector<size_t>& list2)
+{
+   if(!moveTo(i1, i2)) return false;
+   if(i1 == i2) return true;
+   //find element right larger/smaller than i1 in list1 and list2
+   auto start1 = list1.end() - 1;
+   auto start2 = list2.end() - 1;
+   if(i1 < i2) {
+      for(auto it = list1.begin(); it != list1.end(); ++it) 
+         if(*it > i1) { start1 = it; break;}
+      for(auto it = list2.begin(); it != list2.end(); ++it) 
+         if(*it > i1) { start2 = it; break;}
+   } else {
+      start1 = list1.begin();
+      start2 = list2.begin();
+      for(auto it = list1.rbegin(); it != list1.rend(); ++it) 
+         if(*it < i1) { start1 = it.base() - 1; break;}
+      for(auto it = list2.rbegin(); it != list2.rend(); ++it) 
+         if(*it < i1) { start2 = it.base() - 1; break;}
+   }
+   //find element right smaller/larger than i2 in list1 and list2
+   auto end1 = list1.begin();
+   auto end2 = list2.begin();
+   if(i1 < i2) {
+      for(auto it = list1.rbegin(); it != list1.rend(); ++it) 
+         if(*it <= i2) { end1 = it.base() - 1; break;}
+      for(auto it = list2.rbegin(); it != list2.rend(); ++it) 
+         if(*it <= i2) { end2 = it.base() - 1; break;}
+   } else {
+      end1 = list1.end() - 1;
+      end2 = list2.end() - 1;
+      for(auto it = list1.begin(); it != list1.end(); ++it) 
+         if(*it >= i2) { end1 = it; break;}
+      for(auto it = list2.begin(); it != list2.end(); ++it) 
+         if(*it >= i2) { end2 = it; break;}
+   }
+   int step;
+   if(i1 < i2) step = 1;
+   else        step = -1;
+   for(auto it = start1; it != end1; it += step)  (*it) -= step;
+   (*end1) -= step;
+   for(auto it = start2; it != end2; it += step)  (*it) -= step;
+   (*end2) -= step;
+   return true;
 }
 
 //bool PDB::isMatched(size_t index, const PDBdef& def) const
