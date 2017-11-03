@@ -91,8 +91,9 @@ public:
    bool guessAllAtomtypes();
 /// swap specific fields for two atoms
    void swapFields(const size_t i1, const size_t i2,
-         const std::vector<PDBField>& fields);
+         const std::vector<PDBField>& fields); //swap multi
    void swapFields(const size_t i1, const size_t i2, const PDBField& field);
+   void swapFields(const size_t i1, const size_t i2); //swap all
 /// swap coordinates of two atoms
    void swapCoordinates(const size_t i1, const size_t i2);
 /// check whether an atom matches the def in atomname resname segname atomtype
@@ -114,6 +115,11 @@ public:
 /// useful with a very strict PDB (noguess, nocheck, noreorder)
    size_t reorderWater(const PDBDef& defo, 
          const PDBDef& defh, const PDBDef& defhyd); 
+/// move an atom (i1) to the given position (i2) keeping the order of others
+   bool moveTo(const size_t i1, const size_t i2);
+/// assemble water such that they are in the order OHHOHHOHH...
+   bool assemebleWater( bool guess,
+         bool check, const PDBDef& defo, const PDBDef& defh);
 
 };
 

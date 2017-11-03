@@ -347,6 +347,12 @@ void PDB::swapFields(const size_t i1, const size_t i2,
    swapFields(i1, i2, vector<PDBField>(1,field));
 }
 
+void PDB::swapFields(const size_t i1, const size_t i2)
+{
+   PDBField fields[11] = { PDBField::atomname, PDBField::resname, PDBField::segname, PDBField::atomtype, PDBField::chainid, PDBField::resid, PDBField::x, PDBField::y, PDBField::z, PDBField::occ, PDBField::tempf};
+   swapFields(i1, i2, fields);
+}
+
 void PDB::swapCoordinates(const size_t i1, const size_t i2)
 {
    PDBField xyz[3] = {PDBField::x, PDBField::y, PDBField::z};
@@ -551,6 +557,92 @@ bool PDB::isMatched(size_t index, const PDBDef& def) const
    if(!isMatched(atomtypes[index], def, PDBField::atomtype)) return false;
    if(!isMatched(chainids[index], def, PDBField::chainid)) return false;
    return true;
+}
+
+bool PDB::moveTo(const size_t i1, const size_t i2) 
+{
+   int step;
+   if(i1 == i2) {
+      return true;
+   } else if(i1 > i2) {
+      step = -1;
+   } else {
+      step = 1;
+   }
+   if(i1 >= nAtoms or i2 >= nAtoms) return false;
+   for(size_t walker = i1; walker != i2; walker += step) 
+      swapFields(i1, i2);
+}
+
+bool PDB::assembleWater(bool guess,
+      bool check, const PDBDef& defo, const PDBDef& defh)
+{
+   if(guess) {
+      guessAllChainids();
+      guessAllSegnames();
+      guessAllAtomtypes();
+   }
+   //duplicated in reorderWater becaue I am a so noob programmer
+   if(check) {
+      for(size_t index = 0; index < nAtoms; ++index) {
+         auto defstr = defo.getDefstr();
+         for(auto iter = defstr.begin(); iter != defstr.end(); ++iter) {
+            if(!defineds[index][static_cast<size_t>(iter->first)]) {
+               cerr<< "libpdb error: undefined "<< transField(iter->first)<<
+                  " of atom " << index + 1<<'\n'; abort();
+            }
+         }
+         defstr = defh.getDefstr();
+         for(auto iter = defstr.begin(); iter != defstr.end(); ++iter) {
+            if(!defineds[index][static_cast<size_t>(iter->first)]) {
+               cerr<< "libpdb error: undefined "<< transField(iter->first)<<
+                  " of atom " << index + 1<<'\n'; abort();
+            }
+         }
+         auto defflt = defo.getDefflt();
+         for(auto iter = defflt.begin(); iter != defflt.end(); ++iter) {
+            if(!defineds[index][static_cast<size_t>(iter->first)]) {
+               cerr<< "libpdb error: undefined "<< transField(iter->first)<<
+                  " of atom " << index + 1<<'\n'; abort();
+            }
+         }
+         defflt = defh.getDefflt();
+         for(auto iter = defflt.begin(); iter != defflt.end(); ++iter) {
+            if(!defineds[index][static_cast<size_t>(iter->first)]) {
+               cerr<< "libpdb error: undefined "<< transField(iter->first)<<
+                  " of atom " << index + 1<<'\n'; abort();
+            }
+         }
+         auto defint = defh.getDefint();
+         for(auto iter = defint.begin(); iter != defint.end(); ++iter) {
+            if(!defineds[index][static_cast<size_t>(iter->first)]) {
+               cerr<< "libpdb error: undefined "<< transField(iter->first)<<
+                  " of atom " << index + 1<<'\n'; abort();
+            }
+         }
+         defint = defo.getDefint();
+         for(auto iter = defint.begin(); iter != defint.end(); ++iter) {
+            if(!defineds[index][static_cast<size_t>(iter->first)]) {
+               cerr<< "libpdb error: undefined "<< transField(iter->first)<<
+                  " of atom " << index + 1<<'\n'; abort();
+            }
+         }
+         auto defchr = defh.getDefchr();
+         for(auto iter = defchr.begin(); iter != defchr.end(); ++iter) {
+            if(!defineds[index][static_cast<size_t>(iter->first)]) {
+               cerr<< "libpdb error: undefined "<< transField(iter->first)<<
+                  " of atom " << index + 1<<'\n'; abort();
+            }
+         }
+         defchr = defo.getDefchr();
+         for(auto iter = defchr.begin(); iter != defchr.end(); ++iter) {
+            if(!defineds[index][static_cast<size_t>(iter->first)]) {
+               cerr<< "libpdb error: undefined "<< transField(iter->first)<<
+                  " of atom " << index + 1<<'\n'; abort();
+            }
+         }
+      }
+   }
 }
 
 //bool PDB::isMatched(size_t index, const PDBdef& def) const
