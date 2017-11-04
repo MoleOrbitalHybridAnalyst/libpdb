@@ -429,7 +429,7 @@ size_t PDB::reorderWater(bool guess, bool check, bool reorder,
       }
    }
    if(reorder) { 
-      //TODO reorder H and O so that they are in the order of OHHOHH... 
+      //assemble H and O so that they are in the order of OHHOHH... 
       //and throw H and O to the bottom of the pdb
       //defined allfields for swaping two atoms completely
       //PDBField tmparr[11] = {PDBField::atomname,PDBField::resname,
@@ -651,30 +651,44 @@ bool PDB::assembleWater(bool guess, bool check,
    // real assembling stuff
    vector<size_t> oindexesLv1, hindexesLv1;
    for(size_t index = 0; index < nAtoms; ++index) {
-      if(isMatched(index, defo)) oindexesLv1.push_back(index);
       if(isMatched(index, defh)) hindexesLv1.push_back(index);
    }
-   //cout << oindexesLv1.size() << ' ' << hindexesLv1.size() << endl;
+   // first put all H to the bottom
+   // start from end so that hindexes is always valid
+   size_t pos = nAtoms - 1;
+   for(auto ith = hindexesLv1.rbegin(); ith != hindexesLv1.rend(); ++ith) {
+         moveTo(*ith, pos); pos--;
+   } // hindexes is not valid any more
+   for(size_t index = 0; index < nAtoms; ++index) {
+      if(isMatched(index, defo)) oindexesLv1.push_back(index);
+   }
    if(hindexesLv1.size() != 2*oindexesLv1.size() + 1) {
       cerr << "libpdb error: number of hydrogens and "<<
                      "number of oxygens do not match\n";
       abort();
    }
-   // first put an asuumed hyd to the bottom
-   auto ith = hindexesLv1.begin();
-   auto ito = oindexesLv1.begin();
-   size_t opos = nAtoms - 4, hpos = nAtoms - 1;
-   moveToWithIndexes(*ito, opos); ito ++; opos -= 3;
-   moveToWithIndexes(*ith, hpos); ith ++; hpos --;
-   moveToWithIndexes(*ith, hpos); ith ++; hpos --;
-   moveToWithIndexes(*ith, hpos); ith ++; hpos -= 2;
-   for(;ito != oindexesLv1.end(); ++ito)  {
-      moveToWithIndexes(*ito, opos); ito++; opos -= 3;
+   for(auto ito = oindexesLv1.rbegin(); ito != oindexesLv1.rend(); ++ito) {
+      moveTo(*ito, pos); pos--;
+   } // oindexes is not valid any more
+   // switch some O and H
+   pos = nAtoms - 2 * oindexesLv1.size() - 2; 
+   for(size_t dest = nAtoms - 4;pos > nAtoms - 3 * oindexesLv1.size() - 1; dest -= 3) {
+      swapFields(pos, dest); pos--;
    }
-   for(;ith != hindexesLv1.end(); ith += 2)  {
-      moveToWithIndexes(*ith, hpos); ith++; hpos--;
-      moveToWithIndexes(*(ith + 1), hpos); ith++; hpos--; hpos-;
-   }
+   //auto ito = oindexesLv1.begin();
+   //size_t opos = nAtoms - 4, hpos = nAtoms - 1;
+   //moveToWithIndexes(*ito, opos, oindexes, hindexes); ito ++; opos -= 3;
+   //moveToWithIndexes(*ith, hpos, oindexes, hindexes); ith ++; hpos --;
+   //moveToWithIndexes(*ith, hpos, oindexes, hindexes); ith ++; hpos --;
+   //moveToWithIndexes(*ith, hpos, oindexes, hindexes); ith ++; hpos -= 2;
+   //for(;ito != oindexesLv1.end(); ++ito)  {
+   //   moveToWithIndexes(*ito, opos, oindexes, hindexes); ito++; opos -= 3;
+   //}
+   //for(;ith != hindexesLv1.end(); ith += 2)  {
+   //   moveToWithIndexes(*ith, hpos, oindexes, hindexes); ith++; hpos--;
+   //   moveToWithIndexes(*(ith + 1), hpos, oindexes, hindexes); 
+   //   ith++; hpos--; hpos-;
+   //}
    return true;
 }
 
