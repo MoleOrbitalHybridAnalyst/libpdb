@@ -575,7 +575,7 @@ bool PDB::moveTo(const size_t i1, const size_t i2)
    }
    if(i1 >= nAtoms or i2 >= nAtoms) return false;
    for(size_t walker = i1; walker != i2; walker += step) 
-      swapFields(i1, i2);
+      swapFields(walker, walker + step);
    return true;
 }
 
@@ -674,6 +674,35 @@ bool PDB::assembleWater(bool guess, bool check,
    pos = nAtoms - 2 * oindexesLv1.size() - 2; 
    for(size_t dest = nAtoms - 4;pos > nAtoms - 3 * oindexesLv1.size() - 1; dest -= 3) {
       swapFields(pos, dest); pos--;
+   }
+   pos = nAtoms - 2 * oindexesLv1.size() - 4;
+   for(size_t offset = 0; pos + offset < nAtoms - 4; offset++) {
+      size_t index = pos + offset;
+      if(offset % 3 == 0) {
+         if(!defineds[index][static_cast<size_t>(PDBField::atomname)]) 
+            setAtomname(index, "OH2");
+         setResid(index, offset / 3 + 1);
+      } else if(offset % 3 == 1) {
+         if(!defineds[index][static_cast<size_t>(PDBField::atomname)]) 
+            setAtomname(index, "H1");
+         setResid(index, offset / 3 + 1);
+      } else if(offset % 3 == 2) {
+         if(!defineds[index][static_cast<size_t>(PDBField::atomname)]) 
+            setAtomname(index, "H2");
+         setResid(index, offset / 3 + 1);
+      }
+   }
+   if(!defineds[nAtoms - 4][static_cast<size_t>(PDBField::atomname)]) 
+      setAtomname(nAtoms - 4, "OH2");
+   if(!defineds[nAtoms - 3][static_cast<size_t>(PDBField::atomname)]) 
+      setAtomname(nAtoms - 3, "H1");
+   if(!defineds[nAtoms - 2][static_cast<size_t>(PDBField::atomname)]) 
+      setAtomname(nAtoms - 2, "H2");
+   if(!defineds[nAtoms - 1][static_cast<size_t>(PDBField::atomname)]) 
+      setAtomname(nAtoms - 1, "H3");
+   for(size_t index = nAtoms - 4; index < nAtoms; ++index) {
+      setResid(index, 1);
+      setResname(index, "H3O");
    }
    //auto ito = oindexesLv1.begin();
    //size_t opos = nAtoms - 4, hpos = nAtoms - 1;

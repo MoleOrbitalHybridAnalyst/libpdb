@@ -71,6 +71,7 @@ public:
    std::array<float,3> getCoordinates(size_t index) const;
 /// set things
    bool setAtomname(size_t index, const std::string & s);
+   bool setResid(size_t index, const int i);
    bool setResname(size_t index, const std::string & s);
    bool setSegname(size_t index, const std::string & s);
    bool setAtomtype(size_t index, const std::string & s);
@@ -265,6 +266,18 @@ bool PDB::setAtomname(size_t index, const std::string& s)
    else {
       atomnames[index] = s;
       defineds[index][static_cast<size_t>(PDBField::atomname)] = true;
+      return true;
+   }
+}
+
+inline
+bool PDB::setResid(size_t index, const int i)
+{
+   if(index >= nAtoms)
+      return false;
+   else {
+      resids[index] = i;
+      defineds[index][static_cast<size_t>(PDBField::resid)] = true;
       return true;
    }
 }
