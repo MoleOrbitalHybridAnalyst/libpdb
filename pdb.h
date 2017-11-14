@@ -81,6 +81,8 @@ public:
    bool setZ(size_t index, float f);
    bool setOcc(size_t index, float f);
    bool setTempf(size_t index, float f);
+   bool setSegname(const PDBDef& def, const std::string & s);
+   bool setChainid(const PDBDef& def, char c);
 /// guess one chainid according to segname; return false if segname undefined
    bool guessOneChainid(const size_t index);
 /// guess all the chainids; return false if anyone fails
@@ -124,6 +126,8 @@ public:
 /// assemble water such that they are in the order OHHOHHOHH...OHHH
    bool assembleWater( bool guess,
          bool check, const PDBDef& defo, const PDBDef& defh);
+/// select atoms according to PDBDef; return vector of indexes
+   std::vector<size_t> selectAtoms(const PDBDef& def);
 };
 
 inline

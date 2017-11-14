@@ -768,6 +768,33 @@ bool PDB::moveToWithIndexes(const size_t i1, const size_t i2,
    return true;
 }
 
+vector<size_t> PDB::selectAtoms(const PDBDef& def)
+{
+   vector<size_t> indexes;
+   for(size_t i = 0; i < nAtoms; ++i) {
+      if(isMatched(i, def)) indexes.push_back(i);
+   }
+   return indexes;
+}
+
+bool PDB::setSegname(const PDBDef& def, const std::string &s)
+{
+   vector<size_t> indexes = selectAtoms(def); bool result;
+   for(auto iter = indexes.begin(); iter != indexes.end(); ++iter) {
+      if(!setSegname(*iter, s)) result = false;
+   }
+   return result;
+}
+
+bool PDB::setChainid(const PDBDef& def, char c)
+{
+   vector<size_t> indexes = selectAtoms(def); bool result;
+   for(auto iter = indexes.begin(); iter != indexes.end(); ++iter) {
+      if(!setChainid(*iter, c)) result = false;
+   }
+   return result;
+}
+
 //bool PDB::isMatched(size_t index, const PDBdef& def) const
 //{
 //   if(index > nAtoms) 
