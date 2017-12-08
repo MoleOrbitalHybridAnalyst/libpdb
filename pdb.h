@@ -50,6 +50,7 @@ public:
    const std::vector<std::string>& getResnames() const;
    const std::vector<std::string>& getSegnames() const;
    const std::vector<std::string>& getAtomtypes() const;
+   const std::vector<int>& getResids() const;
    const std::vector<size_t>& getLinenumbers() const;
    const std::vector<char>& getChainids() const;
    const std::vector<float>& getXs() const;
@@ -57,6 +58,7 @@ public:
    const std::vector<float>& getZs() const;
    const std::vector<float>& getOccs() const;
    const std::vector<float>& getTempfs() const;
+   int getResid(size_t index) const;
    const std::string& getAtomname(size_t index) const;
    const std::string& getResname(size_t index) const;
    const std::string& getSegname(size_t index) const;
@@ -134,6 +136,12 @@ inline
 const std::vector<std::string>& PDB::getAtomnames() const 
 {
    return atomnames;
+}
+
+inline
+const std::vector<int>& PDB::getResids() const
+{
+   return resids;
 }
 
 inline
@@ -224,6 +232,12 @@ inline
 size_t PDB::getLinenumber(size_t index) const
 {
    return linenumbers[index];
+}
+
+inline
+int PDB::getResid(size_t index) const
+{
+   return resids[index];
 }
 
 inline

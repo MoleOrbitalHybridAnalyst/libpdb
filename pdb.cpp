@@ -441,6 +441,9 @@ size_t PDB::reorderWater(bool guess, bool check, bool reorder,
          cerr << "libpdb error: assemble water failed\n"; abort();
       }
    }
+//
+//printf("assemble completed\n");//@@@
+//
    //now every O has two following H's 
    //Lv1 index vector gives real atom index by dereference once
    vector<size_t> oindexesLv1, hindexesLv1;
@@ -471,6 +474,9 @@ size_t PDB::reorderWater(bool guess, bool check, bool reorder,
    auto starth = hindexesLv1.begin();
    for(auto io = oindexesLv1.begin(); io != oindexesLv1.end(); ++io) {
       //j*Lv2 are Lv2 indexes if defined as j*Lv2[i] = i
+//
+//printf("io = %u\n", *io);//@@@
+//
       starth += 2;
       size_t j1Lv2, j2Lv2, jLv2 = 0;
       float d1 = pbcDistance2(*io, *io + 1);
@@ -657,6 +663,9 @@ bool PDB::assembleWater(bool guess, bool check,
    // start from end so that hindexes is always valid
    size_t pos = nAtoms - 1;
    for(auto ith = hindexesLv1.rbegin(); ith != hindexesLv1.rend(); ++ith) {
+//
+//printf("ith = %u\n", *ith);//@@@
+//
          moveTo(*ith, pos); pos--;
    } // hindexes is not valid any more
    for(size_t index = 0; index < nAtoms; ++index) {
@@ -670,6 +679,9 @@ bool PDB::assembleWater(bool guess, bool check,
    for(auto ito = oindexesLv1.rbegin(); ito != oindexesLv1.rend(); ++ito) {
       moveTo(*ito, pos); pos--;
    } // oindexes is not valid any more
+//
+//printf("putting H completed\n");//@@@
+//
    // switch some O and H
    pos = nAtoms - 2 * oindexesLv1.size() - 2; 
    for(size_t dest = nAtoms - 4;pos > nAtoms - 3 * oindexesLv1.size() - 1; dest -= 3) {
