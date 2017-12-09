@@ -72,6 +72,7 @@ public:
    float getZ(size_t index) const;
    float getOcc(size_t index) const;
    float getTempf(size_t index) const;
+   float getBox(int i) const;
    std::array<float,3> getCoordinates(size_t index) const;
 /// set things
    bool setAtomname(size_t index, const std::string & s);
@@ -478,6 +479,12 @@ inline
 std::array<float,3> PDB::getCoordinates(size_t index) const
 {
    return std::array<float,3>({xs[index], ys[index], zs[index]});
+}
+
+inline
+float PDB::getBox(int i) const
+{
+   return boxlens[i];
 }
 
 }
