@@ -44,6 +44,8 @@ public:
 /// calculate pbc distance of two atoms
    std::array<float,3> pbcDistance(size_t i1, size_t i2) const;
    float pbcDistance2(size_t i1, size_t i2) const;
+   float pbcDistance2(const std::array<float,3>& x1, 
+         const std::array<float,3>& x2) const;
 /// get things
    size_t getNatoms() const;
    const std::vector<std::string>& getAtomnames() const;
@@ -457,6 +459,13 @@ inline bool PDB::isMatched(float x, const PDBDef& def, PDBField f) const {
 inline float PDB::pbcDistance2(size_t i1, size_t i2) const
 {
    auto x = pbcDistance(i1, i2);
+   return x[0]*x[0] + x[1]*x[1] + x[2]*x[2];
+}
+
+inline float PDB::pbcDistance2(const std::array<float,3>& x1,
+      const std::array<float,3>& x2) const
+{
+   auto x = pbcDistance(x1, x2);
    return x[0]*x[0] + x[1]*x[1] + x[2]*x[2];
 }
 
