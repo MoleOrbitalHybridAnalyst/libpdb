@@ -813,6 +813,15 @@ pair<float,size_t> PDB::pbcDistance2(size_t i, vector<size_t> group) const
    return *min_element(pairs.begin(), pairs.end());
 }
 
+//array<float,3> PDB::geoCenter(const std::vector<size_t>& indexes) const
+//{
+//   double w = 1.0 / indexes.size();
+//   array<float,3> cen{ {0.0f,0.0f,0.0f} };
+//   for(size_t i : indexes) {
+//      cen[j] += w * 
+//   }
+//}
+
 //bool PDB::isMatched(size_t index, const PDBdef& def) const
 //{
 //   if(index > nAtoms) 

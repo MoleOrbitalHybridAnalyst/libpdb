@@ -137,6 +137,12 @@ public:
          bool check, const PDBDef& defo, const PDBDef& defh);
 /// select atoms according to PDBDef; return vector of indexes
    std::vector<size_t> selectAtoms(const PDBDef& def);
+/// compute geometric center of a group of atoms according to indexes
+   std::array<float,3> geoCenter(const std::vector<size_t>&) const;
+/// compute geometric center of a group of atoms according to PDBDef
+   std::array<float,3> geoCenter(const PDBDef& def) const;
+/// shift all atoms by a vector keeping the box boundaries unchanged
+   void shiftBy(std::array<float,3>)
 };
 
 inline
@@ -489,6 +495,12 @@ inline
 float PDB::getBox(int i) const
 {
    return boxlens[i];
+}
+
+inline
+std::array<float,3> PDB::geoCenter(const PDBDef& def) const
+{
+   return geoCenter(selectAtoms(def));
 }
 
 }
