@@ -5,6 +5,7 @@
 #include <array>
 #include <cmath>
 #include <unordered_map>
+#include <utility>
 #include "pdbdef.h"
 #include "general.h"
 
@@ -46,6 +47,9 @@ public:
    float pbcDistance2(size_t i1, size_t i2) const;
    float pbcDistance2(const std::array<float,3>& x1, 
          const std::array<float,3>& x2) const;
+/// calculate pbc distance of one atom and a group atoms
+   std::pair<float,size_t> 
+      pbcDistance2(size_t i, std::vector<size_t> group) const;
 /// get things
    size_t getNatoms() const;
    const std::vector<std::string>& getAtomnames() const;

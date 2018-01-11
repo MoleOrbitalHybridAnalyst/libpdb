@@ -3,7 +3,6 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
-#include <utility>
 #include <exception>
 #include <cstdio>
 #include <iostream>
@@ -805,6 +804,13 @@ bool PDB::setChainid(const PDBDef& def, char c)
       if(!setChainid(*iter, c)) result = false;
    }
    return result;
+}
+
+pair<float,size_t> PDB::pbcDistance2(size_t i, vector<size_t> group) const
+{
+   vector<pair<float,size_t>> pairs;
+   for(size_t i2 : group) pairs.emplace_back(pbcDistance2(i, i2), i2);
+   return *min_element(pairs.begin(), pairs.end());
 }
 
 //bool PDB::isMatched(size_t index, const PDBdef& def) const
