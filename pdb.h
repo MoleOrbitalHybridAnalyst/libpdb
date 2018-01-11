@@ -142,7 +142,7 @@ public:
 /// compute geometric center of a group of atoms according to PDBDef
    std::array<float,3> geoCenter(const PDBDef& def) const;
 /// shift all atoms by a vector keeping the box boundaries unchanged
-   void shiftBy(std::array<float,3>)
+   void shiftBy(std::array<float,3>);
 };
 
 inline
@@ -497,11 +497,11 @@ float PDB::getBox(int i) const
    return boxlens[i];
 }
 
-inline
-std::array<float,3> PDB::geoCenter(const PDBDef& def) const
-{
-   return geoCenter(selectAtoms(def));
-}
+//inline
+//std::array<float,3> PDB::geoCenter(const PDBDef& def) const
+//{
+//   return geoCenter(selectAtoms(def));
+//}
 
 }
 #endif

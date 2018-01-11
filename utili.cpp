@@ -1,4 +1,4 @@
-#include "util.h"
+#include "utili.h"
 
 namespace PDB_NS {
 
@@ -23,7 +23,7 @@ float& Vector::operator[] (unsigned i)
 Vector& Vector::operator+= (const Vector& v)
 {
    for(int i = 0; i < 3; ++i) {
-      d[i] += v[i];
+      d[i] += v.d[i];
    }
    return *this;
 }
@@ -31,23 +31,23 @@ Vector& Vector::operator+= (const Vector& v)
 Vector& Vector::operator-= (const Vector& v)
 {
    for(int i = 0; i < 3; ++i) {
-      d[i] -= v[i];
+      d[i] -= v.d[i];
    }
    return *this;
 }
 
-Vector& Vector::operator*= (const Vector& v)
+Vector& Vector::operator*= (double s)
 {
    for(int i = 0; i < 3; ++i) {
-      d[i] *= v[i];
+      d[i] *= s;
    }
    return *this;
 }
 
-Vector& Vector::operator/= (const Vector& v)
+Vector& Vector::operator/= (double s)
 {
    for(int i = 0; i < 3; ++i) {
-      d[i] /= v[i];
+      d[i] /= s;
    }
    return *this;
 }
