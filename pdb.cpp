@@ -816,9 +816,10 @@ pair<float,size_t> PDB::pbcDistance2(size_t i, vector<size_t> group) const
 Vector PDB::geoCenter(const std::vector<size_t>& indexes) const
 {
    double w = 1.0 / indexes.size();
-   Vector cen(0.0);
+   Vector ref = getCoordinates(indexes[0]);
+   Vector cen(ref);
    for(size_t i : indexes) {
-      cen += w * getCoordinates(i);
+      cen += w * pbcDistance(ref, getCoordinates(i));
    }
    return cen;
 }
@@ -826,12 +827,12 @@ Vector PDB::geoCenter(const std::vector<size_t>& indexes) const
 pair<Vector,Vector> PDB::getBoundary() const
 {
    Vector lb(numeric_limits<float>::max());
-   Vector hb(numeric_limits<float>::min());
+   Vector hb(numeric_limits<float>::lowest());
    for(size_t i = 0; i < nAtoms; ++i) {
       Vector x = getCoordinates(i);
       for(int dim = 0; dim < 3; ++dim) {
-         if(lb[i] > x[i]) lb[i] = x[i];
-         if(hb[i] < x[i]) hb[i] = x[i];
+         if(lb[dim] > x[dim]) lb[dim] = x[dim];
+         if(hb[dim] < x[dim]) hb[dim] = x[dim];
       }
    }
    return make_pair(lb, hb);
