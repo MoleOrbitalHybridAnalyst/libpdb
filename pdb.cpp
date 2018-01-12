@@ -1,5 +1,4 @@
 #include "pdb.h"
-#include "utili.h"
 #include <fstream>
 #include <sstream>
 #include <algorithm>
@@ -542,19 +541,20 @@ size_t PDB::reorderWater(
    return reorderWater(false, false, false, defo, defh, defhyd);
 }
 
-array<float,3> PDB::pbcDistance(const array<float,3>& x1,
-                           const array<float,3>& x2) const 
+Vector PDB::pbcDistance(const Vector& x1, const Vector& x2) const 
 {
-   array<float,3> diff;
+   Vector diff;
    for(int i=0; i < 3; ++i) diff[i] = pbcDiff(x1[i], x2[i], i);
    return diff;
 }
 
-array<float,3> PDB::pbcDistance(size_t i1, size_t i2) const 
+Vector PDB::pbcDistance(size_t i1, size_t i2) const 
 {
-   array<float,3> x1, x2;
-   x1[0] = xs[i1]; x1[1] = ys[i1]; x1[2] = zs[i1];
-   x2[0] = xs[i2]; x2[1] = ys[i2]; x2[2] = zs[i2];
+   //array<float,3> x1, x2;
+   Vector x1(xs[i1], ys[i1], zs[i1]);
+   Vector x2(xs[i2], ys[i2], zs[i2]);
+   //x1[0] = xs[i1]; x1[1] = ys[i1]; x1[2] = zs[i1];
+   //x2[0] = xs[i2]; x2[1] = ys[i2]; x2[2] = zs[i2];
    return pbcDistance(x1, x2);
 }
 
@@ -779,7 +779,7 @@ bool PDB::moveToWithIndexes(const size_t i1, const size_t i2,
    return true;
 }
 
-vector<size_t> PDB::selectAtoms(const PDBDef& def)
+vector<size_t> PDB::selectAtoms(const PDBDef& def) const
 {
    vector<size_t> indexes;
    for(size_t i = 0; i < nAtoms; ++i) {
@@ -813,14 +813,48 @@ pair<float,size_t> PDB::pbcDistance2(size_t i, vector<size_t> group) const
    return *min_element(pairs.begin(), pairs.end());
 }
 
-//array<float,3> PDB::geoCenter(const std::vector<size_t>& indexes) const
-//{
-//   double w = 1.0 / indexes.size();
-//   array<float,3> cen{ {0.0f,0.0f,0.0f} };
-//   for(size_t i : indexes) {
-//      cen[j] += w * 
-//   }
-//}
+Vector PDB::geoCenter(const std::vector<size_t>& indexes) const
+{
+   double w = 1.0 / indexes.size();
+   Vector cen(0.0);
+   for(size_t i : indexes) {
+      cen += w * getCoordinates(i);
+   }
+   return cen;
+}
+
+pair<Vector,Vector> PDB::getBoundary() const
+{
+   Vector lb(numeric_limits<float>::max());
+   Vector hb(numeric_limits<float>::min());
+   for(size_t i = 0; i < nAtoms; ++i) {
+      Vector x = getCoordinates(i);
+      for(int dim = 0; dim < 3; ++dim) {
+         if(lb[i] > x[i]) lb[i] = x[i];
+         if(hb[i] < x[i]) hb[i] = x[i];
+      }
+   }
+   return make_pair(lb, hb);
+}
+
+void PDB::shiftBy(const Vector& offset)
+{
+   auto b = getBoundary();
+   auto middle = (b.first + b.second) / 2.0;
+   for(size_t i = 0; i < nAtoms; ++i) {
+      Vector x = getCoordinates(i);
+      x = pbcDistance(middle, x + offset) + middle;
+      setX(i, x[0]); setY(i, x[1]); setZ(i, x[2]);
+   }
+}
+
+void PDB::shiftToMiddle(const PDBDef& def)
+{
+   auto cen = geoCenter(def);
+   auto b = getBoundary();
+   auto middle = (b.first + b.second) / 2.0;
+   shiftBy(middle - cen);
+}
 
 //bool PDB::isMatched(size_t index, const PDBdef& def) const
 //{

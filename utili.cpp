@@ -1,4 +1,5 @@
 #include "utili.h"
+#include <cmath>
 
 namespace PDB_NS {
 
@@ -16,6 +17,11 @@ Vector::Vector(float d0, float d1, float d2)
 }
 
 float& Vector::operator[] (unsigned i)
+{
+   return d[i];
+}
+
+const float& Vector::operator[] (unsigned i) const
 {
    return d[i];
 }

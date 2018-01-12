@@ -24,12 +24,14 @@ class Vector {
    std::array<float,3> d;
 
 public:
+   Vector() = default;
 /// create a vector with same value
    Vector(float d0);
 /// create a vector by giving three values
    Vector(float d0, float d1, float d2);
 /// braket access
    float & operator[] (unsigned i);
+   const float& operator[] (unsigned i) const;
 /// increment
    Vector& operator+= (const Vector& v);
 /// decrement

@@ -8,6 +8,7 @@
 #include <utility>
 #include "pdbdef.h"
 #include "general.h"
+#include "utili.h"
 
 namespace PDB_NS {
 
@@ -40,13 +41,11 @@ public:
    //std::vector<std::pair<size_t,std::string>> checkUndefined() const;
    std::vector<std::pair<size_t,PDBField>> checkUndefined() const;
 /// calculate pbc distance pbc(x2-x1)
-   std::array<float,3> pbcDistance(const std::array<float,3>& x1,
-         const std::array<float,3>& x2) const;
+   Vector pbcDistance(const Vector& x1, const Vector& x2) const;
 /// calculate pbc distance of two atoms
-   std::array<float,3> pbcDistance(size_t i1, size_t i2) const;
+   Vector pbcDistance(size_t i1, size_t i2) const;
    float pbcDistance2(size_t i1, size_t i2) const;
-   float pbcDistance2(const std::array<float,3>& x1, 
-         const std::array<float,3>& x2) const;
+   float pbcDistance2(const Vector& x1, const Vector& x2) const;
 /// calculate pbc distance of one atom and a group atoms
    std::pair<float,size_t> 
       pbcDistance2(size_t i, std::vector<size_t> group) const;
@@ -77,7 +76,8 @@ public:
    float getOcc(size_t index) const;
    float getTempf(size_t index) const;
    float getBox(int i) const;
-   std::array<float,3> getCoordinates(size_t index) const;
+   Vector getCoordinates(size_t index) const;
+   std::pair<Vector,Vector> getBoundary() const;
 /// set things
    bool setAtomname(size_t index, const std::string & s);
    bool setResid(size_t index, const int i);
@@ -136,13 +136,17 @@ public:
    bool assembleWater( bool guess,
          bool check, const PDBDef& defo, const PDBDef& defh);
 /// select atoms according to PDBDef; return vector of indexes
-   std::vector<size_t> selectAtoms(const PDBDef& def);
+   std::vector<size_t> selectAtoms(const PDBDef& def) const;
 /// compute geometric center of a group of atoms according to indexes
-   std::array<float,3> geoCenter(const std::vector<size_t>&) const;
+   Vector geoCenter(const std::vector<size_t>&) const;
 /// compute geometric center of a group of atoms according to PDBDef
-   std::array<float,3> geoCenter(const PDBDef& def) const;
+   Vector geoCenter(const PDBDef& def) const;
 /// shift all atoms by a vector keeping the box boundaries unchanged
-   void shiftBy(std::array<float,3>);
+   void shiftBy(const Vector& offset);
+/// shift all atoms by a vector so that the center of selected group atom
+/// will go to the middle of the box while keeping the original box
+/// boundaries unchanged
+   void shiftToMiddle(const PDBDef& def);
 };
 
 inline
@@ -470,14 +474,15 @@ inline bool PDB::isMatched(float x, const PDBDef& def, PDBField f) const {
 inline float PDB::pbcDistance2(size_t i1, size_t i2) const
 {
    auto x = pbcDistance(i1, i2);
-   return x[0]*x[0] + x[1]*x[1] + x[2]*x[2];
+   //return x[0]*x[0] + x[1]*x[1] + x[2]*x[2];
+   return x.modulo2();
 }
 
-inline float PDB::pbcDistance2(const std::array<float,3>& x1,
-      const std::array<float,3>& x2) const
+inline float PDB::pbcDistance2(const Vector& x1, const Vector& x2) const
 {
    auto x = pbcDistance(x1, x2);
-   return x[0]*x[0] + x[1]*x[1] + x[2]*x[2];
+   //return x[0]*x[0] + x[1]*x[1] + x[2]*x[2];
+   return x.modulo2();
 }
 
 inline size_t PDB::getNatoms() const
@@ -486,9 +491,9 @@ inline size_t PDB::getNatoms() const
 }
 
 inline 
-std::array<float,3> PDB::getCoordinates(size_t index) const
+Vector PDB::getCoordinates(size_t index) const
 {
-   return std::array<float,3>({xs[index], ys[index], zs[index]});
+   return Vector(xs[index], ys[index], zs[index]);
 }
 
 inline
@@ -497,11 +502,11 @@ float PDB::getBox(int i) const
    return boxlens[i];
 }
 
-//inline
-//std::array<float,3> PDB::geoCenter(const PDBDef& def) const
-//{
-//   return geoCenter(selectAtoms(def));
-//}
+inline
+Vector PDB::geoCenter(const PDBDef& def) const
+{
+   return geoCenter(selectAtoms(def));
+}
 
 }
 #endif
