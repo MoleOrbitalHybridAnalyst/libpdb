@@ -147,6 +147,12 @@ public:
 /// will go to the middle of the box while keeping the original box
 /// boundaries unchanged
    void shiftToMiddle(const PDBDef& def);
+/// write groups to a gmx index file
+   void writeIndexFile(const std::string& fname, 
+                 const std::vector<Group>& grps) const;
+/// write all atoms to a gmx index file
+   void writeIndexFile(const std::string& fname, 
+                     const std::string& grpname) const;
 };
 
 inline

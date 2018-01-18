@@ -857,6 +857,31 @@ void PDB::shiftToMiddle(const PDBDef& def)
    shiftBy(middle - cen);
 }
 
+void PDB::writeIndexFile(const string& fname, const vector<Group>& grps) const
+{
+   ofstream fs_ndx(fname);
+   for(auto grp : grps) {
+      fs_ndx << "[ " << grp.first << " ]\n";
+      size_t count = 1;
+      for(size_t i : grp.second)  {
+         fs_ndx << i + 1;
+         if(count % 20 == 0) fs_ndx << '\n';
+         else                fs_ndx << ' ';
+         count ++;
+      }
+      fs_ndx << '\n';
+   }
+}
+
+void PDB::writeIndexFile(const string& fname, const string& grpname) const
+{
+   vector<Group> grps;
+   vector<size_t> indexes;
+   for(size_t i = 0; i < nAtoms; ++i) indexes.push_back(i);
+   grps.emplace_back(grpname,indexes);
+   writeIndexFile(fname, grps);
+}
+
 //bool PDB::isMatched(size_t index, const PDBdef& def) const
 //{
 //   if(index > nAtoms) 
