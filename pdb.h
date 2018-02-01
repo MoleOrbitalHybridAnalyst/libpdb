@@ -153,6 +153,8 @@ public:
 /// write all atoms to a gmx index file
    void writeIndexFile(const std::string& fname, 
                      const std::string& grpname) const;
+/// wrap a pdb by given lx hx ly hy lz hz
+   void pbcWrap(float lx, float hx, float ly, float hy, float lz, float hz);
 };
 
 inline

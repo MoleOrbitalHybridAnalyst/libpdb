@@ -861,6 +861,7 @@ void PDB::writeIndexFile(const string& fname, const vector<Group>& grps) const
 {
    ofstream fs_ndx(fname);
    for(auto grp : grps) {
+      if(grp.second.empty()) continue;
       fs_ndx << "[ " << grp.first << " ]\n";
       size_t count = 1;
       for(size_t i : grp.second)  {
@@ -880,6 +881,15 @@ void PDB::writeIndexFile(const string& fname, const string& grpname) const
    for(size_t i = 0; i < nAtoms; ++i) indexes.push_back(i);
    grps.emplace_back(grpname,indexes);
    writeIndexFile(fname, grps);
+}
+
+void PDB::pbcWrap(float lx, float hx, float ly, float hy, float lz, float hz)
+{
+   Vector cen = (Vector(lx, ly, lz) + Vector(hx, hy, hz)) / 2.0;
+   for(size_t i = 0; i < nAtoms; i++) {
+      Vector r = pbcDistance(getCoordinates(i), cen) + cen;
+      xs[i] = r[0]; ys[i] = r[1]; zs[i] = r[2];
+   }
 }
 
 //bool PDB::isMatched(size_t index, const PDBdef& def) const
