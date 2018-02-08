@@ -560,6 +560,7 @@ Vector PDB::pbcDistance(size_t i1, size_t i2) const
 
 bool PDB::isMatched(size_t index, const PDBDef& def) const
 {
+   if(def.empty()) return false;
    if(!isMatched(atomnames[index], def, PDBField::atomname)) return false;
    if(!isMatched(resnames[index], def, PDBField::resname)) return false;
    if(!isMatched(segnames[index], def, PDBField::segname)) return false;
@@ -815,6 +816,7 @@ pair<float,size_t> PDB::pbcDistance2(size_t i, vector<size_t> group) const
 
 Vector PDB::geoCenter(const std::vector<size_t>& indexes) const
 {
+   if(indexes.empty()) throw invalid_argument("received empty indexes");
    double w = 1.0 / indexes.size();
    Vector ref = getCoordinates(indexes[0]);
    Vector cen(ref);

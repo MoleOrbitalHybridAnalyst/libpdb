@@ -36,6 +36,7 @@ public:
    const std::multimap<PDBField,float>& getDefflt() const;
    const std::multimap<PDBField,int>& getDefint() const;
    const std::multimap<PDBField,char>& getDefchr() const;
+   bool empty() const;
 };
 
 inline
@@ -60,6 +61,13 @@ inline
 const std::multimap<PDBField,char>& PDBDef::getDefchr() const
 {   
    return _defchr;
+}
+
+inline
+bool PDBDef::empty() const
+{
+   return 
+      _defstr.empty() && _defflt.empty() && _defint.empty() && _defchr.empty();
 }
 
 }
