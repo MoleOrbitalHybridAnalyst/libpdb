@@ -31,6 +31,8 @@ PDB::PDB(const string& fname)
 {
    boxlens[0]=boxlens[1]=boxlens[2]=0.0;
    ifstream fs(fname);
+   if(!fs.is_open()) 
+      throw runtime_error("cannot open "+fname);
    string line;
    size_t line_count = 0;
    //bool incomplete = false;

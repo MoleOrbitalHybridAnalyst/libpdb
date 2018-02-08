@@ -8,7 +8,9 @@ namespace PDB_NS {
 
 PDBDef::PDBDef(const std::string& deffn)
 {
-   fstream fs(deffn);
+   ifstream fs(deffn);
+   if(!fs.is_open()) 
+      throw runtime_error("cannot open "+deffn);
    string line;
    while(getline(fs,line)) {
       stringstream ss(line);
