@@ -568,6 +568,7 @@ bool PDB::isMatched(size_t index, const PDBDef& def) const
    if(!isMatched(segnames[index], def, PDBField::segname)) return false;
    if(!isMatched(atomtypes[index], def, PDBField::atomtype)) return false;
    if(!isMatched(chainids[index], def, PDBField::chainid)) return false;
+   if(!isMatched(resids[index], def, PDBField::resid)) return false;
    return true;
 }
 
