@@ -906,7 +906,8 @@ void PDB::writeXYZ(const std::string& fname, const Group& grp) const
    for(size_t i : grp.second) {
       if(!defineds[i][static_cast<size_t>(PDBField::atomtype)])
          throw runtime_error("atom type undefined for atom "+to_string(i+1));
-      fs_xyz << atomtypes[i] << setw(16) << xs[i] << ys[i] << zs[i] << '\n';
+      fs_xyz << atomtypes[i] << setw(16) << xs[i] <<
+         setw(16) << ys[i] << setw(16) << zs[i] << '\n';
    }
    fs_xyz.close();
 }
