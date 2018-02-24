@@ -877,6 +877,7 @@ void PDB::writeIndexFile(const string& fname, const vector<Group>& grps) const
       }
       fs_ndx << '\n';
    }
+   fs_ndx.close();
 }
 
 void PDB::writeIndexFile(const string& fname, const string& grpname) const
@@ -895,6 +896,26 @@ void PDB::pbcWrap(float lx, float hx, float ly, float hy, float lz, float hz)
       Vector r = pbcDistance(getCoordinates(i), cen) + cen;
       xs[i] = r[0]; ys[i] = r[1]; zs[i] = r[2];
    }
+}
+
+void PDB::writeXYZ(const std::string& fname, const Group& grp) const
+{
+   ofstream fs_xyz(fname);
+   fs_xyz << grp.second.size() << '\n';
+   fs_xyz << grp.first << '\n';
+   for(size_t i : grp.second) {
+      if(!defineds[i][static_cast<size_t>(PDBField::atomtype)])
+         throw runtime_error("atom type undefined for atom "+to_string(i+1));
+      fs_xyz << atomtypes[i] << setw(16) << xs[i] << ys[i] << zs[i] << '\n';
+   }
+   fs_xyz.close();
+}
+
+void PDB::writeXYZ(const std::string& fname, const std::string& grpname) const
+{
+   vector<size_t> indexes;
+   for(size_t i = 0; i < nAtoms; ++i) indexes.push_back(i);
+   writeXYZ(fname, make_pair(grpname, indexes));
 }
 
 //bool PDB::isMatched(size_t index, const PDBdef& def) const

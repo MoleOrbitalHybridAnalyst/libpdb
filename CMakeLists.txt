@@ -13,4 +13,4 @@ set(SOURCE_FILES
         utili.cpp)
 
 #add_executable(libpdb ${SOURCE_FILES})
-add_library(libpdb SHARED ${SOURCE_FILES})
+add_library(pdb SHARED ${SOURCE_FILES})

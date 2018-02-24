@@ -155,6 +155,10 @@ public:
                      const std::string& grpname) const;
 /// wrap a pdb by given lx hx ly hy lz hz
    void pbcWrap(float lx, float hx, float ly, float hy, float lz, float hz);
+/// write groups to a xyz file
+   void writeXYZ(const std::string& fname, const Group& grp) const;
+/// write all atoms to a xyz file
+   void writeXYZ(const std::string& fname, const std::string& grpname) const;
 };
 
 inline

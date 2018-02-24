@@ -5,6 +5,7 @@
 #include <vector>
 #include <limits>
 #include <exception>
+#include <iomanip>
 
 namespace PDB_NS {
 /// line size for complete atomtype
