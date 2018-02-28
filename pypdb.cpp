@@ -48,7 +48,8 @@ BOOST_PYTHON_MODULE(pypdb)
       .def("push_back", pushBack0)
       .def("push_back", pushBack1)
       .def("push_back", pushBack2)
-      .def("push_back", pushBack3);
+      .def("push_back", pushBack3)
+      .def("print", &PDBDef::print);
 
    size_t (PDB::*reorderWater0) (bool, bool, bool, 
          const PDBDef&, const PDBDef&, const PDBDef&) = &PDB::reorderWater;
