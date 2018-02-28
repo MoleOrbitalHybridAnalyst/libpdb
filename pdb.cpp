@@ -455,7 +455,8 @@ size_t PDB::reorderWater(bool guess, bool check, bool reorder,
    for(auto iter = oindexesLv1.begin(); iter != oindexesLv1.end(); ++iter) {
       if(isMatched(*iter, defhyd)) {
          if(count_hyd > 1) {
-            cerr << "libpdb error: more than one hydronium\n"; abort();
+            //cerr << "libpdb error: more than one hydronium\n"; abort();
+            throw runtime_error("more than one hydonium found");
          }
          hydindex = *iter; count_hyd++;
       }
@@ -675,9 +676,11 @@ bool PDB::assembleWater(bool guess, bool check,
       if(isMatched(index, defo)) oindexesLv1.push_back(index);
    }
    if(hindexesLv1.size() != 2*oindexesLv1.size() + 1) {
-      cerr << "libpdb error: number of hydrogens and "<<
-                     "number of oxygens do not match\n";
-      abort();
+      //cerr << "libpdb error: number of hydrogens and "<<
+      //               "number of oxygens do not match\n";
+      //abort();
+      throw runtime_error("number of hydrogens and "
+            + "number of oxygens do not match");
    }
    for(auto ito = oindexesLv1.rbegin(); ito != oindexesLv1.rend(); ++ito) {
       moveTo(*ito, pos); pos--;
