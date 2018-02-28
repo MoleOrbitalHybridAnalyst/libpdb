@@ -680,7 +680,7 @@ bool PDB::assembleWater(bool guess, bool check,
       //               "number of oxygens do not match\n";
       //abort();
       throw runtime_error("number of hydrogens and "
-            + "number of oxygens do not match");
+             "number of oxygens do not match");
    }
    for(auto ito = oindexesLv1.rbegin(); ito != oindexesLv1.rend(); ++ito) {
       moveTo(*ito, pos); pos--;

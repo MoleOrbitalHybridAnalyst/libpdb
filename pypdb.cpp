@@ -9,7 +9,7 @@ using namespace boost::python;
 
 BOOST_PYTHON_MODULE(pypdb)
 {
-   enum_<PDBField>("PDBField")
+   enum_<PDBField>("pdb_field")
       .value("atomname", PDBField::atomname)
       .value("resname", PDBField::resname)
       .value("segname", PDBField::segname)
@@ -27,7 +27,7 @@ BOOST_PYTHON_MODULE(pypdb)
    void (PDBDef::*pushBack1) (PDBField, const float) = &PDBDef::pushBack;
    void (PDBDef::*pushBack2) (PDBField, const int) = &PDBDef::pushBack;
    void (PDBDef::*pushBack3) (PDBField, const char) = &PDBDef::pushBack;
-   class_<PDBDef>("PDBDef")
+   class_<PDBDef>("pdb_def")
       .def(init<const std::string&>())
       .def("push_back", pushBack0)
       .def("push_back", pushBack1)
@@ -36,7 +36,7 @@ BOOST_PYTHON_MODULE(pypdb)
 
    size_t (PDB::*reorderWater1)
       (const PDBDef&, const PDBDef&, const PDBDef&) = &PDB::reorderWater;
-   class_<PDB>("PDB")
+   class_<PDB>("pdb_obj")
       .def(init<const std::string&>())
       .def("write2file", &PDB::write2file)
       //.def("getAtomname", &PDB::getAtomname);
