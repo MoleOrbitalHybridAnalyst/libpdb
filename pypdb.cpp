@@ -7,8 +7,24 @@ using namespace PDB_NS;
 #include <boost/python.hpp>
 using namespace boost::python;
 
+template<class T>
+struct VecToList
+{
+   static PyObject* convert(const std::vector<T>& vec)
+   {
+       list* l = new boost::python::list();
+       for(size_t i = 0; i < vec.size(); i++) {
+           l->append(vec[i]);
+       }
+
+       return l->ptr();
+   }
+};
+
 BOOST_PYTHON_MODULE(pypdb)
 {
+   to_python_converter<std::vector<size_t>, VecToList<size_t>>();
+
    enum_<PDBField>("pdb_field")
       .value("atomname", PDBField::atomname)
       .value("resname", PDBField::resname)
@@ -34,6 +50,8 @@ BOOST_PYTHON_MODULE(pypdb)
       .def("push_back", pushBack2)
       .def("push_back", pushBack3);
 
+   size_t (PDB::*reorderWater0) (bool, bool, bool, 
+         const PDBDef&, const PDBDef&, const PDBDef&) = &PDB::reorderWater;
    size_t (PDB::*reorderWater1)
       (const PDBDef&, const PDBDef&, const PDBDef&) = &PDB::reorderWater;
    class_<PDB>("pdb_obj")
@@ -43,6 +61,8 @@ BOOST_PYTHON_MODULE(pypdb)
       .add_property("x", &PDB::getX, &PDB::setX)
       .def_readonly("natom", &PDB::getNatoms)
       .def("set_atomname", &PDB::setAtomname)
-      .def("reorder_water", reorderWater1);
+      .def("reorder_water", reorderWater0)
+      .def("reorder_water", reorderWater1)
+      .def("select_atoms", &PDB::selectAtoms);
 }
 

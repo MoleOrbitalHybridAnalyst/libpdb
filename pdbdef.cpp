@@ -1,6 +1,7 @@
 #include "pdbdef.h"
 #include <fstream>
 #include <sstream>
+#include <iostream>
 
 using namespace std;
 
@@ -57,6 +58,46 @@ void PDBDef::pushBack(PDBField f, const int n)
 void PDBDef::pushBack(PDBField f, const char c)
 {
    if(isChar(f)) _defchr.emplace(f,c);
+}
+
+void PDBDef::print() const
+{
+   {
+      vector<PDBField> strfs;
+      strfs.push_back(PDBField::atomname);
+      strfs.push_back(PDBField::resname);
+      strfs.push_back(PDBField::segname);
+      strfs.push_back(PDBField::atomtype);
+      for(auto f : strfs)
+      {
+         cout << transField(f) << endl;
+         auto range = _defstr.equal_range(f);
+         for(auto it = range.first; it != range.second; ++it) {
+            cout << it->second << ' ';
+         }
+         cout << endl;
+      }
+   }
+
+   {
+      auto f = PDBField::chainid;
+      cout << transField(f) << endl;
+      auto range = _defchr.equal_range(f);
+      for(auto it = range.first; it != range.second; ++it) {
+         cout << it->second << ' ';
+      }
+      cout << endl;
+   }
+
+   {
+      auto f = PDBField::resid;
+      cout << transField(f) << endl;
+      auto range = _defint.equal_range(f);
+      for(auto it = range.first; it != range.second; ++it) {
+         cout << it->second << ' ';
+      }
+      cout << endl;
+   }
 }
 
 }

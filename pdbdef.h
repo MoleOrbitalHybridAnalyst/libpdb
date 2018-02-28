@@ -37,6 +37,7 @@ public:
    const std::multimap<PDBField,int>& getDefint() const;
    const std::multimap<PDBField,char>& getDefchr() const;
    bool empty() const;
+   void print() const;
 };
 
 inline
