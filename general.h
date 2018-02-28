@@ -23,21 +23,22 @@ typedef std::pair<std::string,std::vector<size_t>> Group;
 inline
 bool isString(PDBField f) {
    return (f==PDBField::atomname or f==PDBField::resname or f==PDBField::segname
-         or f==PDBField::atomtype);
+         or f==PDBField::atomtype or f==PDBField::chainid);
 }
 
 inline
 bool isString(const std::string& s) {
-   return (s=="atomname" or s=="resname" or s=="segname" or s=="atomtype");
+   return (s=="atomname" or s=="resname" or s=="segname" or s=="atomtype"
+         or s=="chainid");
 }
 
-inline bool isChar(PDBField f) {
-   return f==PDBField::chainid;
-}
+//inline bool isChar(PDBField f) {
+//   return f==PDBField::chainid;
+//}
 
-inline bool isChar(const std::string& s) {
-   return s=="chainid";
-}
+//inline bool isChar(const std::string& s) {
+//   return s=="chainid";
+//}
 
 inline bool isInt(PDBField f) {
    return f==PDBField::resid;

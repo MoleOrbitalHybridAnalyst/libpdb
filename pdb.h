@@ -6,6 +6,7 @@
 #include <cmath>
 #include <unordered_map>
 #include <utility>
+#include <exception>
 #include "pdbdef.h"
 #include "general.h"
 #include "utili.h"
@@ -17,7 +18,8 @@ class PDB {
 //ATOM serial atomname resname chainid resid x y z occ tempf segname atomtytpe
    std::vector<std::string> atomnames, resnames, segnames, atomtypes;
    std::vector<size_t> linenumbers;
-   std::vector<char> chainids;
+   //std::vector<char> chainids;
+   std::vector<std::string> chainids;
    std::vector<int> resids;
    std::vector<float> xs, ys ,zs, occs, tempfs;
    std::vector<std::pair<size_t,std::string>> nonatomlines;
@@ -57,7 +59,8 @@ public:
    const std::vector<std::string>& getAtomtypes() const;
    const std::vector<int>& getResids() const;
    const std::vector<size_t>& getLinenumbers() const;
-   const std::vector<char>& getChainids() const;
+   //const std::vector<char>& getChainids() const;
+   const std::vector<std::string>& getChainids() const;
    const std::vector<float>& getXs() const;
    const std::vector<float>& getYs() const;
    const std::vector<float>& getZs() const;
@@ -69,7 +72,8 @@ public:
    const std::string& getSegname(size_t index) const;
    const std::string& getAtomtype(size_t index) const;
    size_t getLinenumber(size_t index) const;
-   char getChainid(size_t index) const;
+   //char getChainid(size_t index) const;
+   const std::string& getChainid(size_t index) const;
    float getX(size_t index) const;
    float getY(size_t index) const;
    float getZ(size_t index) const;
@@ -84,14 +88,16 @@ public:
    bool setResname(size_t index, const std::string & s);
    bool setSegname(size_t index, const std::string & s);
    bool setAtomtype(size_t index, const std::string & s);
-   bool setChainid(size_t index, char c);
+   //bool setChainid(size_t index, char c);
+   bool setChainid(size_t index, const std::string & s);
    bool setX(size_t index, float f);
    bool setY(size_t index, float f);
    bool setZ(size_t index, float f);
    bool setOcc(size_t index, float f);
    bool setTempf(size_t index, float f);
    bool setSegname(const PDBDef& def, const std::string & s);
-   bool setChainid(const PDBDef& def, char c);
+   //bool setChainid(const PDBDef& def, char c);
+   bool setChainid(const PDBDef& def, const std::string & c);
 /// guess one chainid according to segname; return false if segname undefined
    bool guessOneChainid(const size_t index);
 /// guess all the chainids; return false if anyone fails
@@ -115,7 +121,7 @@ public:
 /// chainid resid
    bool isMatched(size_t index, const PDBDef& def) const;
    bool isMatched(const std::string& s, const PDBDef& def, PDBField f) const;
-   bool isMatched(char c, const PDBDef& def, PDBField f) const;
+   //bool isMatched(char c, const PDBDef& def, PDBField f) const;
    bool isMatched(int n, const PDBDef& def, PDBField f) const;
    bool isMatched(float x, const PDBDef& def, PDBField f) const;
 /// check whehter the given string field could match
@@ -198,7 +204,7 @@ const std::vector<size_t>& PDB::getLinenumbers() const
 }
 
 inline
-const std::vector<char>& PDB::getChainids() const
+const std::vector<std::string>& PDB::getChainids() const
 {
    return chainids;
 }
@@ -270,7 +276,7 @@ int PDB::getResid(size_t index) const
 }
 
 inline
-char PDB::getChainid(size_t index) const
+const std::string& PDB::getChainid(size_t index) const
 {
    return chainids[index];
 }
@@ -366,8 +372,10 @@ bool PDB::setAtomtype(size_t index, const std::string& s)
 }
 
 inline
-bool PDB::setChainid(size_t index, char c)
+bool PDB::setChainid(size_t index, const std::string& c)
 {
+   if(c.length() != 1)
+      throw std::invalid_argument("a string of length 1 is expected");
    if(index >= nAtoms)
       return false;
    else {
@@ -456,14 +464,14 @@ inline bool PDB::isMatched(const std::string& s, const PDBDef& def, PDBField f) 
    return false;
 }
 
-inline bool PDB::isMatched(char c, const PDBDef& def, PDBField f) const {
-   auto range = def.getDefchr().equal_range(f);
-   if(range.first == range.second) return true;
-   for(auto iter = range.first; iter != range.second; ++iter) {
-      if(c == iter->second) return true;
-   }
-   return false;
-}
+//inline bool PDB::isMatched(char c, const PDBDef& def, PDBField f) const {
+//   auto range = def.getDefchr().equal_range(f);
+//   if(range.first == range.second) return true;
+//   for(auto iter = range.first; iter != range.second; ++iter) {
+//      if(c == iter->second) return true;
+//   }
+//   return false;
+//}
 
 inline bool PDB::isMatched(int n, const PDBDef& def, PDBField f) const {
    auto range = def.getDefint().equal_range(f);

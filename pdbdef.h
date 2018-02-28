@@ -19,19 +19,15 @@ class PDBDef {
    std::multimap<PDBField,std::string> _defstr;
    std::multimap<PDBField,float> _defflt;
    std::multimap<PDBField,int> _defint;
-   std::multimap<PDBField,char> _defchr;
+   //std::multimap<PDBField,char> _defchr;
 
 public:
    PDBDef() = default;
    PDBDef(const std::string& deffn);
-#ifndef __PYTHON__
    void pushBack(PDBField,const std::string&);
-#else
-   void pushBack(PDBField, std::string);
-#endif
    void pushBack(PDBField,const float);
    void pushBack(PDBField,const int);
-   void pushBack(PDBField,const char);
+   //void pushBack(PDBField,const char);
    //const std::unordered_multimap<PDBField,std::string>& getDefstr() const;
    //const std::unordered_multimap<PDBField,float>& getDefflt() const;
    //const std::unordered_multimap<PDBField,int>& getDefint() const;
@@ -39,7 +35,7 @@ public:
    const std::multimap<PDBField,std::string>& getDefstr() const;
    const std::multimap<PDBField,float>& getDefflt() const;
    const std::multimap<PDBField,int>& getDefint() const;
-   const std::multimap<PDBField,char>& getDefchr() const;
+   //const std::multimap<PDBField,char>& getDefchr() const;
    bool empty() const;
    void print() const;
 };
@@ -62,17 +58,18 @@ const std::multimap<PDBField,int>& PDBDef::getDefint() const
    return _defint;
 }
 
-inline
-const std::multimap<PDBField,char>& PDBDef::getDefchr() const
-{   
-   return _defchr;
-}
+//inline
+//const std::multimap<PDBField,char>& PDBDef::getDefchr() const
+//{   
+//   return _defchr;
+//}
 
 inline
 bool PDBDef::empty() const
 {
    return 
-      _defstr.empty() && _defflt.empty() && _defint.empty() && _defchr.empty();
+      _defstr.empty() && _defflt.empty() && _defint.empty();
+      //_defstr.empty() && _defflt.empty() && _defint.empty() && _defchr.empty();
 }
 
 }

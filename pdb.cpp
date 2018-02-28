@@ -2,7 +2,6 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
-#include <exception>
 #include <cstdio>
 #include <iostream>
 #include <cstdlib>
@@ -62,7 +61,7 @@ PDB::PDB(const string& fname)
          resnames.push_back(tmpstr);
          tmpstr = " ";
          defined.push_back(readField(line.substr(21,1),tmpstr));
-         chainids.push_back(tmpstr[0]);
+         chainids.push_back(tmpstr);
 
          int resid=-1;
          //if(!readField(line.substr(22,4),resid)) {
@@ -175,7 +174,7 @@ void PDB::write2file(const string& fname) const
       }
       centerAlignedPrint4(fp, atomnames[index]);
       fprintf(fp," %-4s%c%4d    %8.3f%8.3f%8.3f%6.2f%6.2f",
-            resnames[index].c_str(), chainids[index],
+            resnames[index].c_str(), chainids[index][0],
             resids[index], xs[index], ys[index], zs[index],
             occs[index], tempfs[index]);
       fprintf(fp,"      %-4s%2s\n", 
@@ -255,7 +254,8 @@ bool PDB::guessOneSegname(const size_t index)
       return true;
    }
    if(defineds[index][static_cast<size_t>(PDBField::chainid)]) {
-      segnames[index] = string(1,chainids[index]);
+      //segnames[index] = string(1,chainids[index]);
+      segnames[index] = chainids[index];
       defineds[index][static_cast<size_t>(PDBField::segname)] = true;
       return true;
    } 
@@ -412,20 +412,20 @@ size_t PDB::reorderWater(bool guess, bool check, bool reorder,
                   " of atom " << index + 1<<'\n'; abort();
             }
          }
-         auto defchr = defh.getDefchr();
-         for(auto iter = defchr.begin(); iter != defchr.end(); ++iter) {
-            if(!defineds[index][static_cast<size_t>(iter->first)]) {
-               cerr<< "libpdb error: undefined "<< transField(iter->first)<<
-                  " of atom " << index + 1<<'\n'; abort();
-            }
-         }
-         defchr = defo.getDefchr();
-         for(auto iter = defchr.begin(); iter != defchr.end(); ++iter) {
-            if(!defineds[index][static_cast<size_t>(iter->first)]) {
-               cerr<< "libpdb error: undefined "<< transField(iter->first)<<
-                  " of atom " << index + 1<<'\n'; abort();
-            }
-         }
+         //auto defchr = defh.getDefchr();
+         //for(auto iter = defchr.begin(); iter != defchr.end(); ++iter) {
+         //   if(!defineds[index][static_cast<size_t>(iter->first)]) {
+         //      cerr<< "libpdb error: undefined "<< transField(iter->first)<<
+         //         " of atom " << index + 1<<'\n'; abort();
+         //   }
+         //}
+         //defchr = defo.getDefchr();
+         //for(auto iter = defchr.begin(); iter != defchr.end(); ++iter) {
+         //   if(!defineds[index][static_cast<size_t>(iter->first)]) {
+         //      cerr<< "libpdb error: undefined "<< transField(iter->first)<<
+         //         " of atom " << index + 1<<'\n'; abort();
+         //   }
+         //}
       }
    }
    if(reorder) { 
@@ -642,20 +642,20 @@ bool PDB::assembleWater(bool guess, bool check,
                   " of atom " << index + 1<<'\n'; abort();
             }
          }
-         auto defchr = defh.getDefchr();
-         for(auto iter = defchr.begin(); iter != defchr.end(); ++iter) {
-            if(!defineds[index][static_cast<size_t>(iter->first)]) {
-               cerr<< "libpdb error: undefined "<< transField(iter->first)<<
-                  " of atom " << index + 1<<'\n'; abort();
-            }
-         }
-         defchr = defo.getDefchr();
-         for(auto iter = defchr.begin(); iter != defchr.end(); ++iter) {
-            if(!defineds[index][static_cast<size_t>(iter->first)]) {
-               cerr<< "libpdb error: undefined "<< transField(iter->first)<<
-                  " of atom " << index + 1<<'\n'; abort();
-            }
-         }
+         //auto defchr = defh.getDefchr();
+         //for(auto iter = defchr.begin(); iter != defchr.end(); ++iter) {
+         //   if(!defineds[index][static_cast<size_t>(iter->first)]) {
+         //      cerr<< "libpdb error: undefined "<< transField(iter->first)<<
+         //         " of atom " << index + 1<<'\n'; abort();
+         //   }
+         //}
+         //defchr = defo.getDefchr();
+         //for(auto iter = defchr.begin(); iter != defchr.end(); ++iter) {
+         //   if(!defineds[index][static_cast<size_t>(iter->first)]) {
+         //      cerr<< "libpdb error: undefined "<< transField(iter->first)<<
+         //         " of atom " << index + 1<<'\n'; abort();
+         //   }
+         //}
       }
    }
    // real assembling stuff
@@ -804,7 +804,7 @@ bool PDB::setSegname(const PDBDef& def, const std::string &s)
    return result;
 }
 
-bool PDB::setChainid(const PDBDef& def, char c)
+bool PDB::setChainid(const PDBDef& def, const std::string& c)
 {
    vector<size_t> indexes = selectAtoms(def); bool result;
    for(auto iter = indexes.begin(); iter != indexes.end(); ++iter) {

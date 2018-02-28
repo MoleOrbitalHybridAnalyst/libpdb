@@ -40,16 +40,16 @@ BOOST_PYTHON_MODULE(pypdb)
       .value("tempf", PDBField::tempf)
       .value("unknown", PDBField::unknown);
 
-   void (PDBDef::*pushBack0) (PDBField, std::string) = &PDBDef::pushBack;
+   void (PDBDef::*pushBack0) (PDBField, const std::string&) = &PDBDef::pushBack;
    void (PDBDef::*pushBack1) (PDBField, const float) = &PDBDef::pushBack;
    void (PDBDef::*pushBack2) (PDBField, const int) = &PDBDef::pushBack;
-   void (PDBDef::*pushBack3) (PDBField, const char) = &PDBDef::pushBack;
+   //void (PDBDef::*pushBack3) (PDBField, const char) = &PDBDef::pushBack;
    class_<PDBDef>("pdb_def")
       .def(init<const std::string&>())
       .def("push_back", pushBack0)
       .def("push_back", pushBack1)
       .def("push_back", pushBack2)
-      .def("push_back", pushBack3)
+      //.def("push_back", pushBack3)
       .def("show", &PDBDef::print);
 
    size_t (PDB::*reorderWater0) (bool, bool, bool, 

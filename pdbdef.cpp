@@ -22,10 +22,10 @@ PDBDef::PDBDef(const std::string& deffn)
          while(ss >> substring) {
             _defstr.emplace(field, substring);
          }
-      } else if(isChar(field)) {
-         while(ss >> substring) {
-            _defchr.emplace(field, substring[0]);
-         }
+      //} else if(isChar(field)) {
+      //   while(ss >> substring) {
+      //      _defchr.emplace(field, substring[0]);
+      //   }
       } else if(isFloat(field)) {
          float value;
          while(ss >> value) {
@@ -40,20 +40,11 @@ PDBDef::PDBDef(const std::string& deffn)
    }
 }
 
-#ifndef __PYTHON__
 void PDBDef::pushBack(PDBField f, const std::string& s)
 {
    if(isString(f)) _defstr.emplace(f,s);
    else throw invalid_argument("adding a string to non-string field");
 }
-#else
-// pass by value to make python happy
-void PDBDef::pushBack(PDBField f, std::string s)
-{
-   if(isString(f)) _defstr.emplace(f,s);
-   else throw invalid_argument("adding a string to non-string field");
-}
-#endif
 
 void PDBDef::pushBack(PDBField f, const float x)
 {
@@ -67,11 +58,11 @@ void PDBDef::pushBack(PDBField f, const int n)
    else throw invalid_argument("adding an int to non-int field");
 }
 
-void PDBDef::pushBack(PDBField f, const char c)
-{
-   if(isChar(f)) _defchr.emplace(f,c);
-   else throw invalid_argument("adding a char to non-char field");
-}
+//void PDBDef::pushBack(PDBField f, const char c)
+//{
+//   if(isChar(f)) _defchr.emplace(f,c);
+//   else throw invalid_argument("adding a char to non-char field");
+//}
 
 void PDBDef::print() const
 {
@@ -81,6 +72,7 @@ void PDBDef::print() const
       strfs.push_back(PDBField::resname);
       strfs.push_back(PDBField::segname);
       strfs.push_back(PDBField::atomtype);
+      strfs.push_back(PDBField::chainid);
       for(auto f : strfs)
       {
          cout << transField(f) << ' ';
@@ -92,15 +84,15 @@ void PDBDef::print() const
       }
    }
 
-   {
-      auto f = PDBField::chainid;
-      cout << transField(f) << ' ';
-      auto range = _defchr.equal_range(f);
-      for(auto it = range.first; it != range.second; ++it) {
-         cout << it->second << ' ';
-      }
-      cout << endl;
-   }
+   //{
+   //   auto f = PDBField::chainid;
+   //   cout << transField(f) << ' ';
+   //   auto range = _defchr.equal_range(f);
+   //   for(auto it = range.first; it != range.second; ++it) {
+   //      cout << it->second << ' ';
+   //   }
+   //   cout << endl;
+   //}
 
    {
       auto f = PDBField::resid;
