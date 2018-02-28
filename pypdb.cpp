@@ -4,22 +4,8 @@
 
 using namespace PDB_NS;
 
-#include <boost/python.hpp>
+#include "pypdb.h"
 using namespace boost::python;
-
-template<class T>
-struct VecToList
-{
-   static PyObject* convert(const std::vector<T>& vec)
-   {
-       list* l = new boost::python::list();
-       for(size_t i = 0; i < vec.size(); i++) {
-           l->append(vec[i]);
-       }
-
-       return l->ptr();
-   }
-};
 
 BOOST_PYTHON_MODULE(pypdb)
 {
@@ -50,7 +36,10 @@ BOOST_PYTHON_MODULE(pypdb)
       .def("push_back", pushBack1)
       .def("push_back", pushBack2)
       //.def("push_back", pushBack3)
-      .def("show", &PDBDef::print);
+      .def("show", &PDBDef::print)
+      .def("__copy__", &generic__copy__<PDBDef>)
+      .def("__deepcopy__", &generic__deepcopy__<PDBDef>)
+   ;
 
    size_t (PDB::*reorderWater0) (bool, bool, bool, 
          const PDBDef&, const PDBDef&, const PDBDef&) = &PDB::reorderWater;
