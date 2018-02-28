@@ -24,7 +24,11 @@ class PDBDef {
 public:
    PDBDef() = default;
    PDBDef(const std::string& deffn);
+#ifndef __PYTHON__
    void pushBack(PDBField,const std::string&);
+#else
+   void pushBack(PDBField, std::string);
+#endif
    void pushBack(PDBField,const float);
    void pushBack(PDBField,const int);
    void pushBack(PDBField,const char);

@@ -40,24 +40,37 @@ PDBDef::PDBDef(const std::string& deffn)
    }
 }
 
+#ifndef __PYTHON__
 void PDBDef::pushBack(PDBField f, const std::string& s)
 {
    if(isString(f)) _defstr.emplace(f,s);
+   else throw invalid_argument("adding a string to non-string field");
 }
+#else
+// pass by value to make python happy
+void PDBDef::pushBack(PDBField f, std::string s)
+{
+   if(isString(f)) _defstr.emplace(f,s);
+   else throw invalid_argument("adding a string to non-string field");
+}
+#endif
 
 void PDBDef::pushBack(PDBField f, const float x)
 {
    if(isFloat(f)) _defflt.emplace(f,x);
+   else throw invalid_argument("adding a float to non-float field");
 }
 
 void PDBDef::pushBack(PDBField f, const int n)
 {
    if(isInt(f)) _defint.emplace(f,n);
+   else throw invalid_argument("adding an int to non-int field");
 }
 
 void PDBDef::pushBack(PDBField f, const char c)
 {
    if(isChar(f)) _defchr.emplace(f,c);
+   else throw invalid_argument("adding a char to non-char field");
 }
 
 void PDBDef::print() const
@@ -70,7 +83,7 @@ void PDBDef::print() const
       strfs.push_back(PDBField::atomtype);
       for(auto f : strfs)
       {
-         cout << transField(f) << endl;
+         cout << transField(f) << ' ';
          auto range = _defstr.equal_range(f);
          for(auto it = range.first; it != range.second; ++it) {
             cout << it->second << ' ';
@@ -81,7 +94,7 @@ void PDBDef::print() const
 
    {
       auto f = PDBField::chainid;
-      cout << transField(f) << endl;
+      cout << transField(f) << ' ';
       auto range = _defchr.equal_range(f);
       for(auto it = range.first; it != range.second; ++it) {
          cout << it->second << ' ';
@@ -91,7 +104,7 @@ void PDBDef::print() const
 
    {
       auto f = PDBField::resid;
-      cout << transField(f) << endl;
+      cout << transField(f) << ' ';
       auto range = _defint.equal_range(f);
       for(auto it = range.first; it != range.second; ++it) {
          cout << it->second << ' ';
