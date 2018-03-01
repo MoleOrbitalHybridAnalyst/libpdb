@@ -8,11 +8,25 @@ using namespace PDB_NS;
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 using namespace boost::python;
 
+/// convert my Vector class to python list
+//struct Vector2List
+//{
+//   static PyObject* convert(const Vector& v)
+//   {
+//      list* l = new list();
+//     for(int i = 0; i < 3; ++i) 
+//        l->append(v[i]);
+//
+//     return l->ptr();
+//   }
+//};
+
 BOOST_PYTHON_MODULE(pypdb)
 {
    //obsolete after I use vector_indexing_suite:
    //to_python_converter<std::vector<size_t>, VecToList<size_t>>();
    //to_python_converter<std::vector<std::string>, VecToList<std::string>>();
+   to_python_converter<Vector, Vector2List<Vector>();
 
 /// wrap vectors 
 /// http://www.boost.org/doc/libs/1_51_0/libs/python/doc/v2/indexing.html
@@ -64,6 +78,10 @@ BOOST_PYTHON_MODULE(pypdb)
       (const size_t, const size_t, const PDBField&) = &PDB::swapFields;
    void (PDB::*swapFields1)
       (const size_t, const size_t) = &PDB::swapFields;
+   void (PDB::*assembleWater0) (bool, bool,
+         const PDBDef&, const PDBDef&) = &PDB::assembleWater;
+   void (PDB::*assembleWater1) 
+      (const PDBDef&, const PDBDef&) = &PDB::assembleWater;
    class_<PDB>("pdb_obj")
       .def(init<const std::string&>())
       .def("__copy__", &generic__copy__<PDB>)
@@ -104,6 +122,10 @@ BOOST_PYTHON_MODULE(pypdb)
       .def("guess_atomtypes", &PDB::guessAllAtomtypes)
       .def("swap", swapFields0)
       .def("swap", swapFields1)
+      .def("assemble_water", assembleWater0)
+      .def("assemble_water", assembleWater1)
+      .def("geo_center", static_cast<
+            Vector (PDB::*)(const PDBDef&) const >(&PDB::geoCenter))
    ;
 }
 

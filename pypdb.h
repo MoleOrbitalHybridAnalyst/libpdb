@@ -20,6 +20,26 @@ namespace bp = boost::python;
 //   }
 //};
 
+/// convert c++ subscribable into python list
+template<class T>
+struct SubscrToList
+{
+   static PyObject* convert(const T& subscr)
+   {
+       Py_intptr_t shape[1] = { subscr.size() };
+       bn::ndarray result = bn::zeros(1, shape, bn::dtype::get_builtin<double>());
+       std::copy(v.begin(), v.end(), reinterpret_cast<double*>(result.get_data()));
+       return result.ptr();
+
+       //bp::list* l = new bp::list();
+       //for(size_t i = 0; i < vec.size(); i++) {
+       //    l->append(vec[i]);
+       //}
+
+       //return l->ptr();
+   }
+};
+
 /// provide python __copy__ and __deepcopy__ for bp object
 /// https://mail.python.org/pipermail/cplusplus-sig/2009-May/014505.html
 template<class T>
