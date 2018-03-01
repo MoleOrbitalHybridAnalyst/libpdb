@@ -31,6 +31,8 @@ class PDB {
 /// call moveTo and handle with two index lists //TODO using ...
    bool moveToWithIndexes(const size_t i1, const size_t i2,
                         std::vector<size_t>& list1, std::vector<size_t>& list2);
+/// check whether all atoms have defined fields required by def
+   void checkDefined(const PDBDef& def) const;
    //std::string transField(const PDBField& pdbfield) const;
 
    //void eraseSpace(std::string& str);
@@ -131,7 +133,7 @@ public:
    //bool isAtomnameMatched(size_t index, const PDBDef& def) const;
 /// reorder water atoms
 /// useful with a poorly made PDB
-   size_t reorderWater(bool guess, bool check, bool reorder,
+   size_t reorderWater(bool guess, bool check, bool assemble,
          const PDBDef& defo, const PDBDef& defh, const PDBDef& defhyd);
 /// useful with a very strict PDB (noguess, nocheck, noreorder)
    size_t reorderWater(const PDBDef& defo, 
@@ -139,8 +141,10 @@ public:
 /// move an atom (i1) to the given position (i2) keeping the order of others
    bool moveTo(const size_t i1, const size_t i2);
 /// assemble water such that they are in the order OHHOHHOHH...OHHH
-   bool assembleWater( bool guess,
+   void assembleWater( bool guess,
          bool check, const PDBDef& defo, const PDBDef& defh);
+   void assembleWater(const PDBDef& defo, const PDBDef& defh)
+       {assembleWater(false, false, defo, defh); }
 /// select atoms according to PDBDef; return vector of indexes
    std::vector<size_t> selectAtoms(const PDBDef& def) const;
 /// compute geometric center of a group of atoms according to indexes
