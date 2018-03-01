@@ -8,25 +8,12 @@ using namespace PDB_NS;
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 using namespace boost::python;
 
-/// convert my Vector class to python list
-//struct Vector2List
-//{
-//   static PyObject* convert(const Vector& v)
-//   {
-//      list* l = new list();
-//     for(int i = 0; i < 3; ++i) 
-//        l->append(v[i]);
-//
-//     return l->ptr();
-//   }
-//};
-
 BOOST_PYTHON_MODULE(pypdb)
 {
    //obsolete after I use vector_indexing_suite:
    //to_python_converter<std::vector<size_t>, VecToList<size_t>>();
    //to_python_converter<std::vector<std::string>, VecToList<std::string>>();
-   to_python_converter<Vector, Vector2List<Vector>();
+   to_python_converter<Vector, SubscrToList<Vector>>();
 
 /// wrap vectors 
 /// http://www.boost.org/doc/libs/1_51_0/libs/python/doc/v2/indexing.html
@@ -68,8 +55,14 @@ BOOST_PYTHON_MODULE(pypdb)
       .def("push_back", pushBack2)
       .def("push_back", pushBack3)
       .def("pop_back", &PDBDef::popBack)
+      .def("clear", &PDBDef::clear)
    ;
 
+   void (PDB::*write2file0) (const std::string&) const = &PDB::write2file;
+   void (PDB::*write2file1) 
+      (const std::string&, const PDBDef&) const = &PDB::write2file;
+   void (PDB::*write2file2) 
+      (const PDBDef&, const std::string&) const = &PDB::write2file;
    size_t (PDB::*reorderWater0) (bool, bool, bool, 
          const PDBDef&, const PDBDef&, const PDBDef&) = &PDB::reorderWater;
    size_t (PDB::*reorderWater1)
@@ -87,7 +80,9 @@ BOOST_PYTHON_MODULE(pypdb)
       .def("__copy__", &generic__copy__<PDB>)
       .def("__deepcopy__", &generic__deepcopy__<PDB>)
       .def_readonly("natom", &PDB::getNatoms)
-      .def("write2file", &PDB::write2file)
+      .def("write2file", write2file0)
+      .def("write2file", write2file1)
+      .def("write2file", write2file2)
       .def("print_atom", static_cast<
             void (PDB::*)(size_t) const>(&PDB::printOneAtom))
       .def("print_atom", static_cast<
@@ -126,6 +121,7 @@ BOOST_PYTHON_MODULE(pypdb)
       .def("assemble_water", assembleWater1)
       .def("geo_center", static_cast<
             Vector (PDB::*)(const PDBDef&) const >(&PDB::geoCenter))
+      .def("shift2middle", &PDB::shiftToMiddle)
    ;
 }
 

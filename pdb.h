@@ -41,6 +41,9 @@ public:
    PDB() = default;
    explicit PDB(const std::string& fname);
    void write2file(const std::string& fname) const;
+   void write2file(const std::string& fname, const PDBDef& def) const;
+   void write2file(const PDBDef& def, 
+         const std::string& fname) const {write2file(fname, def); }
 /// get all the undefined pairs(atom_index, str(pdbfiled))
    //std::vector<std::pair<size_t,std::string>> checkUndefined() const;
    std::vector<std::pair<size_t,PDBField>> checkUndefined() const;

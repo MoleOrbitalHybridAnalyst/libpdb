@@ -149,15 +149,21 @@ void PDB::centerAlignedPrint4(FILE *fp, const string& s) const
    fprintf(fp, "%s", tmpstr.c_str());
 }
 
-void PDB::write2file(const string& fname) const 
+void PDB::write2file(const string& fname) const
+{
+   write2file(fname, PDBDef("all"));
+}
+
+void PDB::write2file(const string& fname, const PDBDef& def) const 
 {
    FILE *fp = fopen(fname.c_str(),"w");
    if(!fp) {
-      cerr << "libpdb internal error: cannot open "<<fname<<'\n';
-      abort();
+      throw runtime_error("cannot open " + fname);
    }
    auto iter = nonatomlines.begin();
-   for(size_t index = 0; index < atomnames.size(); ++index) {
+   auto indexes = selectAtoms(def);
+   //for(size_t index = 0; index < atomnames.size(); ++index) {
+   for(size_t index : indexes) {
       //wait for nonatomlines
       size_t linenumber = linenumbers[index];
       while(iter->first < linenumber) {
