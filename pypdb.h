@@ -1,23 +1,24 @@
 #include <vector>
+#include <string>
 
 #include <boost/python.hpp>
 
 namespace bp = boost::python;
 
-/// convert vector into python list
-template<class T>
-struct VecToList
-{
-   static PyObject* convert(const std::vector<T>& vec)
-   {
-      bp::list* l = new bp::list();
-       for(size_t i = 0; i < vec.size(); i++) {
-           l->append(vec[i]);
-       }
-
-       return l->ptr();
-   }
-};
+/// convert vector into python list (obsolete after I use vector_indexing_suite)
+//template<class T>
+//struct VecToList
+//{
+//   static PyObject* convert(const std::vector<T>& vec)
+//   {
+//      bp::list* l = new bp::list();
+//       for(size_t i = 0; i < vec.size(); i++) {
+//           l->append(vec[i]);
+//       }
+//
+//       return l->ptr();
+//   }
+//};
 
 /// provide python __copy__ and __deepcopy__ for bp object
 /// https://mail.python.org/pipermail/cplusplus-sig/2009-May/014505.html
@@ -63,3 +64,30 @@ memo));
 
     return result;
 }
+
+/// wrap [] operator for vector (obsolete afer I found vector_indexing_suite)
+/// https://mail.python.org/pipermail/cplusplus-sig/2003-June/004024.html
+//template <class T>
+//void vector_setitem(std::vector<T>& v, size_t index, T value)
+//{
+//    if (index < v.size()) {
+//        v[index] = value;
+//    }
+//    else {
+//        PyErr_SetString(PyExc_IndexError, "index out of range");
+//        bp::throw_error_already_set();
+//    }
+//}
+//
+//template <class T>
+//T vector_getitem(std::vector<T> &v, size_t index)
+//{
+//    if (index < v.size()) {
+//        return v[index];
+//    }
+//    else {
+//        PyErr_SetString(PyExc_IndexError, "index out of range");
+//        bp::throw_error_already_set();
+//    }
+//}
+

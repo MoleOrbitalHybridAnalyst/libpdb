@@ -70,7 +70,8 @@ inline const std::string transField(PDBField pdbfield) {
       case PDBField::z: return "z";
       case PDBField::occ: return "occ";
       case PDBField::tempf: return "tempf";
-      default: return "\0";
+      //default: return "\0";
+      default: throw std::invalid_argument("unkown field");
    }
 }
 
@@ -86,7 +87,8 @@ inline PDBField transString(const std::string& s) {
    else if(s=="z") return PDBField::z;
    else if(s=="occ") return PDBField::occ;
    else if(s=="tempf") return PDBField::tempf;
-   else return PDBField::unknown; 
+   //else return PDBField::unknown; 
+   else throw std::invalid_argument("unknown field " + s);
 }
 
 }

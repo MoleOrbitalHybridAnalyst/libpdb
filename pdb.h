@@ -165,6 +165,10 @@ public:
    void writeXYZ(const std::string& fname, const Group& grp) const;
 /// write all atoms to a xyz file
    void writeXYZ(const std::string& fname, const std::string& grpname) const;
+   void printOneAtom(FILE* fp, size_t index) const;
+   void printAtoms(FILE* fp, const PDBDef& def) const;
+   void printOneAtom(size_t index) const {printOneAtom(stdout, index); }
+   void printAtoms(const PDBDef& def) const {printAtoms(stdout, def); }
 };
 
 inline

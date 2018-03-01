@@ -27,11 +27,11 @@ public:
    void pushBack(PDBField,const std::string&);
    void pushBack(PDBField,const float);
    void pushBack(PDBField,const int);
+/// push back by giving one line
+   void pushBack(const std::string&);
+   void popBack(PDBField);
+   void clear(PDBField);
    //void pushBack(PDBField,const char);
-   //const std::unordered_multimap<PDBField,std::string>& getDefstr() const;
-   //const std::unordered_multimap<PDBField,float>& getDefflt() const;
-   //const std::unordered_multimap<PDBField,int>& getDefint() const;
-   //const std::unordered_multimap<PDBField,char>& getDefchr() const;
    const std::multimap<PDBField,std::string>& getDefstr() const;
    const std::multimap<PDBField,float>& getDefflt() const;
    const std::multimap<PDBField,int>& getDefint() const;

@@ -166,19 +166,20 @@ void PDB::write2file(const string& fname) const
       }
 
       //writting ATOM
-      fprintf(fp, "ATOM  ");
-      if(index >= 99998) {
-         fprintf(fp, "***** ");
-      } else {
-         fprintf(fp, "%5d ", int(index) + 1);
-      }
-      centerAlignedPrint4(fp, atomnames[index]);
-      fprintf(fp," %-4s%c%4d    %8.3f%8.3f%8.3f%6.2f%6.2f",
-            resnames[index].c_str(), chainids[index][0],
-            resids[index], xs[index], ys[index], zs[index],
-            occs[index], tempfs[index]);
-      fprintf(fp,"      %-4s%2s\n", 
-            segnames[index].c_str(), atomtypes[index].c_str());
+      //fprintf(fp, "ATOM  ");
+      //if(index >= 99998) {
+      //   fprintf(fp, "***** ");
+      //} else {
+      //   fprintf(fp, "%5d ", int(index) + 1);
+      //}
+      //centerAlignedPrint4(fp, atomnames[index]);
+      //fprintf(fp," %-4s%c%4d    %8.3f%8.3f%8.3f%6.2f%6.2f",
+      //      resnames[index].c_str(), chainids[index][0],
+      //      resids[index], xs[index], ys[index], zs[index],
+      //      occs[index], tempfs[index]);
+      //fprintf(fp,"      %-4s%2s\n", 
+      //      segnames[index].c_str(), atomtypes[index].c_str());
+      printOneAtom(fp, index);
    }
 
    //write the left nonatomlines
@@ -462,13 +463,16 @@ size_t PDB::reorderWater(bool guess, bool check, bool reorder,
       }
    }
    if(!count_hyd) {
-      cerr << "libpdb error: no hydronium found\n"; abort();
+      //cerr << "libpdb error: no hydronium found\n"; abort();
+      throw runtime_error("no hydronium found");
    }
    //cout << oindexesLv1.size() << ' ' << hindexesLv1.size() << endl;
    if(hindexesLv1.size() != 2*oindexesLv1.size() + 1) {
-      cerr << "libpdb error: number of hydrogens and "<<
-                     "number of oxygens do not match\n";
-      abort();
+      //cerr << "libpdb error: number of hydrogens and "<<
+      //               "number of oxygens do not match\n";
+      //abort();
+      throw runtime_error("number of hydrogens and "
+            "number of oxygens do not match");
    }
    //modified version of my implementation in python
    //vector<size_t> hindexesLv1bck(hindexesLv1);
@@ -920,6 +924,32 @@ void PDB::writeXYZ(const std::string& fname, const std::string& grpname) const
    vector<size_t> indexes;
    for(size_t i = 0; i < nAtoms; ++i) indexes.push_back(i);
    writeXYZ(fname, make_pair(grpname, indexes));
+}
+
+void PDB::printOneAtom(FILE*fp, size_t index) const
+{
+      if(index >= nAtoms)
+         throw invalid_argument("atom index out of range");
+      fprintf(fp, "ATOM  ");
+      if(index >= 99998) {
+         fprintf(fp, "***** ");
+      } else {
+         fprintf(fp, "%5d ", int(index) + 1);
+      }
+      centerAlignedPrint4(fp, atomnames[index]);
+      fprintf(fp," %-4s%c%4d    %8.3f%8.3f%8.3f%6.2f%6.2f",
+            resnames[index].c_str(), chainids[index][0],
+            resids[index], xs[index], ys[index], zs[index],
+            occs[index], tempfs[index]);
+      fprintf(fp,"      %-4s%2s\n", 
+            segnames[index].c_str(), atomtypes[index].c_str());
+}
+
+void PDB::printAtoms(FILE* fp, const PDBDef& def) const
+{
+   const auto& atoms = selectAtoms(def);
+   for(auto atom : atoms) 
+      printOneAtom(fp, atom);
 }
 
 //bool PDB::isMatched(size_t index, const PDBdef& def) const
