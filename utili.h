@@ -57,6 +57,7 @@ public:
    float modulo2() const;
 /// compute modulo 
    float modulo() const;
+   int size() const {return 3; }
 };
 
 //template <>

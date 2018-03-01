@@ -9,17 +9,11 @@
 namespace PDB_NS {
 
 class PDBDef {
-   //std::vector<std::pair<PDBField,std::string>> defstr;
-   //std::vector<std::pair<PDBField,float>> defflt;
-   //std::vector<std::pair<PDBField,int>> defint;
-   //std::unordered_multimap<PDBField,std::string> _defstr;
-   //std::unordered_multimap<PDBField,float> _defflt;
-   //std::unordered_multimap<PDBField,int> _defint;
-   //std::unordered_multimap<PDBField,char> _defchr;
    std::multimap<PDBField,std::string> _defstr;
    std::multimap<PDBField,float> _defflt;
    std::multimap<PDBField,int> _defint;
    //std::multimap<PDBField,char> _defchr;
+   bool _all;
 
 public:
    PDBDef() = default;
@@ -30,7 +24,7 @@ public:
 /// push back by giving one line
    void pushBack(const std::string&);
    void popBack(PDBField);
-   void clear(PDBField);
+   void clear(PDBField f) {_defstr.erase(f);_defint.erase(f);_defflt.erase(f);}
    //void pushBack(PDBField,const char);
    const std::multimap<PDBField,std::string>& getDefstr() const;
    const std::multimap<PDBField,float>& getDefflt() const;
@@ -38,6 +32,7 @@ public:
    //const std::multimap<PDBField,char>& getDefchr() const;
    bool empty() const;
    void print() const;
+   bool all() const {return _all; }
 };
 
 inline
@@ -68,7 +63,7 @@ inline
 bool PDBDef::empty() const
 {
    return 
-      _defstr.empty() && _defflt.empty() && _defint.empty();
+      (!_all) && _defstr.empty() && _defflt.empty() && _defint.empty();
       //_defstr.empty() && _defflt.empty() && _defint.empty() && _defchr.empty();
 }
 

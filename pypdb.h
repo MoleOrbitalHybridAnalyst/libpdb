@@ -20,6 +20,21 @@ namespace bp = boost::python;
 //   }
 //};
 
+/// convert c++ subscribable into python list
+template<class T>
+struct SubscrToList
+{
+   static PyObject* convert(const T& subscr)
+   {
+       bp::list* l = new bp::list();
+       for(size_t i = 0; i < subscr.size(); i++) {
+           l->append(subscr[i]);
+       }
+
+       return l->ptr();
+   }
+};
+
 /// provide python __copy__ and __deepcopy__ for bp object
 /// https://mail.python.org/pipermail/cplusplus-sig/2009-May/014505.html
 template<class T>
