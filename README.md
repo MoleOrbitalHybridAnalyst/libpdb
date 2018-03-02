@@ -17,4 +17,4 @@ cmake -DMAKE_PYTHON=ON ..
 make
 ```
 ## Install
-
+Ensure the library binary can be searched as `pypdb.so` in `$PYTHONPATH` (softlink or mv whatever)
