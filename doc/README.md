@@ -39,7 +39,7 @@ idxhyd = pdb.select_atoms(defhyd)
 # print the information of selected atoms
 pdb.print_atom(defhyd)
 # print the information of all atoms in the pdb
-pdb.print_atom(pp.defhyd("all"))
+pdb.print_atom(pp.pdb_def("all"))
 # output the select atoms to a pdb file
 pdb.write2file("hyd.pdb", defhyd)
 # or equivalently
