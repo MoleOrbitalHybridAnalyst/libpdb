@@ -28,26 +28,39 @@ for _ in pdb.atomnames:
 # segnames, xs, ys, zs, tempfs, occs
 ```
 # Use `pdb_def` Object
-`pdb_def` provides a way of selecting atoms
+## `pdb_def` provides a way of selecting atoms
+Create a `pdb_def` by giving a constraint or read from a file
 ```
-# create a pdb_def by giving a constraint
+# defhyd selects atoms whose resname is H3O
 defhyd = pp.pdb_def("resname H3O")
-# get a vector of atom indexes of the hydronium
+# or 
+defhyd = pp.pdb_def("./hyd.def")
+```
+Get a vector object containing atom indexes of the hydronium
+```
 idxhyd = pdb.select_atoms(defhyd)
-# convert the vector to python list
+```
+Then the vector can be converted into a python list
+```
 [_ for _ in idxhyd]
-# print the information of selected atoms
+```
+`print_atom` method accepts a `pdb_def` to print the selected atoms
+```
 pdb.print_atom(defhyd)
-# print the information of all atoms in the pdb
+```
+If one wants to do something to all atoms in the pdb, create a `pdb_def` that selects all the atoms
+```
 pdb.print_atom(pp.pdb_def("all"))
-# output the select atoms to a pdb file
+```
+Output the selected atoms to a pdb file
+```
 pdb.write2file("hyd.pdb", defhyd)
 # or equivalently
 pdb.write2file(defhyd, "hyd.pdb")
 ```
-Manipulate a `pdb_def`
+## Manipulate a `pdb_def`
+Other constraints can be added to an existing `pdb_obj`
 ```
-# add other constraints
 defhyd.push_back("atomtype O")
 defhyd.push_back("resname TIP3")
 # now defhyd selects atoms whose resname is H3O or TIP3 and atomtype is O
