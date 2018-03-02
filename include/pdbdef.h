@@ -4,7 +4,7 @@
 //#include <vector>
 #include <map>
 #include <string>
-#include "general.h"
+#include "global.h"
 
 namespace PDB_NS {
 

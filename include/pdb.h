@@ -8,7 +8,7 @@
 #include <utility>
 #include <exception>
 #include "pdbdef.h"
-#include "general.h"
+#include "global.h"
 #include "utili.h"
 
 namespace PDB_NS {
