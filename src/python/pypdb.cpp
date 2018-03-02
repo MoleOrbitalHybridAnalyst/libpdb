@@ -63,6 +63,8 @@ BOOST_PYTHON_MODULE(pypdb)
       (const std::string&, const PDBDef&) const = &PDB::write2file;
    void (PDB::*write2file2) 
       (const PDBDef&, const std::string&) const = &PDB::write2file;
+   void (PDB::*show0) () const = &PDB::show;
+   void (PDB::*show1) (const PDBDef&) const = &PDB::show;
    size_t (PDB::*reorderWater0) (bool, bool, bool, 
          const PDBDef&, const PDBDef&, const PDBDef&) = &PDB::reorderWater;
    size_t (PDB::*reorderWater1)
@@ -83,6 +85,8 @@ BOOST_PYTHON_MODULE(pypdb)
       .def("write2file", write2file0)
       .def("write2file", write2file1)
       .def("write2file", write2file2)
+      .def("show", show0)
+      .def("show", show1)
       .def("print_atom", static_cast<
             void (PDB::*)(size_t) const>(&PDB::printOneAtom))
       .def("print_atom", static_cast<

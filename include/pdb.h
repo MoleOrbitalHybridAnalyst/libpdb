@@ -44,6 +44,10 @@ public:
    void write2file(const std::string& fname, const PDBDef& def) const;
    void write2file(const PDBDef& def, 
          const std::string& fname) const {write2file(fname, def); }
+   void write2file(FILE* fp) const;
+   void write2file(FILE* fp, const PDBDef& def) const;
+   void show() const { write2file(stdout); }
+   void show(const PDBDef& def) const { write2file(stdout, def); }
 /// get all the undefined pairs(atom_index, str(pdbfiled))
    //std::vector<std::pair<size_t,std::string>> checkUndefined() const;
    std::vector<std::pair<size_t,PDBField>> checkUndefined() const;
@@ -539,5 +543,28 @@ Vector PDB::geoCenter(const PDBDef& def) const
    return geoCenter(selectAtoms(def));
 }
 
+inline
+void PDB::write2file(const std::string& fname) const
+{
+   write2file(fname, PDBDef("all"));
 }
+
+inline
+void PDB::write2file(FILE* fp) const
+{
+   write2file(fp, PDBDef("all"));
+}
+
+inline
+void PDB::write2file(const std::string& fname, const PDBDef& def) const 
+{
+   FILE *fp = fopen(fname.c_str(),"w");
+   if(!fp) {
+      throw std::runtime_error("cannot open " + fname);
+   }
+   write2file(fp, def);
+}
+
+} // end of namespace PDB_NS
+
 #endif
