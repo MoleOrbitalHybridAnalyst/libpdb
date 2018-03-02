@@ -1,16 +1,23 @@
 cmake_minimum_required(VERSION 3.8)
 project(libpdb)
-
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES
-        general.h
-        pdb.cpp
-        pdb.h
-        pdbdef.cpp
-        pdbdef.h
-        utili.h
-        utili.cpp)
+INCLUDE_DIRECTORIES("include")
 
-#add_executable(libpdb ${SOURCE_FILES})
+if(MAKE_PYTHON)
+   file(GLOB SOURCE_FILES src/pdb/*cpp src/python/*cpp)
+   FIND_PACKAGE(PythonInterp)
+   FIND_PACKAGE(PythonLibs)
+   if (${PYTHON_VERSION_MAJOR} EQUAL 3)
+       FIND_PACKAGE(Boost COMPONENTS python3)
+   else()
+       FIND_PACKAGE(Boost COMPONENTS python)
+   endif()
+   INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
+   LINK_LIBRARIES(${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+else()
+   file(GLOB SOURCE_FILES src/pdb/*.cpp)
+endif()
+
 add_library(pdb SHARED ${SOURCE_FILES})
+#PYTHON_ADD_MODULE(pypdb ${SOURCE_FILES})
