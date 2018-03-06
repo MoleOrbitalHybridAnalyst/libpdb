@@ -60,6 +60,18 @@ public:
    int size() const {return 3; }
 };
 
+template <class Node, typename F>
+void DFS(Node root, int depth, F&& isAdj, 
+      const std::vector<Node>& list, std::set<Node>& results)
+{
+   if(depth <= 0) return;
+   for(const Node& i : list) 
+      if(isAdj(root, i)) {
+         results.insert(i);
+         DFS(i, depth - 1, isAdj, list, results);
+      }
+}
+
 //template <>
 //inline bool readField(const std::string& s, int& t) 
 //{

@@ -6,6 +6,7 @@
 #include <limits>
 #include <exception>
 #include <iomanip>
+#include <set>
 
 namespace PDB_NS {
 /// line size for complete atomtype

@@ -192,6 +192,7 @@ public:
 /// get n solvation shells of water of a hydronium (no reoderWater will be done)
    std::vector<size_t> getSolvationShells(int n, float cutoff, 
          const PDBDef& defo, const PDBDef& defh, const PDBDef& defhyd) const;
+   static bool isAdjacentOxygen(size_t i1, size_t i2);
 };
 
 inline
