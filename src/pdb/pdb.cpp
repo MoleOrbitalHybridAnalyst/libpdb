@@ -184,7 +184,8 @@ void PDB::write2file(FILE *fp, const vector<size_t>& indexes) const
       fprintf(fp, "%s\n", (iter->second).c_str());
       iter++;
    }
-   fclose(fp);
+   if(fp != stdout)
+      fclose(fp);
 }
 
 //vector<pair<size_t,string>> PDB::checkUndefined() const 
