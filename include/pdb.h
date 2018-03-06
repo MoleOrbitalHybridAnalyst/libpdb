@@ -46,6 +46,11 @@ public:
          const std::string& fname) const {write2file(fname, def); }
    void write2file(FILE* fp) const;
    void write2file(FILE* fp, const PDBDef& def) const;
+   void write2file(FILE* fp, const std::vector<size_t>& indexes) const;
+   void write2file(const std::string& fname, 
+         const std::vector<size_t>& indexes) const;
+   void write2file(const std::vector<size_t>& indexes,
+         const std::string& fname) const {write2file(fname, indexes); }
    void show() const { write2file(stdout); }
    void show(const PDBDef& def) const { write2file(stdout, def); }
 /// get all the undefined pairs(atom_index, str(pdbfiled))
@@ -178,8 +183,14 @@ public:
    void writeXYZ(const std::string& fname, const std::string& grpname) const;
    void printOneAtom(FILE* fp, size_t index) const;
    void printAtoms(FILE* fp, const PDBDef& def) const;
+   void printAtoms(FILE* fp, const std::vector<size_t>& indexes) const;
    void printOneAtom(size_t index) const {printOneAtom(stdout, index); }
    void printAtoms(const PDBDef& def) const {printAtoms(stdout, def); }
+   void printAtoms(const std::vector<size_t>& indexes) 
+                   const {printAtoms(stdout, indexes); }
+/// get n solvation shells of water of a hydronium (reoderWater will be done)
+   std::vector<size_t> getSolvationShells(int n, const PDBDef& defo, 
+         const PDBDef& defh, const PDBDef& defhyd);
 };
 
 inline
@@ -544,15 +555,28 @@ Vector PDB::geoCenter(const PDBDef& def) const
 }
 
 inline
+void PDB::write2file(FILE* fp, const PDBDef& def) const 
+{
+   write2file(fp, selectAtoms(def));
+}
+
+inline
 void PDB::write2file(const std::string& fname) const
 {
-   write2file(fname, PDBDef("all"));
+   FILE *fp = fopen(fname.c_str(),"w");
+   if(!fp) {
+      throw std::runtime_error("cannot open " + fname);
+   }
+   write2file(fp);
 }
 
 inline
 void PDB::write2file(FILE* fp) const
 {
-   write2file(fp, PDBDef("all"));
+   std::vector<size_t> indexes;
+   for(size_t i = 0; i < nAtoms; ++i)
+      indexes.push_back(i);
+   write2file(fp, indexes);
 }
 
 inline
@@ -563,6 +587,17 @@ void PDB::write2file(const std::string& fname, const PDBDef& def) const
       throw std::runtime_error("cannot open " + fname);
    }
    write2file(fp, def);
+}
+
+inline
+void PDB::write2file(const std::string& fname, 
+      const std::vector<size_t>& indexes) const
+{
+   FILE *fp = fopen(fname.c_str(),"w");
+   if(!fp) {
+      throw std::runtime_error("cannot open " + fname);
+   }
+   write2file(fp, indexes);
 }
 
 } // end of namespace PDB_NS

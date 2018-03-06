@@ -149,10 +149,10 @@ void PDB::centerAlignedPrint4(FILE *fp, const string& s) const
    fprintf(fp, "%s", tmpstr.c_str());
 }
 
-void PDB::write2file(FILE* fp, const PDBDef& def) const 
+void PDB::write2file(FILE *fp, const vector<size_t>& indexes) const
 {
    auto iter = nonatomlines.begin();
-   auto indexes = selectAtoms(def);
+   //auto& indexes = selectAtoms(def);
    //for(size_t index = 0; index < atomnames.size(); ++index) {
    for(size_t index : indexes) {
       //wait for nonatomlines
@@ -830,8 +830,15 @@ void PDB::printOneAtom(FILE*fp, size_t index) const
 void PDB::printAtoms(FILE* fp, const PDBDef& def) const
 {
    const auto& atoms = selectAtoms(def);
-   for(auto atom : atoms) 
-      printOneAtom(fp, atom);
+//   for(auto atom : atoms) 
+//      printOneAtom(fp, atom);
+   printAtoms(fp, atoms);
+}
+
+void PDB::printAtoms(FILE* fp, const vector<size_t>& indexes) const
+{
+   for(auto index : indexes)
+      printOneAtom(fp, index);
 }
 
 void PDB::checkDefined(const PDBDef& def) const

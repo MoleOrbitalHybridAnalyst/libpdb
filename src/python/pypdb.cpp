@@ -8,7 +8,7 @@ using namespace PDB_NS;
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 using namespace boost::python;
 
-BOOST_PYTHON_MODULE(pypdb)
+BOOST_PYTHON_MODULE(pypdb_core)
 {
    //obsolete after I use vector_indexing_suite:
    //to_python_converter<std::vector<size_t>, VecToList<size_t>>();
@@ -63,6 +63,10 @@ BOOST_PYTHON_MODULE(pypdb)
       (const std::string&, const PDBDef&) const = &PDB::write2file;
    void (PDB::*write2file2) 
       (const PDBDef&, const std::string&) const = &PDB::write2file;
+   void (PDB::*write2file3) 
+      (const std::string&, const std::vector<size_t>&) const = &PDB::write2file;
+   void (PDB::*write2file4) 
+      (const std::vector<size_t>&, const std::string&) const = &PDB::write2file;
    void (PDB::*show0) () const = &PDB::show;
    void (PDB::*show1) (const PDBDef&) const = &PDB::show;
    size_t (PDB::*reorderWater0) (bool, bool, bool, 
@@ -85,12 +89,16 @@ BOOST_PYTHON_MODULE(pypdb)
       .def("write2file", write2file0)
       .def("write2file", write2file1)
       .def("write2file", write2file2)
+      .def("write2file", write2file3)
+      .def("write2file", write2file4)
       .def("show", show0)
       .def("show", show1)
       .def("print_atom", static_cast<
             void (PDB::*)(size_t) const>(&PDB::printOneAtom))
       .def("print_atom", static_cast<
             void (PDB::*)(const PDBDef&) const>(&PDB::printAtoms))
+      .def("print_atom", static_cast<
+            void (PDB::*)(const std::vector<size_t>&) const>(&PDB::printAtoms))
       .add_property("atomnames", make_function(
                &PDB::getAtomnames, return_internal_reference<>()))
       .add_property("resnames", make_function(
