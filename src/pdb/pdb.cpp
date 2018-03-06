@@ -865,18 +865,63 @@ void PDB::checkDefined(const PDBDef& def) const
    }
 }
 
-std::vector<size_t> PDB::getSolvationShells(int n, float cutoff, 
-      const PDBDef& defo, const PDBDef& defh, const PDBDef& defhyd) const
+double PDB::adjacencyWaterNode(WaterNode n1, WaterNode n2) const
 {
-   // assume that reorderWater has already been done
-   size_t hydindex = selectAtoms(defhyd)[0];
-   auto& hindexes = selectAtoms(defh);
-   auto& oindexes = selectAtoms(defo);
+   double mindist2 = boxlens[0] + boxlens[1] + boxlens[2];
+   mindist2 *= mindist2;
+   if(n1.first == n2.first) return mindist2;
+   for(int offset = 1; offset <= n1.second; ++offset) {
+      double dist2 = pbcDistance2(n1.first + offset, n2.first);
+      if(dist2 < mindist2)
+         mindist2 = dist2;
+   }
+   return mindist2;
+}
 
+vector<size_t> PDB::getSolvationShells(int n, float cutoff,
+      const vector<size_t>& oindexes, size_t hydindex) const 
+{
+   // in this subroutine, 
+   // I assume that reorderWater has already been done
+   
+   if(cutoff > boxlens[0] or cutoff > boxlens[1] or cutoff > boxlens[2])
+      throw invalid_argument("cutoff larger than half box");
+   
+   vector<WaterNode> onodes;
+   for(size_t oindex : oindexes)  {
+      if(oindex == hydindex)
+         // hydronium has 3 hydrogens
+         onodes.emplace_back(oindex, 3);
+      else
+         // every water has 2 hydrogens
+         onodes.emplace_back(oindex, 2);
+   }
    // Do DFS here
-   vector<size_t> solvation_oxygens;
-   solvation_oxygens.push_back(hydindex);
-   int depth = 0;
+   set<WaterNode> solvation_nodes;
+   solvation_nodes.emplace(hydindex,3);
+   DFS(WaterNode(hydindex,3), n, 
+         [this,&cutoff](WaterNode a, WaterNode b) {
+            return this->adjacencyWaterNode(a, b) <= cutoff*cutoff;
+         }
+         , onodes, solvation_nodes);
+
+   vector<size_t> indexes;
+   for(auto i : solvation_nodes) 
+      for(int offset = 0; offset <= i.second; ++offset)
+         indexes.push_back(i.first + offset);
+   return indexes;
+}
+
+vector<size_t> PDB::getSolvationShells(int n, float cutoff, 
+      const PDBDef& defo, const PDBDef& defhyd) const
+{
+   const auto& hydindexes = selectAtoms(defhyd);
+   if(hydindexes.size() != 1) 
+      throw runtime_error("number of hydronium is not 1");
+   size_t hydindex = hydindexes[0];
+   const auto& oindexes = selectAtoms(defo);
+
+   return getSolvationShells(n, cutoff, oindexes, hydindex);
 }
 
 //bool PDB::isMatched(size_t index, const PDBdef& def) const

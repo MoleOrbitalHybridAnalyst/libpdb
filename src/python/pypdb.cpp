@@ -141,6 +141,14 @@ BOOST_PYTHON_MODULE(pypdb_core)
             void (PDB::*)(const std::vector<size_t>&)> (&PDB::shiftToMiddle))
       .def("shift2middle", static_cast<
             void (PDB::*)(const PDBDef&)> (&PDB::shiftToMiddle))
+      .def("get_solvation_shells", static_cast<
+            std::vector<size_t> (PDB::*)(
+               int, float, const std::vector<size_t>&, size_t) const
+            >(&PDB::getSolvationShells))
+      .def("get_solvation_shells", static_cast<
+            std::vector<size_t> (PDB::*)(
+               int, float, const PDBDef&, const PDBDef&) const
+            >(&PDB::getSolvationShells))
    ;
 }
 

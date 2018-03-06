@@ -17,6 +17,7 @@ const size_t size_tMax = std::numeric_limits<size_t>::max();
 enum class PDBField { atomname = 0, resname = 1, segname = 9, atomtype = 10, 
       chainid = 2, resid = 3, x = 4, y = 5, z = 6, occ = 7, tempf = 8, unknown = 11};
 typedef std::pair<std::string,std::vector<size_t>> Group;
+typedef std::pair<size_t,int> WaterNode;
 /// line size for complete z coordinate
 //const size_t errLineSize = 54;
 //const bool autoComplete = true;

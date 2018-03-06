@@ -189,10 +189,16 @@ public:
    void printAtoms(const PDBDef& def) const {printAtoms(stdout, def); }
    void printAtoms(const std::vector<size_t>& indexes) 
                    const {printAtoms(stdout, indexes); }
-/// get n solvation shells of water of a hydronium (no reoderWater will be done)
+/// Get n solvation shells of water oxygen of a hydronium (no reoderWater
+/// will be done). Returning a vector containing indexes of both oxygen and 
+/// hydrogen instead of returning a vector of WaterNode is for the convenience
+/// in Python interface. WE NEED OVERLOAD BY RETURN TYPE!!!
    std::vector<size_t> getSolvationShells(int n, float cutoff, 
-         const PDBDef& defo, const PDBDef& defh, const PDBDef& defhyd) const;
-   static bool isAdjacentOxygen(size_t i1, size_t i2);
+         const std::vector<size_t>& oindexes, size_t hydindex) const;
+   std::vector<size_t> getSolvationShells(int n, float cutoff, 
+         const PDBDef& defo, const PDBDef& defhyd) const;
+   double adjacencyWaterNode(
+         WaterNode n1, WaterNode n2) const;
 };
 
 inline

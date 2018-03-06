@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <locale>
 #include <array>
+#include <set>
 
 namespace PDB_NS {
 
