@@ -189,9 +189,9 @@ public:
    void printAtoms(const PDBDef& def) const {printAtoms(stdout, def); }
    void printAtoms(const std::vector<size_t>& indexes) 
                    const {printAtoms(stdout, indexes); }
-/// get n solvation shells of water of a hydronium (reoderWater will be done)
-   std::vector<size_t> getSolvationShells(int n, const PDBDef& defo, 
-         const PDBDef& defh, const PDBDef& defhyd);
+/// get n solvation shells of water of a hydronium (no reoderWater will be done)
+   std::vector<size_t> getSolvationShells(int n, float cutoff, 
+         const PDBDef& defo, const PDBDef& defh, const PDBDef& defhyd) const;
 };
 
 inline

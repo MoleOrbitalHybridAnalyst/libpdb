@@ -865,6 +865,20 @@ void PDB::checkDefined(const PDBDef& def) const
    }
 }
 
+std::vector<size_t> PDB::getSolvationShells(int n, float cutoff, 
+      const PDBDef& defo, const PDBDef& defh, const PDBDef& defhyd) const
+{
+   // assume that reorderWater has already been done
+   size_t hydindex = selectAtoms(defhyd)[0];
+   auto& hindexes = selectAtoms(defh);
+   auto& oindexes = selectAtoms(defo);
+
+   // Do DFS here
+   vector<size_t> solvation_oxygens;
+   solvation_oxygens.push_back(hydindex);
+   int depth = 0;
+}
+
 //bool PDB::isMatched(size_t index, const PDBdef& def) const
 //{
 //   if(index > nAtoms) 
