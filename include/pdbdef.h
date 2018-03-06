@@ -25,6 +25,7 @@ public:
    void pushBack(const std::string&);
    void popBack(PDBField);
    void clear(PDBField f) {_defstr.erase(f);_defint.erase(f);_defflt.erase(f);}
+   void clear(const std::string& s) {clear(transString(s)); }
    //void pushBack(PDBField,const char);
    const std::multimap<PDBField,std::string>& getDefstr() const;
    const std::multimap<PDBField,float>& getDefflt() const;

@@ -55,7 +55,9 @@ BOOST_PYTHON_MODULE(pypdb_core)
       .def("push_back", pushBack2)
       .def("push_back", pushBack3)
       .def("pop_back", &PDBDef::popBack)
-      .def("clear", &PDBDef::clear)
+      .def("clear", static_cast<void (PDBDef::*)(PDBField) >(&PDBDef::clear))
+      .def("clear", static_cast<
+            void (PDBDef::*)(const std::string&) >(&PDBDef::clear))
    ;
 
    void (PDB::*write2file0) (const std::string&) const = &PDB::write2file;
@@ -133,7 +135,12 @@ BOOST_PYTHON_MODULE(pypdb_core)
       .def("assemble_water", assembleWater1)
       .def("geo_center", static_cast<
             Vector (PDB::*)(const PDBDef&) const >(&PDB::geoCenter))
-      .def("shift2middle", &PDB::shiftToMiddle)
+      .def("geo_center", static_cast<
+            Vector (PDB::*)(const std::vector<size_t>&) const>(&PDB::geoCenter))
+      .def("shift2middle", static_cast<
+            void (PDB::*)(const std::vector<size_t>&)> (&PDB::shiftToMiddle))
+      .def("shift2middle", static_cast<
+            void (PDB::*)(const PDBDef&)> (&PDB::shiftToMiddle))
    ;
 }
 

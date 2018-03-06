@@ -23,28 +23,57 @@ PDBDef::PDBDef(const std::string& deffn) :
    }
 }
 
+//void PDBDef::pushBack(const std::string& s)
+//{
+//   if(_all) return;
+//   stringstream ss(s);
+//   string substring;
+//   ss >> substring;
+//   PDBField field = transString(substring);
+//   if(isString(field)) {
+//      while(ss >> substring) {
+//         _defstr.emplace(field, substring);
+//      }
+//   } else if(isFloat(field)) {
+//      float value;
+//      while(ss >> value) {
+//         _defflt.emplace(field, value);
+//      }
+//   } else if(isInt(field)) {
+//      int value;
+//      while(ss >> value) {
+//         _defint.emplace(field, value);
+//      }
+//   } 
+//}
+
 void PDBDef::pushBack(const std::string& s)
 {
    if(_all) return;
    stringstream ss(s);
    string substring;
-   ss >> substring;
-   PDBField field = transString(substring);
-   if(isString(field)) {
-      while(ss >> substring) {
-         _defstr.emplace(field, substring);
+   bool within_a_field = false;
+   PDBField field;
+   while(ss >> substring) {
+      // 0. test if this an and
+      if(substring == "and") {
+         within_a_field = false;
+         continue;
       }
-   } else if(isFloat(field)) {
-      float value;
-      while(ss >> value) {
-         _defflt.emplace(field, value);
+      // 1. test if this is within a field
+      else if(within_a_field) {
+         if(isString(field)) 
+               _defstr.emplace(field, substring);
+         else if(isFloat(field)) 
+              _defflt.emplace(field, stof(substring));
+         else if(isInt(field)) 
+               _defint.emplace(field, stoi(substring));
+      // 2. test if this is a field
+      } else {
+         field = transString(substring);
+         within_a_field = true;
       }
-   } else if(isInt(field)) {
-      int value;
-      while(ss >> value) {
-         _defint.emplace(field, value);
-      }
-   } 
+   }
 }
 
 void PDBDef::pushBack(PDBField f, const std::string& s)
