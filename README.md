@@ -17,4 +17,4 @@ cmake -DMAKE_PYTHON=ON ..
 make
 ```
 ## Install
-Ensure the library binary can be searched as `pypdb.so` in `$PYTHONPATH` (softlink or mv whatever)
+Ensure the library binary can be searched as `pypdb_core.so` in `$PYTHONPATH` (softlink or mv whatever). Then the module can be imported by `import pypdb_core`. A possibly useful wrapper `src/python/pypdb.py` is also provided.
