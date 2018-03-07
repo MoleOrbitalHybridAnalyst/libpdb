@@ -31,10 +31,10 @@ for _ in pdb.atomnames:
 ## `pdb_def` provides a way of selecting atoms
 Create a `pdb_def` by giving a constraint or read from a file
 ```
+# defo selects atoms whose atomtype is O and chainid is W
+defo = pp.pdb_def("atomtype O and chainid W")
 # defhyd selects atoms whose resname is H3O
 defhyd = pp.pdb_def("resname H3O")
-# or 
-defhyd = pp.pdb_def("./hyd.def")
 ```
 Get a vector object containing atom indexes of the hydronium
 ```
@@ -47,6 +47,8 @@ Then the vector can be converted into a python list
 `print_atom` method accepts a `pdb_def` to print the selected atoms
 ```
 pdb.print_atom(defhyd)
+# print the atoms whose type is O or H
+pdb.print_atom(pp.pdb_def("atomtype O H"))
 ```
 If one wants to do something to all atoms in the pdb, create a `pdb_def` that selects all the atoms
 ```
@@ -63,7 +65,16 @@ Other constraints can be added to an existing `pdb_obj`
 ```
 defhyd.push_back("atomtype O")
 defhyd.push_back("resname TIP3")
-# now defhyd selects atoms whose resname is H3O or TIP3 and atomtype is O
-# this can be checked by print out what is in the pdb_def
-defhyd.show()
 ```
+Now defhyd selects atoms whose resname is H3O or TIP3 and atomtype is O
+this can be checked by print out what is in the pdb_def
+````
+defhyd.show()
+````
+A constraint can be cleared by using `clear`
+````
+# let defhyd also selects resid
+defhyd.push_back("resid 1 2 3 4")
+# recover the original defhyd
+defhyd.clear("resid")
+````
