@@ -73,8 +73,30 @@ defhyd.show()
 ````
 A constraint can be cleared by using `clear`
 ````
-# let defhyd also selects resid
+# let defhyd also select resid
 defhyd.push_back("resid 1 2 3 4")
 # recover the original defhyd
 defhyd.clear("resid")
 ````
+# Some Useful Methods
+## `assemble_water`
+Some people like to make a pdb of proton in water in the order of "OOOO...HHHHHHHH...", making people hard to see which H is bonded to which O. This kind of pdb can be converted into an order of "OHHOHHOHH...OHHH" by using `assemble_water`
+````
+# define what is water oxygen
+defo = pp.pdb_def("chainid W and atomtype O")
+# define what is water(including hydronium) hydrogen
+defh = pp.pdb_def("chainid W and atomtype H")
+pdb.assemble_water(defo, defh)
+````
+## `reorder_water`
+Reactive MD or MC can result in messy pdbs where an O can be followed by two non-bonded H's. `reorder_water` can adjust the position of H in pdb to ensure the best bonding topology
+````
+pdb.reorder_water(defo, defh, defhyd)
+````
+Now, two H's just below one O are bonded to it. Consecutive OHHH is a hydronium
+## `get_solvation_shells`
+Get `n` solvation shells of waters of a hydronium based on a distance criteria
+````
+sol = pdb.get_solvation_shells(3,2.8,defo,defhyd)
+````
+`sol` is a vector containing the atom indexes of 3 solvation shells of water of the hydronium. Water oxygens which are within 2.8 A of the bonded H of the central species are regarded in the first solvation shell of it.
