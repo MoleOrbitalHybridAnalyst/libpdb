@@ -168,8 +168,9 @@ public:
 /// shift all atoms by a vector so that the center of selected group atom
 /// will go to the middle of the box while keeping the original box
 /// boundaries unchanged
-   void shiftToMiddle(const std::vector<size_t>&);
-   void shiftToMiddle(const PDBDef& def) {shiftToMiddle(selectAtoms(def)); }
+   Vector shiftToMiddle(const std::vector<size_t>&);
+   Vector shiftToMiddle(const PDBDef& def) {
+                            return shiftToMiddle(selectAtoms(def)); }
 /// write groups to a gmx index file
    void writeIndexFile(const std::string& fname, 
                  const std::vector<Group>& grps) const;

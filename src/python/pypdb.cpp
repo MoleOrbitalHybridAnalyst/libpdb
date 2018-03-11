@@ -138,9 +138,9 @@ BOOST_PYTHON_MODULE(pypdb_core)
       .def("geo_center", static_cast<
             Vector (PDB::*)(const std::vector<size_t>&) const>(&PDB::geoCenter))
       .def("shift2middle", static_cast<
-            void (PDB::*)(const std::vector<size_t>&)> (&PDB::shiftToMiddle))
+            Vector (PDB::*)(const std::vector<size_t>&)> (&PDB::shiftToMiddle))
       .def("shift2middle", static_cast<
-            void (PDB::*)(const PDBDef&)> (&PDB::shiftToMiddle))
+            Vector (PDB::*)(const PDBDef&)> (&PDB::shiftToMiddle))
       .def("get_solvation_shells", static_cast<
             std::vector<size_t> (PDB::*)(
                int, float, const std::vector<size_t>&, size_t) const

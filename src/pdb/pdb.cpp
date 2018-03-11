@@ -744,12 +744,13 @@ void PDB::shiftBy(const Vector& offset)
    }
 }
 
-void PDB::shiftToMiddle(const std::vector<size_t>& indexes) 
+Vector PDB::shiftToMiddle(const std::vector<size_t>& indexes) 
 {
    auto cen = geoCenter(indexes);
    auto b = getBoundary();
    auto middle = (b.first + b.second) / 2.0;
    shiftBy(middle - cen);
+   return middle - cen;
 }
 
 void PDB::writeIndexFile(const string& fname, const vector<Group>& grps) const
