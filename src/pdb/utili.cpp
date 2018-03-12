@@ -16,6 +16,17 @@ Vector::Vector(float d0, float d1, float d2)
    d[2] = d2;
 }
 
+#ifdef _HAS_BOOST_PYTHON
+Vector::Vector(const boost::python::list& bplist)
+{
+   int n = boost::python::len(bplist);
+   if(n != 3)
+      throw exception("input list is not 3 dimensional");
+   for(int i = 0; i < n; ++i)
+      d[i] = boost::python::extract<float>(bplist[i]);
+}
+#endif
+
 float& Vector::operator[] (unsigned i)
 {
    return d[i];

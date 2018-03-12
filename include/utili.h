@@ -7,6 +7,11 @@
 #include <array>
 #include <vector>
 #include <set>
+#include <exception>
+
+#ifdef _HAS_BOOST_PYTHON
+#include <boost/python.hpp>
+#endif
 
 namespace PDB_NS {
 
@@ -31,6 +36,10 @@ public:
    Vector(float d0);
 /// create a vector by giving three values
    Vector(float d0, float d1, float d2);
+#ifdef _HAS_BOOST_PYTHON
+/// create a vector from python::list
+   Vector(const boost::python::list& bplist);
+#endif
 /// braket access
    float & operator[] (unsigned i);
    const float& operator[] (unsigned i) const;
