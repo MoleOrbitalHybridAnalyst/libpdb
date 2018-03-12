@@ -34,6 +34,7 @@ PDB::PDB(const string& fname)
       throw runtime_error("cannot open "+fname);
    string line;
    size_t line_count = 0;
+   int residue = 0, prev_resid = 0;
    //bool incomplete = false;
    while(getline(fs, line)) {
       line_count++;
@@ -77,6 +78,10 @@ PDB::PDB(const string& fname)
          //   defined.push_back(false);
          //}
          resids.push_back(resid);
+
+         if(line_count != 1 and prev_resid != resid) residue ++;
+         prev_resid = resid;
+         residues.push_back(residue);
 
          float tmpflt;
          tmpflt = 0.0;

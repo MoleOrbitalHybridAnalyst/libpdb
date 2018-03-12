@@ -113,6 +113,8 @@ BOOST_PYTHON_MODULE(pypdb_core)
                &PDB::getChainids, return_internal_reference<>()))
       .add_property("resids", make_function(
                &PDB::getResids, return_internal_reference<>()))
+      .add_property("residues", make_function(
+               &PDB::getResidues, return_internal_reference<>()))
       .add_property("xs", make_function(
                &PDB::getXs, return_internal_reference<>()))
       .add_property("ys", make_function(

@@ -25,6 +25,8 @@ class PDB {
    //std::vector<char> chainids;
    std::vector<std::string> chainids;
    std::vector<int> resids;
+/// Global version of resids
+   std::vector<int> residues;
    std::vector<float> xs, ys ,zs, occs, tempfs;
    std::vector<std::pair<size_t,std::string>> nonatomlines;
    std::vector<std::vector<bool>> defineds;
@@ -76,6 +78,7 @@ public:
    const std::vector<std::string>& getSegnames() const;
    const std::vector<std::string>& getAtomtypes() const;
    const std::vector<int>& getResids() const;
+   const std::vector<int>& getResidues() const;
    const std::vector<size_t>& getLinenumbers() const;
    //const std::vector<char>& getChainids() const;
    const std::vector<std::string>& getChainids() const;
@@ -236,6 +239,12 @@ inline
 const std::vector<int>& PDB::getResids() const
 {
    return resids;
+}
+
+inline
+const std::vector<int>& PDB::getResidues() const
+{
+   return residues;
 }
 
 inline
