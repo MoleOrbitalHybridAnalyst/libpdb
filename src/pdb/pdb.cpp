@@ -682,6 +682,16 @@ vector<size_t> PDB::selectAtoms(const PDBDef& def) const
    return indexes;
 }
 
+vector<size_t> PDB::atomsWithin(const Vector& cen, float r) const
+{
+   float r2 = r * r;
+   vector<size_t> indexes;
+   for(size_t i = 0; i < nAtoms; ++i) 
+      if(pbcDistance2(cen, getCoordinates(i)) <= r2)
+         indexes.push_back(i);
+   return indexes;
+}
+
 bool PDB::setSegname(const PDBDef& def, const std::string &s)
 {
    vector<size_t> indexes = selectAtoms(def); bool result;
@@ -885,7 +895,7 @@ vector<size_t> PDB::getSolvationShells(int n, float cutoff,
    // in this subroutine, 
    // I assume that reorderWater has already been done
    
-   if(cutoff > boxlens[0] or cutoff > boxlens[1] or cutoff > boxlens[2])
+   if(cutoff > boxlens[0]/2 or cutoff > boxlens[1]/2 or cutoff > boxlens[2]/2)
       throw invalid_argument("cutoff larger than half box");
    
    vector<WaterNode> onodes;

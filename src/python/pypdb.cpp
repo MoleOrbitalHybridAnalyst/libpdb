@@ -149,6 +149,7 @@ BOOST_PYTHON_MODULE(pypdb_core)
             std::vector<size_t> (PDB::*)(
                int, float, const PDBDef&, const PDBDef&) const
             >(&PDB::getSolvationShells))
+      .def("atoms_within", &PDB::atomsWithin)
    ;
 }
 

@@ -159,6 +159,8 @@ public:
        {assembleWater(false, false, defo, defh); }
 /// select atoms according to PDBDef; return vector of indexes
    std::vector<size_t> selectAtoms(const PDBDef& def) const;
+/// select atoms within certain distance
+   std::vector<size_t> atomsWithin(const Vector& cen, float r) const;
 /// compute geometric center of a group of atoms according to indexes
    Vector geoCenter(const std::vector<size_t>&) const;
 /// compute geometric center of a group of atoms according to PDBDef
