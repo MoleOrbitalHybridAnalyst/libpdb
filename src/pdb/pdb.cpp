@@ -879,21 +879,29 @@ void PDB::checkDefined(const PDBDef& def) const
    }
 }
 
-double PDB::adjacencyWaterNode(WaterNode n1, WaterNode n2) const
+pair<double,double> PDB::adjacencyWaterNode(WaterNode n1, WaterNode n2) const
 {
    double mindist2 = boxlens[0] + boxlens[1] + boxlens[2];
    mindist2 *= mindist2;
-   if(n1.first == n2.first) return mindist2;
+   if(n1.first == n2.first) return make_pair(mindist2,mindist2);
    for(int offset = 1; offset <= n1.second; ++offset) {
       double dist2 = pbcDistance2(n1.first + offset, n2.first);
       if(dist2 < mindist2)
          mindist2 = dist2;
    }
-   return mindist2;
+
+   double mindist2_ = boxlens[0] + boxlens[1] + boxlens[2];
+   mindist2_ *= mindist2_;
+   for(int offset = 1; offset <= n2.second; ++offset) {
+      double dist2 = pbcDistance2(n2.first + offset, n1.first);
+      if(dist2 < mindist2_)
+         mindist2_ = dist2;
+   }
+   return make_pair(mindist2,mindist2_);
 }
 
 vector<size_t> PDB::getSolvationShells(int n, float cutoff,
-      const vector<size_t>& oindexes, size_t hydindex) const 
+      const vector<size_t>& oindexes, size_t hydindex, int direction) const 
 {
    // in this subroutine, 
    // I assume that reorderWater has already been done
@@ -913,11 +921,18 @@ vector<size_t> PDB::getSolvationShells(int n, float cutoff,
    // Do DFS here
    set<WaterNode> solvation_nodes;
    solvation_nodes.emplace(hydindex,3);
-   DFS(WaterNode(hydindex,3), n, 
-         [this,&cutoff](WaterNode a, WaterNode b) {
-            return this->adjacencyWaterNode(a, b) <= cutoff*cutoff;
-         }
-         , onodes, solvation_nodes);
+   if(!direction)
+      DFS(WaterNode(hydindex,3), n, 
+            [this,&cutoff](WaterNode a, WaterNode b) {
+               return this->adjacencyWaterNode(a, b).first <= cutoff*cutoff;
+            }
+            , onodes, solvation_nodes);
+   else
+      DFS(WaterNode(hydindex,3), n, 
+            [this,&cutoff](WaterNode a, WaterNode b) {
+               return this->adjacencyWaterNode(a, b).second <= cutoff*cutoff;
+            }
+            , onodes, solvation_nodes);
 
    vector<size_t> indexes;
    for(auto i : solvation_nodes) 
@@ -927,7 +942,7 @@ vector<size_t> PDB::getSolvationShells(int n, float cutoff,
 }
 
 vector<size_t> PDB::getSolvationShells(int n, float cutoff, 
-      const PDBDef& defo, const PDBDef& defhyd) const
+      const PDBDef& defo, const PDBDef& defhyd, int direction) const
 {
    const auto& hydindexes = selectAtoms(defhyd);
    if(hydindexes.size() != 1) 
@@ -935,7 +950,7 @@ vector<size_t> PDB::getSolvationShells(int n, float cutoff,
    size_t hydindex = hydindexes[0];
    const auto& oindexes = selectAtoms(defo);
 
-   return getSolvationShells(n, cutoff, oindexes, hydindex);
+   return getSolvationShells(n, cutoff, oindexes, hydindex, direction);
 }
 
 //bool PDB::isMatched(size_t index, const PDBdef& def) const

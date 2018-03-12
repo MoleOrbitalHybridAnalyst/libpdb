@@ -141,14 +141,22 @@ BOOST_PYTHON_MODULE(pypdb_core)
             Vector (PDB::*)(const std::vector<size_t>&)> (&PDB::shiftToMiddle))
       .def("shift2middle", static_cast<
             Vector (PDB::*)(const PDBDef&)> (&PDB::shiftToMiddle))
-      .def("get_solvation_shells", static_cast<
+      .def("get_hb_acceptors", static_cast<
             std::vector<size_t> (PDB::*)(
                int, float, const std::vector<size_t>&, size_t) const
-            >(&PDB::getSolvationShells))
-      .def("get_solvation_shells", static_cast<
+            >(&PDB::getHBAcceptors))
+      .def("get_hb_acceptors", static_cast<
             std::vector<size_t> (PDB::*)(
                int, float, const PDBDef&, const PDBDef&) const
-            >(&PDB::getSolvationShells))
+            >(&PDB::getHBAcceptors))
+      .def("get_hb_donors", static_cast<
+            std::vector<size_t> (PDB::*)(
+               int, float, const std::vector<size_t>&, size_t) const
+            >(&PDB::getHBDonors))
+      .def("get_hb_donors", static_cast<
+            std::vector<size_t> (PDB::*)(
+               int, float, const PDBDef&, const PDBDef&) const
+            >(&PDB::getHBDonors))
       .def("atoms_within", static_cast<
             std::vector<size_t> (PDB::*)(
               const list&, float) const> (&PDB::atomsWithin) )
