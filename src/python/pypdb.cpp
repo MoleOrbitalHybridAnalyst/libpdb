@@ -160,6 +160,9 @@ BOOST_PYTHON_MODULE(pypdb_core)
       .def("atoms_within", static_cast<
             std::vector<size_t> (PDB::*)(
               const list&, float) const> (&PDB::atomsWithin) )
+      .def("write2xyz", static_cast<
+            void (PDB::*) (const std::string&, const std::string&) const
+            > (&PDB::writeXYZ) )
    ;
 }
 
