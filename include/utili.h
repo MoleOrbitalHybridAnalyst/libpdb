@@ -38,7 +38,14 @@ public:
    Vector(float d0, float d1, float d2);
 #ifdef _HAS_BOOST_PYTHON
 /// create a vector from python::list
-   Vector(const boost::python::list& bplist);
+   Vector(const boost::python::list& bplist)
+   {
+      int n = boost::python::len(bplist);
+      if(n != 3)
+         throw std::invalid_argument("input list is not 3 dimensional");
+      for(int i = 0; i < n; ++i)
+         d[i] = boost::python::extract<float>(bplist[i]);
+   }
 #endif
 /// braket access
    float & operator[] (unsigned i);

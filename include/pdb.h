@@ -11,6 +11,10 @@
 #include "global.h"
 #include "utili.h"
 
+#ifdef _HAS_BOOST_PYTHON
+#include <boost/python.hpp>
+#endif
+
 namespace PDB_NS {
 
 class PDB {
@@ -161,6 +165,10 @@ public:
    std::vector<size_t> selectAtoms(const PDBDef& def) const;
 /// select atoms within certain distance
    std::vector<size_t> atomsWithin(const Vector& cen, float r) const;
+#ifdef _HAS_BOOST_PYTHON
+   std::vector<size_t> atomsWithin(const boost::python::list& cen, float r) 
+      const {return atomsWithin(Vector(cen), r); }
+#endif
 /// compute geometric center of a group of atoms according to indexes
    Vector geoCenter(const std::vector<size_t>&) const;
 /// compute geometric center of a group of atoms according to PDBDef
