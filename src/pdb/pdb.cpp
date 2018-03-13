@@ -930,7 +930,9 @@ vector<size_t> PDB::getSolvationShells(int n, float cutoff,
       DFS(WaterNode(hydindex,3), n, 
             [this,&cutoff](WaterNode a, WaterNode b) {
                bool adj = adjacencyWaterNode(a, b).first <= cutoff*cutoff;
-               //do sth here
+               if(adj) 
+                  for(int i = 0; i <= b.second; ++i)
+                     make_connect(a.first, b.first + i);
                return adj;
             }
             , onodes, solvation_nodes);
@@ -938,6 +940,9 @@ vector<size_t> PDB::getSolvationShells(int n, float cutoff,
       DFS(WaterNode(hydindex,3), n, 
             [this,&cutoff](WaterNode a, WaterNode b) {
                bool adj = adjacencyWaterNode(a, b).second <= cutoff*cutoff;
+               if(adj) 
+                  for(int i = 0; i <= b.second; ++i)
+                     make_connect(a.first, b.first + i);
                return adj;
             }
             , onodes, solvation_nodes);

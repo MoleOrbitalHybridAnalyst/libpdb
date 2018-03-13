@@ -230,6 +230,10 @@ public:
    std::vector<size_t> getHBDonors(int n, float cutoff, 
          const std::vector<size_t>& oindexes, size_t hydindex)  {
       return getSolvationShells(n, cutoff, oindexes, hydindex, 1); }
+/// make atom 2 in the same pbc images of atom1
+   void make_connect(size_t i1, size_t i2) {
+      setCoordinates(i2, getCoordinates(i1) + pbcDistance(i1, i2));
+   }
 };
 
 inline
