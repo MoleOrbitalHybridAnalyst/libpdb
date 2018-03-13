@@ -211,25 +211,25 @@ public:
 /// hydrogen instead of returning a vector of WaterNode is for the convenience
 /// in Python interface. WE NEED OVERLOAD BY RETURN TYPE!!!
    std::vector<size_t> getSolvationShells(int n, float cutoff, 
-         const std::vector<size_t>& oindexes, size_t hydindex, int) ;
+         const std::vector<size_t>& oindexes, size_t hydindex, int, bool) ;
    std::vector<size_t> getSolvationShells(int n, float cutoff, 
-         const PDBDef& defo, const PDBDef& defhyd, int) ;
+         const PDBDef& defo, const PDBDef& defhyd, int, bool make_whole) ;
 /// Get the HB distance of two water nodes
    std::pair<double,double> adjacencyWaterNode(
                 WaterNode n1, WaterNode n2) const;
 /// Get HB acceptors or donors
    std::vector<size_t> getHBAcceptors(int n, float cutoff, 
          const PDBDef& defo, const PDBDef& defhyd)  {
-      return getSolvationShells(n, cutoff, defo, defhyd, 0); }
+      return getSolvationShells(n, cutoff, defo, defhyd, 0, true); }
    std::vector<size_t> getHBAcceptors(int n, float cutoff, 
          const std::vector<size_t>& oindexes, size_t hydindex)  {
-      return getSolvationShells(n, cutoff, oindexes, hydindex, 0); }
+      return getSolvationShells(n, cutoff, oindexes, hydindex, 0, true); }
    std::vector<size_t> getHBDonors(int n, float cutoff, 
          const PDBDef& defo, const PDBDef& defhyd)  {
-      return getSolvationShells(n, cutoff, defo, defhyd, 1); }
+      return getSolvationShells(n, cutoff, defo, defhyd, 1, true); }
    std::vector<size_t> getHBDonors(int n, float cutoff, 
          const std::vector<size_t>& oindexes, size_t hydindex)  {
-      return getSolvationShells(n, cutoff, oindexes, hydindex, 1); }
+      return getSolvationShells(n, cutoff, oindexes, hydindex, 1, true); }
 /// make atom 2 in the same pbc images of atom1
    void make_connect(size_t i1, size_t i2) {
       setCoordinates(i2, getCoordinates(i1) + pbcDistance(i1, i2));

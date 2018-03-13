@@ -906,7 +906,7 @@ pair<double,double> PDB::adjacencyWaterNode(WaterNode n1, WaterNode n2) const
 }
 
 vector<size_t> PDB::getSolvationShells(int n, float cutoff,
-      const vector<size_t>& oindexes, size_t hydindex, int direction)  
+      const vector<size_t>& oindexes, size_t hydindex, int direction, bool m)  
 {
    // in this subroutine, 
    // I assume that reorderWater has already been done
@@ -928,9 +928,9 @@ vector<size_t> PDB::getSolvationShells(int n, float cutoff,
    solvation_nodes.emplace(hydindex,3);
    if(!direction)
       DFS(WaterNode(hydindex,3), n, 
-            [this,&cutoff](WaterNode a, WaterNode b) {
+            [this,&cutoff,&m](WaterNode a, WaterNode b) {
                bool adj = adjacencyWaterNode(a, b).first <= cutoff*cutoff;
-               if(adj) 
+               if(m && adj) 
                   for(int i = 0; i <= b.second; ++i)
                      make_connect(a.first, b.first + i);
                return adj;
@@ -938,9 +938,9 @@ vector<size_t> PDB::getSolvationShells(int n, float cutoff,
             , onodes, solvation_nodes);
    else
       DFS(WaterNode(hydindex,3), n, 
-            [this,&cutoff](WaterNode a, WaterNode b) {
+            [this,&cutoff,&m](WaterNode a, WaterNode b) {
                bool adj = adjacencyWaterNode(a, b).second <= cutoff*cutoff;
-               if(adj) 
+               if(m && adj) 
                   for(int i = 0; i <= b.second; ++i)
                      make_connect(a.first, b.first + i);
                return adj;
@@ -955,7 +955,7 @@ vector<size_t> PDB::getSolvationShells(int n, float cutoff,
 }
 
 vector<size_t> PDB::getSolvationShells(int n, float cutoff, 
-      const PDBDef& defo, const PDBDef& defhyd, int direction) 
+      const PDBDef& defo, const PDBDef& defhyd, int direction, bool make_whole) 
 {
    const auto& hydindexes = selectAtoms(defhyd);
    if(hydindexes.size() != 1) 
@@ -963,7 +963,7 @@ vector<size_t> PDB::getSolvationShells(int n, float cutoff,
    size_t hydindex = hydindexes[0];
    const auto& oindexes = selectAtoms(defo);
 
-   return getSolvationShells(n, cutoff, oindexes, hydindex, direction);
+   return getSolvationShells(n, cutoff, oindexes, hydindex, direction, make_whole);
 }
 
 //bool PDB::isMatched(size_t index, const PDBdef& def) const
