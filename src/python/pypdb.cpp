@@ -145,19 +145,19 @@ BOOST_PYTHON_MODULE(pypdb_core)
             Vector (PDB::*)(const PDBDef&)> (&PDB::shiftToMiddle))
       .def("get_hb_acceptors", static_cast<
             std::vector<size_t> (PDB::*)(
-               int, float, const std::vector<size_t>&, size_t) const
+               int, float, const std::vector<size_t>&, size_t) 
             >(&PDB::getHBAcceptors))
       .def("get_hb_acceptors", static_cast<
             std::vector<size_t> (PDB::*)(
-               int, float, const PDBDef&, const PDBDef&) const
+               int, float, const PDBDef&, const PDBDef&) 
             >(&PDB::getHBAcceptors))
       .def("get_hb_donors", static_cast<
             std::vector<size_t> (PDB::*)(
-               int, float, const std::vector<size_t>&, size_t) const
+               int, float, const std::vector<size_t>&, size_t) 
             >(&PDB::getHBDonors))
       .def("get_hb_donors", static_cast<
             std::vector<size_t> (PDB::*)(
-               int, float, const PDBDef&, const PDBDef&) const
+               int, float, const PDBDef&, const PDBDef&) 
             >(&PDB::getHBDonors))
       .def("atoms_within", static_cast<
             std::vector<size_t> (PDB::*)(
@@ -165,6 +165,12 @@ BOOST_PYTHON_MODULE(pypdb_core)
       .def("write2xyz", static_cast<
             void (PDB::*) (const std::string&, const std::string&) const
             > (&PDB::writeXYZ) )
+      .def("pbc_distance", static_cast<
+            Vector (PDB::*) (size_t, size_t) const
+            > (&PDB::pbcDistance) )
+      .def("pbc_distance", static_cast<
+            Vector (PDB::*) (const Vector&, const Vector&) const
+            > (&PDB::pbcDistance) )
    ;
 }
 

@@ -906,7 +906,7 @@ pair<double,double> PDB::adjacencyWaterNode(WaterNode n1, WaterNode n2) const
 }
 
 vector<size_t> PDB::getSolvationShells(int n, float cutoff,
-      const vector<size_t>& oindexes, size_t hydindex, int direction) const 
+      const vector<size_t>& oindexes, size_t hydindex, int direction)  
 {
    // in this subroutine, 
    // I assume that reorderWater has already been done
@@ -929,13 +929,16 @@ vector<size_t> PDB::getSolvationShells(int n, float cutoff,
    if(!direction)
       DFS(WaterNode(hydindex,3), n, 
             [this,&cutoff](WaterNode a, WaterNode b) {
-               return this->adjacencyWaterNode(a, b).first <= cutoff*cutoff;
+               bool adj = adjacencyWaterNode(a, b).first <= cutoff*cutoff;
+               //do sth here
+               return adj;
             }
             , onodes, solvation_nodes);
    else
       DFS(WaterNode(hydindex,3), n, 
             [this,&cutoff](WaterNode a, WaterNode b) {
-               return this->adjacencyWaterNode(a, b).second <= cutoff*cutoff;
+               bool adj = adjacencyWaterNode(a, b).second <= cutoff*cutoff;
+               return adj;
             }
             , onodes, solvation_nodes);
 
@@ -947,7 +950,7 @@ vector<size_t> PDB::getSolvationShells(int n, float cutoff,
 }
 
 vector<size_t> PDB::getSolvationShells(int n, float cutoff, 
-      const PDBDef& defo, const PDBDef& defhyd, int direction) const
+      const PDBDef& defo, const PDBDef& defhyd, int direction) 
 {
    const auto& hydindexes = selectAtoms(defhyd);
    if(hydindexes.size() != 1) 

@@ -116,6 +116,9 @@ public:
    bool setZ(size_t index, float f);
    bool setOcc(size_t index, float f);
    bool setTempf(size_t index, float f);
+   void setCoordinates(size_t index, const Vector& v) {
+      setX(index, v[0]); setY(index, v[1]); setZ(index, v[2]);
+   }
    bool setSegname(const PDBDef& def, const std::string & s);
    //bool setChainid(const PDBDef& def, char c);
    bool setChainid(const PDBDef& def, const std::string & c);
@@ -208,24 +211,24 @@ public:
 /// hydrogen instead of returning a vector of WaterNode is for the convenience
 /// in Python interface. WE NEED OVERLOAD BY RETURN TYPE!!!
    std::vector<size_t> getSolvationShells(int n, float cutoff, 
-         const std::vector<size_t>& oindexes, size_t hydindex, int) const;
+         const std::vector<size_t>& oindexes, size_t hydindex, int) ;
    std::vector<size_t> getSolvationShells(int n, float cutoff, 
-         const PDBDef& defo, const PDBDef& defhyd, int) const;
+         const PDBDef& defo, const PDBDef& defhyd, int) ;
 /// Get the HB distance of two water nodes
    std::pair<double,double> adjacencyWaterNode(
                 WaterNode n1, WaterNode n2) const;
 /// Get HB acceptors or donors
    std::vector<size_t> getHBAcceptors(int n, float cutoff, 
-         const PDBDef& defo, const PDBDef& defhyd) const {
+         const PDBDef& defo, const PDBDef& defhyd)  {
       return getSolvationShells(n, cutoff, defo, defhyd, 0); }
    std::vector<size_t> getHBAcceptors(int n, float cutoff, 
-         const std::vector<size_t>& oindexes, size_t hydindex) const {
+         const std::vector<size_t>& oindexes, size_t hydindex)  {
       return getSolvationShells(n, cutoff, oindexes, hydindex, 0); }
    std::vector<size_t> getHBDonors(int n, float cutoff, 
-         const PDBDef& defo, const PDBDef& defhyd) const {
+         const PDBDef& defo, const PDBDef& defhyd)  {
       return getSolvationShells(n, cutoff, defo, defhyd, 1); }
    std::vector<size_t> getHBDonors(int n, float cutoff, 
-         const std::vector<size_t>& oindexes, size_t hydindex) const {
+         const std::vector<size_t>& oindexes, size_t hydindex)  {
       return getSolvationShells(n, cutoff, oindexes, hydindex, 1); }
 };
 
