@@ -697,13 +697,11 @@ vector<size_t> PDB::atomsWithin(const Vector& cen, float r) const
    return indexes;
 }
 
-bool PDB::setSegname(const PDBDef& def, const std::string &s)
+void PDB::setSegname(const PDBDef& def, const std::string &s)
 {
-   vector<size_t> indexes = selectAtoms(def); bool result;
-   for(auto iter = indexes.begin(); iter != indexes.end(); ++iter) {
-      if(!setSegname(*iter, s)) result = false;
-   }
-   return result;
+   vector<size_t> indexes = selectAtoms(def); 
+   for(auto index : indexes) 
+      setSegname(index, s);
 }
 
 bool PDB::setChainid(const PDBDef& def, const std::string& c)

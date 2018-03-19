@@ -107,7 +107,7 @@ public:
    bool setAtomname(size_t index, const std::string & s);
    bool setResid(size_t index, const int i);
    bool setResname(size_t index, const std::string & s);
-   bool setSegname(size_t index, const std::string & s);
+   void setSegname(size_t index, const std::string & s);
    bool setAtomtype(size_t index, const std::string & s);
    //bool setChainid(size_t index, char c);
    bool setChainid(size_t index, const std::string & s);
@@ -119,7 +119,7 @@ public:
    void setCoordinates(size_t index, const Vector& v) {
       setX(index, v[0]); setY(index, v[1]); setZ(index, v[2]);
    }
-   bool setSegname(const PDBDef& def, const std::string & s);
+   void setSegname(const PDBDef& def, const std::string & s);
    //bool setChainid(const PDBDef& def, char c);
    bool setChainid(const PDBDef& def, const std::string & c);
 /// guess one chainid according to segname; return false if segname undefined
@@ -423,14 +423,13 @@ bool PDB::setResname(size_t index, const std::string& s)
 }
 
 inline
-bool PDB::setSegname(size_t index, const std::string& s)
+void PDB::setSegname(size_t index, const std::string& s)
 {
    if(index >= nAtoms)
-      return false;
+      throw std::out_of_range("index out of range in setSegname");
    else {
       segnames[index] = s;
       defineds[index][static_cast<size_t>(PDBField::segname)] = true;
-      return true;
    }
 }
 
