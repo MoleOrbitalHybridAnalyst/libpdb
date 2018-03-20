@@ -174,6 +174,7 @@ BOOST_PYTHON_MODULE(pypdb_core)
       .def("write2ndx", static_cast<
             void (PDB::*) (const std::string&, const std::string&) const
             > (&PDB::writeIndexFile) )
+      .def("moveto", &PDB::moveTo)
    ;
 }
 
