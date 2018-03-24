@@ -171,6 +171,12 @@ BOOST_PYTHON_MODULE(pypdb_core)
       .def("pbc_distance", static_cast<
             Vector (PDB::*) (const Vector&, const Vector&) const
             > (&PDB::pbcDistance) )
+      .def("pbc_distance2", static_cast<
+            float (PDB::*) (size_t, size_t) const
+            > (&PDB::pbcDistance2) )
+      .def("pbc_distance2", static_cast<
+            float (PDB::*) (const Vector&, const Vector&) const
+            > (&PDB::pbcDistance2) )
       .def("write2ndx", static_cast<
             void (PDB::*) (const std::string&, const std::string&) const
             > (&PDB::writeIndexFile) )

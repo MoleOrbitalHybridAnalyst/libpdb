@@ -104,24 +104,24 @@ public:
    Vector getCoordinates(size_t index) const;
    std::pair<Vector,Vector> getBoundary() const;
 /// set things
-   bool setAtomname(size_t index, const std::string & s);
-   bool setResid(size_t index, const int i);
-   bool setResname(size_t index, const std::string & s);
+   void setAtomname(size_t index, const std::string & s);
+   void setResid(size_t index, const int i);
+   void setResname(size_t index, const std::string & s);
    void setSegname(size_t index, const std::string & s);
-   bool setAtomtype(size_t index, const std::string & s);
+   void setAtomtype(size_t index, const std::string & s);
    //bool setChainid(size_t index, char c);
-   bool setChainid(size_t index, const std::string & s);
-   bool setX(size_t index, float f);
-   bool setY(size_t index, float f);
-   bool setZ(size_t index, float f);
-   bool setOcc(size_t index, float f);
-   bool setTempf(size_t index, float f);
+   void setChainid(size_t index, const std::string & s);
+   void setX(size_t index, float f);
+   void setY(size_t index, float f);
+   void setZ(size_t index, float f);
+   void setOcc(size_t index, float f);
+   void setTempf(size_t index, float f);
    void setCoordinates(size_t index, const Vector& v) {
       setX(index, v[0]); setY(index, v[1]); setZ(index, v[2]);
    }
    void setSegname(const PDBDef& def, const std::string & s);
    //bool setChainid(const PDBDef& def, char c);
-   bool setChainid(const PDBDef& def, const std::string & c);
+   void setChainid(const PDBDef& def, const std::string & c);
 /// guess one chainid according to segname; return false if segname undefined
    bool guessOneChainid(const size_t index);
 /// guess all the chainids; return false if anyone fails
@@ -387,38 +387,35 @@ float PDB::getTempf(size_t index) const
 }
 
 inline
-bool PDB::setAtomname(size_t index, const std::string& s)
+void PDB::setAtomname(size_t index, const std::string& s)
 {
    if(index >= nAtoms)
-      return false;
+      throw std::out_of_range("index out of range in setAtomname");
    else {
       atomnames[index] = s;
       defineds[index][static_cast<size_t>(PDBField::atomname)] = true;
-      return true;
    }
 }
 
 inline
-bool PDB::setResid(size_t index, const int i)
+void PDB::setResid(size_t index, const int i)
 {
    if(index >= nAtoms)
-      return false;
+      throw std::out_of_range("index out of range in setResid");
    else {
       resids[index] = i;
       defineds[index][static_cast<size_t>(PDBField::resid)] = true;
-      return true;
    }
 }
 
 inline
-bool PDB::setResname(size_t index, const std::string& s)
+void PDB::setResname(size_t index, const std::string& s)
 {
    if(index >= nAtoms)
-      return false;
+      throw std::out_of_range("index out of range in setResname");
    else {
       resnames[index] = s;
       defineds[index][static_cast<size_t>(PDBField::resname)] = true;
-      return true;
    }
 }
 
@@ -434,88 +431,81 @@ void PDB::setSegname(size_t index, const std::string& s)
 }
 
 inline
-bool PDB::setAtomtype(size_t index, const std::string& s)
+void PDB::setAtomtype(size_t index, const std::string& s)
 {
    if(index >= nAtoms)
-      return false;
+      throw std::out_of_range("index out of range in setAtomtype");
    else {
       atomtypes[index] = s;
       defineds[index][static_cast<size_t>(PDBField::atomtype)] = true;
-      return true;
    }
 }
 
 inline
-bool PDB::setChainid(size_t index, const std::string& c)
+void PDB::setChainid(size_t index, const std::string& c)
 {
    if(c.length() != 1)
       throw std::invalid_argument("a string of length 1 is expected");
    if(index >= nAtoms)
-      return false;
+      throw std::out_of_range("index out of range in setChainid");
    else {
       chainids[index] = c;
       defineds[index][static_cast<size_t>(PDBField::chainid)] = true;
-      return true;
    }
 }
 
 inline
-bool PDB::setX(size_t index, float f)
+void PDB::setX(size_t index, float f)
 {
    if(index >= nAtoms)
-      return false;
+      throw std::out_of_range("index out of range in setX");
    else {
       xs[index] = f;
       defineds[index][static_cast<size_t>(PDBField::x)] = true;
-      return true;
    }
 }
 
 inline
-bool PDB::setY(size_t index, float f)
+void PDB::setY(size_t index, float f)
 {
    if(index >= nAtoms)
-      return false;
+      throw std::out_of_range("index out of range in setY");
    else {
       ys[index] = f;
       defineds[index][static_cast<size_t>(PDBField::y)] = true;
-      return true;
    }
 }
 
 inline
-bool PDB::setZ(size_t index, float f)
+void PDB::setZ(size_t index, float f)
 {
    if(index >= nAtoms)
-      return false;
+      throw std::out_of_range("index out of range in setZ");
    else {
       zs[index] = f;
       defineds[index][static_cast<size_t>(PDBField::z)] = true;
-      return true;
    }
 }
 
 inline
-bool PDB::setOcc(size_t index, float f)
+void PDB::setOcc(size_t index, float f)
 {
    if(index >= nAtoms)
-      return false;
+      throw std::out_of_range("index out of range in setOcc");
    else {
       occs[index] = f;
       defineds[index][static_cast<size_t>(PDBField::occ)] = true;
-      return true;
    }
 }
 
 inline
-bool PDB::setTempf(size_t index, float f)
+void PDB::setTempf(size_t index, float f)
 {
    if(index >= nAtoms)
-      return false;
+      throw std::out_of_range("index out of range in setTempf");
    else {
       tempfs[index] = f;
       defineds[index][static_cast<size_t>(PDBField::tempf)] = true;
-      return true;
    }
 }
 
@@ -528,7 +518,8 @@ float PDB::pbcDiff(double x1, double x2, int dim) const
    return diff - n * boxlens[dim];
 }
 
-inline bool PDB::isMatched(const std::string& s, const PDBDef& def, PDBField f) const {
+inline bool PDB::isMatched(
+      const std::string& s, const PDBDef& def, PDBField f) const {
    //TODO is there a way to get corresponding vector name by f?
    auto range = def.getDefstr().equal_range(f);
    if(range.first == range.second) return true;

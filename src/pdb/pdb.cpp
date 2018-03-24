@@ -704,13 +704,11 @@ void PDB::setSegname(const PDBDef& def, const std::string &s)
       setSegname(index, s);
 }
 
-bool PDB::setChainid(const PDBDef& def, const std::string& c)
+void PDB::setChainid(const PDBDef& def, const std::string& c)
 {
-   vector<size_t> indexes = selectAtoms(def); bool result;
-   for(auto iter = indexes.begin(); iter != indexes.end(); ++iter) {
-      if(!setChainid(*iter, c)) result = false;
-   }
-   return result;
+   vector<size_t> indexes = selectAtoms(def); 
+   for(auto index : indexes) 
+      setChainid(index, c);
 }
 
 pair<float,size_t> PDB::pbcDistance2(size_t i, vector<size_t> group) const
