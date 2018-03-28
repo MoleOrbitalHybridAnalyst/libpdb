@@ -445,8 +445,28 @@ size_t PDB::reorderWater(bool guess, bool check, bool reorder,
 
       for(auto jh = starth; jh != hindexesLv1.end(); ++jh) {
          float d = pbcDistance2(*io, *jh);
+
+// @@@@
+if(*io == 42) {
+if(d < 2.0) {
+printAtoms(stdout, vector<size_t>(1, *jh));
+printf("%f %f %f\n", d, d1, d2);
+}
+}
+// @@@@
+
          if(d < d2 and d > d1) {
             d2 = d; j2Lv2 = jLv2;
+
+// @@@@
+if(*io == 42) {
+if(d < 2.0) {
+printAtoms(stdout, vector<size_t>(1, *jh));
+printf("%f %f %f\n", d, d1, d2);
+}
+}
+// @@@@
+
          } else if(d < d1 and d > d2) {
             d1 = d; j1Lv2 = jLv2;
          } else if(d < d1 and d < d2) {
@@ -460,6 +480,14 @@ size_t PDB::reorderWater(bool guess, bool check, bool reorder,
       }
       swapCoordinates(*io+1, hindexesLv1[j1Lv2]);
       swapCoordinates(*io+2, hindexesLv1[j2Lv2]);
+
+// @@@@
+//if(io - oindexesLv1.begin() > 10) break;
+//printAtoms(stdout, vector<size_t>(1, *io));
+//printAtoms(stdout, vector<size_t>(1, *io + 1));
+//printAtoms(stdout, vector<size_t>(1, *io + 2));
+//printf("%f %f\n", pbcDistance2(*io, *io+1), pbcDistance2(*io, *io+2));
+// @@@@
    }
 
 // slow because of frequent swapping
