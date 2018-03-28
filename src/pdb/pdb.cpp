@@ -445,12 +445,12 @@ size_t PDB::reorderWater(bool guess, bool check, bool reorder,
 
       for(auto jh = starth; jh != hindexesLv1.end(); ++jh) {
          float d = pbcDistance2(*io, *jh);
-         if(d < d2 and d > d1) {
+         if(d <= d2 and d >= d1) {
             d2 = d; j2Lv2 = jLv2;
-         } else if(d < d1 and d > d2) {
+         } else if(d <= d1 and d >= d2) {
             d1 = d; j1Lv2 = jLv2;
          } else if(d < d1 and d < d2) {
-            if(d1 < d2) {
+            if(d1 <= d2) {
                d2 = d; j2Lv2 = jLv2;
             } else {
                d1 = d; j1Lv2 = jLv2;
