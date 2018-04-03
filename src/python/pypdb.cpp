@@ -181,6 +181,7 @@ BOOST_PYTHON_MODULE(pypdb_core)
             void (PDB::*) (const std::string&, const std::string&) const
             > (&PDB::writeIndexFile) )
       .def("moveto", &PDB::moveTo)
+      .def("get_coordinates", &PDB::getCoordinates)
    ;
 }
 
