@@ -13,7 +13,7 @@ BOOST_PYTHON_MODULE(pypdb_core)
    //obsolete after I use vector_indexing_suite:
    //to_python_converter<std::vector<size_t>, VecToList<size_t>>();
    //to_python_converter<std::vector<std::string>, VecToList<std::string>>();
-   to_python_converter<Vector, SubscrToList<Vector>>();
+   //to_python_converter<Vector, SubscrToList<Vector>>();
 
 /// wrap vectors 
 /// http://www.boost.org/doc/libs/1_51_0/libs/python/doc/v2/indexing.html
@@ -25,6 +25,8 @@ BOOST_PYTHON_MODULE(pypdb_core)
       .def(vector_indexing_suite<std::vector<size_t>>());
    class_<std::vector<int>>("std_vector_int")
       .def(vector_indexing_suite<std::vector<int>>());
+   class_<Vector>("Vector")
+      .def(vector_indexing_suite<Vector>());
 
    enum_<PDBField>("pdb_field")
       .value("atomname", PDBField::atomname)

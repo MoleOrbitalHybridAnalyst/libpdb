@@ -31,6 +31,45 @@ class Vector {
    std::array<float,3> d;
 
 public:
+/// Things needed for boost::vector_indexing_suite
+   typedef float value_type;
+   typedef size_t size_type;
+   typedef std::ptrdiff_t difference_type;
+   typedef std::array<float,3>::iterator iterator;
+   typedef std::array<float,3>::const_iterator const_iterator;
+   iterator begin() {return d.begin();}
+   iterator end() {return d.end();}
+   iterator erase(iterator it) {
+      (void) it;
+      std::runtime_error("Vector::erase should not be called");
+      return d.end();
+   }
+   iterator erase(iterator f, iterator l) {
+      (void) f; (void) l;
+      std::runtime_error("Vector::erase should not be called");
+      return d.end();
+   }
+   iterator insert(iterator pos, const float& value) {
+      (void) pos; (void) value;
+      std::runtime_error("Vector::insert should not be called");
+      return d.end();
+   }
+   template< class InputIt >
+   iterator insert(const_iterator pos, InputIt f, InputIt l) {
+      (void) pos; (void) f; (void) l;
+      std::runtime_error("Vector::insert should not be called");
+      return d.end();
+   }
+   void push_back(const float& value) {
+      (void) value;
+      std::runtime_error("Vector::push_back should not be called");
+   }
+   template< class InputIt >
+   Vector(InputIt f, InputIt l) {
+      (void) f; (void) l;
+      std::runtime_error("Vector::(InputIt f, InputIt l) should not be called");
+   }
+/// default constructor
    Vector() = default;
 /// create a vector with same value
    Vector(float d0);
