@@ -40,15 +40,30 @@ setattr(std_vector_float, "__repr__", hfs.repr_iterable)
 setattr(std_vector_string, "__repr__", hfs.repr_iterable)
 setattr(Vector, "__repr__", hfs.repr_iterable)
 
-class PDB:
+class PDB(object):
+
+    pdb_attrs = ["atomnames", "resnames", "segnames", "atomtypes", \
+                 "chainids", "resids", "residues", "resnames", \
+                 "xs", "ys", "zs", "occs", "tempfs"]
+
     def __init__(self, fname):
-        self.pdb = pdb_obj(fname)
-        self.natoms = self.pdb.natom
+        self.core_data = pdb_obj(fname)
+        self.natoms = self.core_data.natom
+    def __setattr__(self, name, value):
+        if name in self.pdb_attrs:
+            object.__setattr__(self.core_data, name, value)
+        else:
+            object.__setattr__(self, name, value)
+    def __getattr__(self, name):
+        if name in self.pdb_attrs:
+            return self.core_data.__getattribute__(name)
+        else:
+            object.__getattribute__(name)
     def select_atoms(self, atom_def):
         if type(atom_def) is str:
-            return self.pdb.select_atoms(pdb_def(atom_def))
+            return self.core_data.select_atoms(pdb_def(atom_def))
         else:
-            return self.pdb.select_atoms(atom_def)
+            return self.core_data.select_atoms(atom_def)
     def write2file(self, *args):
         """
         write2file(fname)
@@ -58,15 +73,15 @@ class PDB:
         write2file(fname, iterable_of_indexes)
         """
         if len(args) == 1:
-            self.pdb.write2file(args[0])
+            self.core_data.write2file(args[0])
         elif len(args) == 2:
             try:
-                self.pdb.write2file(args[0], args[1])
+                self.core_data.write2file(args[0], args[1])
             except:
                 if type(args[1]) is str:
-                    self.pdb.write2file(args[0], pdb_def(args[1]))
+                    self.core_data.write2file(args[0], pdb_def(args[1]))
                 else:
-                    self.pdb.write2file(\
+                    self.core_data.write2file(\
                             args[0], hfs.make_vector_size_t(args[1]))
         else:
             raise Exception("write2file accepts 1 or 2 args")
@@ -76,9 +91,9 @@ class PDB:
         show(pdbdef)
         """
         if len(args) == 0:
-            self.pdb.show()
+            self.core_data.show()
         elif len(args) == 1:
-            self.pdb.show(args[0])
+            self.core_data.show(args[0])
         else:
             raise Exception("show accepts 0 or 1 arg")
     def print_atoms(self, arg):
@@ -90,9 +105,9 @@ class PDB:
         print_atoms(selection_string)
         """
         if type(arg) == str:
-            self.pdb.print_atom(pdb_def(arg))
+            self.core_data.print_atom(pdb_def(arg))
         else:
-            self.pdb.print_atom(arg)
+            self.core_data.print_atom(arg)
     def geo_center(self, arg):
         """
         geo_center(pdbdef)
@@ -100,4 +115,19 @@ class PDB:
         geo_center(vector_of_indexes)
         geo_center(iterable_of_indexes)
         """
-        pass
+        try:
+            # try to call geo_center(pdbdef)
+            #         and geo_center(vector_of_indexes)
+            return self.core_data.geo_center(arg)
+        except:
+            pass
+        try:
+            # try to convert iterable to vector
+            return self.core_data.geo_center(hfs.make_vector_size_t(arg))
+        except:
+            pass
+        try:
+            # try to convert string to pdb_def
+            return self.core_data.geo_center(pdb_def(arg))
+        except:
+            raise Exception("illegal argument for geo_center")
