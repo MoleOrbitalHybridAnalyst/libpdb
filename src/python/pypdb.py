@@ -261,6 +261,23 @@ class PDB(object):
                     raise
                 else:
                     raise ValueError("illegal argument received by geo_center")
+    def distance(self, arg0, arg1, pbc = True):
+       if hasattr(arg0, '__iter__'):
+          arg0 = hfs.make_Vector(arg0)
+       else:
+          try: arg0 = self.get_coordinate(arg0)
+          except: raise
+       if hasattr(arg1, '__iter__'):
+          arg1 = hfs.make_Vector(arg1)
+       else:
+          try: arg1 = self.get_coordinate(arg1)
+          except: raise
+       if pbc:
+          return self.core_data.pbc_distance(arg0, arg1)
+       else:
+          return hfs.make_Vector([_-__ for _,__ in zip(arg1,arg0)])
+    def distance2(self, arg0, arg1, pbc = True):
+       return sum([_**2 for _ in self.distance(arg0, arg1, pbc = pbc)])
 
 #for fs in PDB.pdb_fields:
 #    setattr(PDB, "get_" + fs, \
