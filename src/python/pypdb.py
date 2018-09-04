@@ -13,11 +13,11 @@ else:
 
 class HelpingFunctions:
 
-    repr_iterable = lambda v : list(v).__repr__()
+    #repr_iterable = lambda v: list(v).__repr__()
 
     def __init__(self):
         pass
-        #self.repr_iterable = lambda v : list(v).__repr__()
+        self.repr_iterable = lambda v : list(v).__repr__()
 
     def make_vector_size_t(self, arr):
         """
@@ -38,11 +38,11 @@ class HelpingFunctions:
         return v
     
 
-setattr(std_vector_size_t, "__repr__", HelpingFunctions.repr_iterable)
-setattr(std_vector_int, "__repr__", HelpingFunctions.repr_iterable)
-setattr(std_vector_float, "__repr__", HelpingFunctions.repr_iterable)
-setattr(std_vector_string, "__repr__", HelpingFunctions.repr_iterable)
-setattr(Vector, "__repr__", HelpingFunctions.repr_iterable)
+setattr(std_vector_size_t, "__repr__", HelpingFunctions().repr_iterable)
+setattr(std_vector_int, "__repr__", HelpingFunctions().repr_iterable)
+setattr(std_vector_float, "__repr__", HelpingFunctions().repr_iterable)
+setattr(std_vector_string, "__repr__", HelpingFunctions().repr_iterable)
+setattr(Vector, "__repr__", HelpingFunctions().repr_iterable)
 
 class PDB(object):
 
@@ -275,19 +275,19 @@ class PDB(object):
                     raise ValueError("illegal argument received by geo_center")
     def distance(self, arg0, arg1, pbc = True):
        if hasattr(arg0, '__iter__'):
-          arg0 = hfs.make_Vector(arg0)
+          arg0 = self.hfs.make_Vector(arg0)
        else:
           try: arg0 = self.get_coordinate(arg0)
           except: raise
        if hasattr(arg1, '__iter__'):
-          arg1 = hfs.make_Vector(arg1)
+          arg1 = self.hfs.make_Vector(arg1)
        else:
           try: arg1 = self.get_coordinate(arg1)
           except: raise
        if pbc:
           return self.core_data.pbc_distance(arg0, arg1)
        else:
-          return hfs.make_Vector([_-__ for _,__ in zip(arg1,arg0)])
+          return self.hfs.make_Vector([_-__ for _,__ in zip(arg1,arg0)])
     def distance2(self, arg0, arg1, pbc = True):
        return sum([_**2 for _ in self.distance(arg0, arg1, pbc = pbc)])
 
