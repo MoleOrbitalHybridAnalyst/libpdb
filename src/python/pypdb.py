@@ -12,8 +12,12 @@ else:
     readline.parse_and_bind("tab: complete")
 
 class HelpingFunctions:
+
+    repr_iterable = lambda v : list(v).__repr__()
+
     def __init__(self):
-        self.repr_iterable = lambda v : [__ for __ in v].__repr__()
+        pass
+        #self.repr_iterable = lambda v : list(v).__repr__()
 
     def make_vector_size_t(self, arr):
         """
@@ -34,12 +38,11 @@ class HelpingFunctions:
         return v
     
 
-hfs = HelpingFunctions()
-setattr(std_vector_size_t, "__repr__", hfs.repr_iterable)
-setattr(std_vector_int, "__repr__", hfs.repr_iterable)
-setattr(std_vector_float, "__repr__", hfs.repr_iterable)
-setattr(std_vector_string, "__repr__", hfs.repr_iterable)
-setattr(Vector, "__repr__", hfs.repr_iterable)
+setattr(std_vector_size_t, "__repr__", HelpingFunctions.repr_iterable)
+setattr(std_vector_int, "__repr__", HelpingFunctions.repr_iterable)
+setattr(std_vector_float, "__repr__", HelpingFunctions.repr_iterable)
+setattr(std_vector_string, "__repr__", HelpingFunctions.repr_iterable)
+setattr(Vector, "__repr__", HelpingFunctions.repr_iterable)
 
 class PDB(object):
 
@@ -54,6 +57,7 @@ class PDB(object):
     def __init__(self, fname):
         self.core_data = pdb_obj(fname)
         self.natoms = self.core_data.natom
+        self.hfs = HelpingFunctions()
     def __setattr__(self, name, value):
         if name in self.pdb_attrs:
             object.__setattr__(self.core_data, name, value)
@@ -71,14 +75,15 @@ class PDB(object):
         get_atomname(pdbdef)
         get_atomname(iterable_of_indexes)
         """
-        if hasattr(arg, "__iter__"):
+        try:
             return [self.core_data.atomnames[_] for _ in arg]
-        else:
+        except:
             try:
                 return self.core_data.atomnames[arg]
             except IndexError as err: raise err
             except:
                 return self.get_atomname(self.select_atoms(arg))
+            raise
     def get_resid(self, arg):
         """
         get_resid(index)
@@ -86,14 +91,15 @@ class PDB(object):
         get_resid(pdbdef)
         get_resid(iterable_of_indexes)
         """
-        if hasattr(arg, "__iter__"):
+        try:
             return [self.core_data.resids[_] for _ in arg]
-        else:
+        except:
             try:
                 return self.core_data.resids[arg]
             except IndexError as err: raise err
             except:
                 return self.get_resid(self.select_atoms(arg))
+            raise
     def get_chainid(self, arg):
         """
         get_chainid(index)
@@ -101,14 +107,15 @@ class PDB(object):
         get_chainid(pdbdef)
         get_chainid(iterable_of_indexes)
         """
-        if hasattr(arg, "__iter__"):
+        try:
             return [self.core_data.chainids[_] for _ in arg]
-        else:
+        except:
             try:
                 return self.core_data.chainids[arg]
             except IndexError as err: raise err
             except:
                 return self.get_chainid(self.select_atoms(arg))
+            raise
     def get_atomtype(self, arg):
         """
         get_atomtype(index)
@@ -116,14 +123,15 @@ class PDB(object):
         get_atomtype(pdbdef)
         get_atomtype(iterable_of_indexes)
         """
-        if hasattr(arg, "__iter__"):
+        try:
             return [self.core_data.atomtypes[_] for _ in arg]
-        else:
+        except:
             try:
                 return self.core_data.atomtypes[arg]
             except IndexError as err: raise err
             except:
                 return self.get_atomtype(self.select_atoms(arg))
+            raise
     def get_chainid(self, arg):
         """
         get_chainid(index)
@@ -131,14 +139,15 @@ class PDB(object):
         get_chainid(pdbdef)
         get_chainid(iterable_of_indexes)
         """
-        if hasattr(arg, "__iter__"):
+        try:
             return [self.core_data.chainids[_] for _ in arg]
-        else:
+        except:
             try:
                 return self.core_data.chainids[arg]
             except IndexError as err: raise err
             except:
                 return self.get_chainid(self.select_atoms(arg))
+            raise
     def get_segname(self, arg):
         """
         get_segname(index)
@@ -146,14 +155,15 @@ class PDB(object):
         get_segname(pdbdef)
         get_segname(iterable_of_indexes)
         """
-        if hasattr(arg, "__iter__"):
+        try:
             return [self.core_data.segnames[_] for _ in arg]
-        else:
+        except:
             try:
                 return self.core_data.segnames[arg]
             except IndexError as err: raise err
             except:
                 return self.get_segname(self.select_atoms(arg))
+            raise
     def get_resname(self, arg):
         """
         get_resname(index)
@@ -161,14 +171,15 @@ class PDB(object):
         get_resname(pdbdef)
         get_resname(iterable_of_indexes)
         """
-        if hasattr(arg, "__iter__"):
+        try:
             return [self.core_data.resnames[_] for _ in arg]
-        else:
+        except:
             try:
                 return self.core_data.resnames[arg]
             except IndexError as err: raise err
             except:
                 return self.get_resname(self.select_atoms(arg))
+            raise
     def get_coordinate(self, arg):
         """
         get_coordinate(index)
@@ -176,14 +187,15 @@ class PDB(object):
         get_coordinate(pdbdef)
         get_coordinate(iterable_of_indexes)
         """
-        if hasattr(arg, "__iter__"):
+        try:
             return [self.core_data.get_coordinates(_) for _ in arg]
-        else:
+        except:
             try:
                 return self.core_data.get_coordinates(arg)
             except IndexError as err: raise err
             except:
                 return self.get_coordinate(self.select_atoms(arg))
+            raise
     def select_atoms(self, atom_def):
         if type(atom_def) is str:
             return self.core_data.select_atoms(pdb_def(atom_def))
@@ -209,7 +221,7 @@ class PDB(object):
                     self.core_data.write2file(args[0], pdb_def(args[1]))
                 else:
                     self.core_data.write2file(\
-                            args[0], hfs.make_vector_size_t(args[1]))
+                            args[0], self.hfs.make_vector_size_t(args[1]))
         else:
             raise TypeError("write2file accepts 1 or 2 args")
     def show(self, *args):
@@ -249,10 +261,10 @@ class PDB(object):
         except Exception as err:
             if not str(err).startswith("Python argument types in"): 
                 raise err
-        if hasattr(arg, "__iter__"):
+        try:
             # convert iterable to vector
-            return self.core_data.geo_center(hfs.make_vector_size_t(arg))
-        else:
+            return self.core_data.geo_center(self.hfs.make_vector_size_t(arg))
+        except:
             try:
                 # try to convert string to pdb_def
                 return self.core_data.geo_center(pdb_def(arg))
