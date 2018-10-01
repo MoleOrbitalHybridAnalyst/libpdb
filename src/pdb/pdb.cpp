@@ -364,6 +364,93 @@ void PDB::swapCoordinates(const size_t i1, const size_t i2)
    swapFields(i1, i2, vector<PDBField>(xyz, xyz + 3));
 }
 
+//size_t PDB::reorderWater(bool guess, bool check, bool reorder,
+//      const PDBDef& defo, const PDBDef& defh, const PDBDef& defhyd)
+//{
+//   if(guess) {
+//      guessAllChainids();
+//      guessAllSegnames();
+//      guessAllAtomtypes();
+//   }
+//   if(check) {
+//      checkDefined(defo);
+//      checkDefined(defh);
+//   }
+//   if(reorder) { 
+//      assembleWater(false, false, defo, defh);
+//   }
+//   //now every O has two following H's 
+//   //Lv1 index vector gives real atom index by dereference once
+//   vector<size_t> oindexesLv1, hindexesLv1;
+//   for(size_t index = 0; index < nAtoms; ++index) {
+//      if(isMatched(index, defo)) oindexesLv1.push_back(index);
+//      if(isMatched(index, defh)) hindexesLv1.push_back(index);
+//   }
+//   size_t hydindex = 0; int count_hyd=0;
+//   for(auto iter = oindexesLv1.begin(); iter != oindexesLv1.end(); ++iter) {
+//      if(isMatched(*iter, defhyd)) {
+//         if(count_hyd > 1) {
+//            throw runtime_error("more than one hydonium found");
+//         }
+//         hydindex = *iter; count_hyd++;
+//      }
+//   }
+//   if(!count_hyd) {
+//      throw runtime_error("no hydronium found");
+//   }
+//   if(hindexesLv1.size() != 2*oindexesLv1.size() + 1) {
+//      throw runtime_error("number of hydrogens and "
+//            "number of oxygens do not match");
+//   }
+//   //modified version of my implementation in python
+//   auto starth = hindexesLv1.begin();
+//   for(auto io = oindexesLv1.begin(); io != oindexesLv1.end(); ++io) {
+//      //j*Lv2 are Lv2 indexes if defined as j*Lv2[i] = i
+//      starth += 2;
+//      size_t j1Lv2, j2Lv2, jLv2 = 0;
+//      float d1 = pbcDistance2(*io, *io + 1);
+//      float d2 = pbcDistance2(*io, *io + 2);
+//      j1Lv2 = starth - hindexesLv1.begin() - 2;
+//      j2Lv2 = j1Lv2 + 1;
+//      jLv2 = j2Lv2 + 1;
+//      if(d1 > d2) {
+//         std::swap(d1, d2);
+//         std::swap(j1Lv2, j2Lv2);
+//      }
+//
+//      for(auto jh = starth; jh != hindexesLv1.end(); ++jh) {
+//         float d = pbcDistance2(*io, *jh);
+//         if(d <= d2 and d >= d1) {
+//            d2 = d; j2Lv2 = jLv2;
+//         } else if(d <= d1 and d >= d2) {
+//            d1 = d; j1Lv2 = jLv2;
+//         } else if(d < d1 and d < d2) {
+//            if(d1 <= d2) {
+//               d2 = d; j2Lv2 = jLv2;
+//            } else {
+//               d1 = d; j1Lv2 = jLv2;
+//            }
+//         }
+//         jLv2++;
+//      }
+//      swapCoordinates(*io+1, hindexesLv1[j1Lv2]);
+//      swapCoordinates(*io+2, hindexesLv1[j2Lv2]);
+//   }
+//
+//   float mindist2 = 
+//      boxlens[0]*boxlens[0] + boxlens[1]*boxlens[1] + boxlens[2]*boxlens[2];
+//   for(auto io = oindexesLv1.begin(); io != oindexesLv1.end(); ++io) {
+//      double d = pbcDistance2(*io, hindexesLv1.back());
+//      if(d < mindist2) {
+//         mindist2 = d; hydindex = *io;
+//      }
+//   }
+//   swapCoordinates(hydindex, oindexesLv1.back());
+//   swapCoordinates(hydindex + 1, oindexesLv1.back() + 1);
+//   swapCoordinates(hydindex + 2, oindexesLv1.back() + 2);
+//   return hydindex;
+//}
+
 size_t PDB::reorderWater(bool guess, bool check, bool reorder,
       const PDBDef& defo, const PDBDef& defh, const PDBDef& defhyd)
 {
@@ -377,118 +464,147 @@ size_t PDB::reorderWater(bool guess, bool check, bool reorder,
       checkDefined(defh);
    }
    if(reorder) { 
-      //assemble H and O so that they are in the order of OHHOHH... 
-      //and throw H and O to the bottom of the pdb
-      //defined allfields for swaping two atoms completely
-      //PDBField tmparr[11] = {PDBField::atomname,PDBField::resname,
-      //   PDBField::segname,PDBField::atomtype,PDBField::chainid,PDBField::resid,
-      //PDBField::x,PDBField::y,PDBField::z,PDBField::occ,PDBField::tempf};
-      //vector<PDBField> allfields(tmparr, tmparr + 11);
-      //cerr << "libpdb warning: assemble water not implememted yet\n";
-      
-      //if(!assembleWater(false, false, defo, defh)) {
-      //   cerr << "libpdb error: assemble water failed\n"; abort();
-      //}
       assembleWater(false, false, defo, defh);
    }
-//
-//printf("assemble completed\n");//@@@
-//
    //now every O has two following H's 
-   //Lv1 index vector gives real atom index by dereference once
-   vector<size_t> oindexesLv1, hindexesLv1;
-   for(size_t index = 0; index < nAtoms; ++index) {
-      if(isMatched(index, defo)) oindexesLv1.push_back(index);
-      if(isMatched(index, defh)) hindexesLv1.push_back(index);
-   }
-   size_t hydindex = 0; int count_hyd=0;
-   for(auto iter = oindexesLv1.begin(); iter != oindexesLv1.end(); ++iter) {
-      if(isMatched(*iter, defhyd)) {
-         if(count_hyd > 1) {
-            //cerr << "libpdb error: more than one hydronium\n"; abort();
-            throw runtime_error("more than one hydonium found");
-         }
-         hydindex = *iter; count_hyd++;
-      }
-   }
-   if(!count_hyd) {
-      //cerr << "libpdb error: no hydronium found\n"; abort();
-      throw runtime_error("no hydronium found");
-   }
-   //cout << oindexesLv1.size() << ' ' << hindexesLv1.size() << endl;
-   if(hindexesLv1.size() != 2*oindexesLv1.size() + 1) {
-      //cerr << "libpdb error: number of hydrogens and "<<
-      //               "number of oxygens do not match\n";
-      //abort();
-      throw runtime_error("number of hydrogens and "
-            "number of oxygens do not match");
-   }
-   //modified version of my implementation in python
-   //vector<size_t> hindexesLv1bck(hindexesLv1);
-   auto starth = hindexesLv1.begin();
-   for(auto io = oindexesLv1.begin(); io != oindexesLv1.end(); ++io) {
-      //j*Lv2 are Lv2 indexes if defined as j*Lv2[i] = i
-//
-//printf("io = %u\n", *io);//@@@
-//
-      starth += 2;
-      size_t j1Lv2, j2Lv2, jLv2 = 0;
-      float d1 = pbcDistance2(*io, *io + 1);
-      float d2 = pbcDistance2(*io, *io + 2);
-      j1Lv2 = starth - hindexesLv1.begin() - 2;
-      j2Lv2 = j1Lv2 + 1;
-      jLv2 = j2Lv2 + 1;
-      if(d1 > d2) {
-         std::swap(d1, d2);
-         std::swap(j1Lv2, j2Lv2);
-      }
+   
+   const auto& oindexes = selectAtoms(defo);
+   const auto& hindexes = selectAtoms(defh);
+   const auto& hydindexes = selectAtoms(defhyd);
 
-      for(auto jh = starth; jh != hindexesLv1.end(); ++jh) {
-         float d = pbcDistance2(*io, *jh);
-         if(d <= d2 and d >= d1) {
-            d2 = d; j2Lv2 = jLv2;
-         } else if(d <= d1 and d >= d2) {
-            d1 = d; j1Lv2 = jLv2;
-         } else if(d < d1 and d < d2) {
-            if(d1 <= d2) {
-               d2 = d; j2Lv2 = jLv2;
-            } else {
-               d1 = d; j1Lv2 = jLv2;
+   if(oindexes.empty() or hindexes.empty())
+      throw runtime_error("No water found");
+   if(hydindexes.empty())
+      throw runtime_error("No hydronium found");
+   if(hydindexes.size() > 1)
+      throw runtime_error("More than 1 hydronium found");
+
+   // index in hindexes of bonded H of the i-th oxygen in oindexes
+   vector<vector<size_t>> bondedList(oindexes.size());
+   // index in oindexes of O that H is bonded to
+   vector<vector<size_t>> hostList(hindexes.size());
+
+   // feel awful about this hard coded parameter:
+   double r_cut2 = 2.0 * 2.0;
+
+   // temporarily add H within 2.0 of O as bonded H
+   for(size_t i = 0; i < oindexes.size(); ++i) {
+      for(size_t j = 0; j < hindexes.size(); ++j) 
+         if(pbcDistance2(oindexes[i], hindexes[j]) <= r_cut2) {
+            bondedList[i].push_back(j);
+            hostList[j].push_back(i);
+         }
+   }
+
+   for(size_t i = 0; i < hostList.size(); ++i) {
+      // for H's who has none host, give it to its closest oxygen
+      if(hostList[i].empty()) {
+         double mindist2 = numeric_limits<double>::max();
+         size_t host_ = 0;
+         for(size_t j = 0; j < oindexes.size(); ++j) {
+            double d2 = pbcDistance2(hindexes[i], oindexes[j]);
+            if(d2 < mindist2) {
+               mindist2 = d2; host_ = j;
             }
          }
-         jLv2++;
-      }
-      swapCoordinates(*io+1, hindexesLv1[j1Lv2]);
-      swapCoordinates(*io+2, hindexesLv1[j2Lv2]);
-   }
-
-// slow because of frequent swapping
-//   auto starth = hindexesLv1.begin() + 2;
-//   for(auto io = oindexesLv1.begin(); io != oindexesLv1.end(); ++io) {
-//      float d1 = pbcDistance2(*io, *io + 1);
-//      float d2 = pbcDistance2(*io, *io + 2);
-//      if(d1 > d2) swapCoordinates(*io + 1, *io + 2);
-//      for(auto jh = starth; jh != hindexesLv1.end(); ++jh) {
-//         float d = pbcDistance2(*io, *jh);
-//         if(d < d2) swapCoordinates(*io + 2, *jh);
-//         if(d1 > d2) swapCoordinates(*io + 1, *io + 2);
-//      }
-//      starth += 2;
-//   }
-
-   float mindist2 = 
-      boxlens[0]*boxlens[0] + boxlens[1]*boxlens[1] + boxlens[2]*boxlens[2];
-   for(auto io = oindexesLv1.begin(); io != oindexesLv1.end(); ++io) {
-      //double d = pbcDistance2(*io, hindexesLv1bck.back());
-      double d = pbcDistance2(*io, hindexesLv1.back());
-      if(d < mindist2) {
-         mindist2 = d; hydindex = *io;
+         hostList[i].push_back(host_);
       }
    }
-   swapCoordinates(hydindex, oindexesLv1.back());
-   swapCoordinates(hydindex + 1, oindexesLv1.back() + 1);
-   swapCoordinates(hydindex + 2, oindexesLv1.back() + 2);
-   return hydindex;
+
+   for(size_t i = 0; i < hostList.size(); ++i) {
+      // for H's who has only 1 host, leave them there
+      // for H's who has over 1 host, need to find its true host
+      size_t nhosts = hostList[i].size();
+      if(nhosts > 1) {
+         // this algo. finds the best 2*n H assignment for n hosts of i-th H
+         // first find union of all the possible bonded H's for each host
+         std::set<size_t> h_candidates;
+         for(const auto& host : hostList[i]) {
+            for(const auto& h : bondedList[host])
+               h_candidates.insert(h);
+         }
+         if(h_candidates.size() < 2 * nhosts) {
+            string errmsg = "cannot find enought H's for oxygens ";
+            for(const auto& host : hostList[i]) {
+               errmsg += ( to_string(hindexes[host]) + " ");
+            }
+            throw runtime_error(errmsg);
+         }
+
+         double min_dist2_sum = numeric_limits<double>::max();
+         map<size_t, vector<size_t>> optm_bondedList;
+         // for each permutation of hosts, do reorder v1.0
+         auto copy_hosts = hostList[i];
+         do {
+
+            map<size_t, vector<size_t>> tmp_bondedList;
+
+            double dist2_sum = 0.0;
+            // for each host
+            for(auto& host : copy_hosts) {
+
+               // find the closest 2 hydrogens
+               vector<pair<size_t, double>> i_dist2_pairs;
+               for(auto& h : bondedList[host])
+                  i_dist2_pairs.emplace_back(
+                        h, pbcDistance2(oindexes[host], hindexes[h]));
+               partial_sort(
+                     i_dist2_pairs.begin(), i_dist2_pairs.begin() + 2,
+                     i_dist2_pairs.end(),
+                     [](auto& a, auto& b) {return a.second < b.second;}
+                     );
+               tmp_bondedList[host].push_back(i_dist2_pairs[0].first);
+               tmp_bondedList[host].push_back(i_dist2_pairs[1].first);
+               dist2_sum += i_dist2_pairs[0].second;
+               dist2_sum += i_dist2_pairs[1].second;
+
+            }
+
+            if(dist2_sum < min_dist2_sum) {
+               optm_bondedList = tmp_bondedList;
+               min_dist2_sum = dist2_sum;
+            }
+
+         } while (std::next_permutation(copy_hosts.begin(), copy_hosts.end()));
+
+         // assign the unique host for each h from optm_bondedList
+         for(const auto& p : optm_bondedList) {
+            for(auto& h : p.second)
+               hostList[h] = vector<size_t>(1, p.first);
+         }
+      }
+   }
+
+   // by now hostList should be optimized
+   // reconstruct bondedList from hostList
+   bondedList.clear();
+   bondedList.resize(oindexes.size());
+   for(size_t i = 0; i < hostList.size(); ++i)
+      bondedList[hostList[i][0]].push_back(i);
+
+   // naive reorder algo. requiring extra O(N) storage
+   // see the following for a more advanced one
+   // https://stackoverflow.com/questions/
+   // 838384/reorder-vector-using-a-vector-of-indices
+   vector<Vector> copy_h_coords;
+   for(auto& h : hindexes) copy_h_coords.push_back(getCoordinates(h));
+   size_t true_hydindex = 0;
+   for(size_t i = 0; i < oindexes.size(); ++i) {
+      for(size_t j = 0; j < 2; ++j) {
+         xs[oindexes[i] + j + 1] = copy_h_coords[bondedList[i][j]][0];
+         ys[oindexes[i] + j + 1] = copy_h_coords[bondedList[i][j]][1];
+         zs[oindexes[i] + j + 1] = copy_h_coords[bondedList[i][j]][2];
+      }
+      if(bondedList[i].size() == 3)  true_hydindex = i;
+   }
+   swapCoordinates(oindexes[true_hydindex], hydindexes[0]);
+   swapCoordinates(oindexes[true_hydindex] + 1, hydindexes[0] + 1);
+   swapCoordinates(oindexes[true_hydindex] + 2, hydindexes[0] + 2);
+   xs[hydindexes[0] + 3] = copy_h_coords[bondedList[true_hydindex][2]][0];
+   ys[hydindexes[0] + 3] = copy_h_coords[bondedList[true_hydindex][2]][1];
+   zs[hydindexes[0] + 3] = copy_h_coords[bondedList[true_hydindex][2]][2];
+
+   return oindexes[true_hydindex];
 }
 
 size_t PDB::reorderWater(
