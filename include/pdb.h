@@ -217,7 +217,7 @@ public:
 /// Get the HB distance of two water nodes
    std::pair<double,double> adjacencyWaterNode(
                 WaterNode n1, WaterNode n2) const;
-/// Get HB acceptors or donors
+/// Get HB acceptors or donors according to EVB state searching
    std::vector<size_t> getHBAcceptors(int n, float cutoff, 
          const PDBDef& defo, const PDBDef& defhyd)  {
       return getSolvationShells(n, cutoff, defo, defhyd, 0, true); }
@@ -230,6 +230,12 @@ public:
    std::vector<size_t> getHBDonors(int n, float cutoff, 
          const std::vector<size_t>& oindexes, size_t hydindex)  {
       return getSolvationShells(n, cutoff, oindexes, hydindex, 1, true); }
+/// Get HB network using DA distance and DHA angle criteria
+   std:vector<size_t> getHBNetwork(int n, float roo, float theta,
+      const vector<size_t>& oindexes, const vector<size_t>& hindexes, 
+      Direction d, bool make_whole);
+   std:vector<size_t> getHBNetwork(int n, float roo, float theta,
+      const PDBDef& defo, const PDBDef& defhyd, Direction d, bool make_whole);
 /// make atom 2 in the same pbc images of atom1
    void make_connect(size_t i1, size_t i2) {
       setCoordinates(i2, getCoordinates(i1) + pbcDistance(i1, i2));

@@ -962,6 +962,22 @@ vector<size_t> PDB::getSolvationShells(int n, float cutoff,
    return getSolvationShells(n, cutoff, oindexes, hydindex, direction, make_whole);
 }
 
+vector<size_t> PDB::getHBNetwork(int n, float roo, float theta,
+      const vector<size_t>& oindexes, const vector<size_t>& hindexes, 
+      Direction d, bool make_whole) {
+}
+
+vector<size_t> PDB::getHBNetwork(int n, float roo, float theta,
+      const PDBDef& defo, const PDBDef& defhyd, Direction d, bool make_whole) {
+   const auto& hydindexes = selectAtoms(defhyd);
+   if(hydindexes.size() != 1) 
+      throw runtime_error("number of hydronium is not 1");
+   size_t hydindex = hydindexes[0];
+   const auto& oindexes = selectAtoms(defo);
+
+   return getHBNetwork(n, roo, theta, oindexes, hydindex, d, make_whole);
+}
+
 //bool PDB::isMatched(size_t index, const PDBdef& def) const
 //{
 //   if(index > nAtoms) 
