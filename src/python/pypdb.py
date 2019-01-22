@@ -1,5 +1,6 @@
 from pypdb_core import *
 from functools import partial
+import copy
 
 # enable syntax completion
 # https://stackoverflow.com/questions/246725/how-do-i-add-tab-completion-to-the-python-shell
@@ -54,8 +55,11 @@ class PDB(object):
 #                 "x", "y", "z", "occ", "tempf"]
 
     
-    def __init__(self, fname):
-        self.core_data = pdb_obj(fname)
+    def __init__(self, pdb):
+        if type(pdb) is str:
+            self.core_data = pdb_obj(pdb)
+        else:
+            self.core_data = pdb
         self.natoms = self.core_data.natom
         self.hfs = HelpingFunctions()
     def __setattr__(self, name, value):
@@ -68,6 +72,8 @@ class PDB(object):
             return self.core_data.__getattribute__(name)
         else:
             object.__getattribute__(name)
+    def __deepcopy__(self, memo):
+        return PDB(copy.deepcopy(self.core_data))
     def get_atomname(self, arg):
         """
         get_atomname(index)
@@ -290,6 +296,28 @@ class PDB(object):
           return self.hfs.make_Vector([_-__ for _,__ in zip(arg1,arg0)])
     def distance2(self, arg0, arg1, pbc = True):
        return sum([_**2 for _ in self.distance(arg0, arg1, pbc = pbc)])
+    def get_hb_acceptors(self, n, cutoff, oxygens, oh):
+        if type(oxygens) is str:
+            oxygens = pdb_def(oxygens)
+        if type(oh) is str:
+            oh = pdb_def(oh)
+        return self.core_data.get_hb_acceptors(n, cutoff, oxygens, oh)
+    def get_hb_donors(self, n, cutoff, oxygens, oh):
+        if type(oxygens) is str:
+            oxygens = pdb_def(oxygens)
+        if type(oh) is str:
+            oh = pdb_def(oh)
+        return self.core_data.get_hb_donors(n, cutoff, oxygens, oh)
+    def reorder_water(self, oxygens, hydrogens, oh,
+            guess = False, check = False, assemble = False):
+        if type(oxygens) is str:
+            oxygens = pdb_def(oxygens)
+        if type(hydrogens) is str:
+            hydrogens = pdb_def(hydrogens)
+        if type(oh) is str:
+            oh = pdb_def(oh)
+        self.core_data.reorder_water(
+            guess, check, assemble, oxygens, hydrogens, oh)
 
 #for fs in PDB.pdb_fields:
 #    setattr(PDB, "get_" + fs, \
