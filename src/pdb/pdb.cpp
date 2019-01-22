@@ -514,6 +514,15 @@ Vector PDB::pbcDistance(size_t i1, size_t i2) const
    return pbcDistance(x1, x2);
 }
 
+float PDB::cosAngle(size_t i1, size_t i2, size_t i3) const
+{
+   auto v21 = pbcDistance(i2, i1);
+   auto v23 = pbcDistance(i2, i3);
+   double cos = dotProduct(v21, v23);
+   double norm = dotProduct(v21, v21) * dotProduct(v23, v23);
+   return cos / sqrt(norm);
+}
+
 bool PDB::isMatched(size_t index, const PDBDef& def) const
 {
    if(def.empty()) return false;
@@ -901,6 +910,21 @@ pair<double,double> PDB::adjacencyWaterNode(WaterNode n1, WaterNode n2) const
    return make_pair(mindist2,mindist2_);
 }
 
+bool PDB::isWaterNodeHBonded(
+      WaterNode n1, WaterNode n2, float roo, float theta) const
+{
+   if(pbcDistance2(n1.first, n2.first) > roo * roo) return false;
+   bool hbonded = false;
+   float costheta = cos(theta);
+   for(int offset = 1; offset <= n1.second; ++offset) {
+      // angle H-D...A
+      if(cosAngle(n1.first + offset, n1.first, n2.first) > costheta) {
+         hbonded = true; break;
+      }
+   }
+   return hbonded;
+}
+
 vector<size_t> PDB::getSolvationShells(int n, float cutoff,
       const vector<size_t>& oindexes, size_t hydindex, int direction, bool m)  
 {
@@ -963,19 +987,102 @@ vector<size_t> PDB::getSolvationShells(int n, float cutoff,
 }
 
 vector<size_t> PDB::getHBNetwork(int n, float roo, float theta,
-      const vector<size_t>& oindexes, const vector<size_t>& hindexes, 
-      Direction d, bool make_whole) {
+      size_t root,
+      const vector<size_t>& ocindexes, const vector<size_t>& owindexes, 
+      size_t hydindex, Direction d, bool make_whole) {
+
+   vector<pair<WaterNode, bool>> list;
+   for(auto oindex : ocindexes)  {
+      // carboxyl oxygens have no hydrogens bonded
+      WaterNode node(oindex, 0);
+      list.emplace_back(node, false);
+   }
+   for(auto oindex : owindexes)  {
+      // 2 hydrogens bonded to water 
+      WaterNode node(oindex, 2);
+      list.emplace_back(node, false);
+   }
+   {
+      // 3 hydrogens bonded to hydronium
+      WaterNode node(hydindex, 3);
+      list.emplace_back(node, false);
+   }
+
+   // need to find root's positionin list
+   bool found_root = false;
+   size_t root_pos = 0;
+   {
+      auto it = std::find(ocindexes.begin(), ocindexes.end(), root);
+      if(it != ocindexes.end()) {
+         found_root = true;
+         root_pos += static_cast<size_t>(it - ocindexes.begin());
+      }
+   }
+   if(!found_root) {
+      root_pos = ocindexes.size();
+      auto it = std::find(owindexes.begin(), owindexes.end(), root);
+      if(it != owindexes.end()) {
+         found_root = true;
+         root_pos += static_cast<size_t>(it - owindexes.begin());
+      }
+   }
+   if(!found_root) {
+      root_pos = ocindexes.size() + owindexes.size();
+      if(root == hydindex) {
+         found_root = true;
+      }
+   }
+   if(!found_root) 
+      std::runtime_error("cannot find root in given oxygens");
+
+   DFS(root_pos, n, 
+            [this,&roo,&theta,&d,&make_whole](WaterNode a, WaterNode b) {
+               bool adj = false;
+               if(d == Direction::forward)
+                  adj = isWaterNodeHBonded(a, b, roo, theta);
+               if(d == Direction::backward)
+                  adj = isWaterNodeHBonded(b, a, roo, theta);
+               if(d == Direction::both)
+                  adj = (isWaterNodeHBonded(b, a, roo, theta)) 
+                     && (isWaterNodeHBonded(a, b, roo, theta));
+               if(d == Direction::either)
+                  adj = (isWaterNodeHBonded(b, a, roo, theta)) 
+                     || (isWaterNodeHBonded(a, b, roo, theta));
+               if(make_whole && adj) 
+                  for(int i = 0; i <= b.second; ++i)
+                     make_connect(a.first, b.first + i);
+               return adj;
+            }
+         , list);
+
+
+   vector<size_t> results;
+   for(const auto& l : list) {
+      if(l.second) {
+         results.push_back(l.first.first);
+      }
+   }
+
+   return results;
 }
 
 vector<size_t> PDB::getHBNetwork(int n, float roo, float theta,
-      const PDBDef& defo, const PDBDef& defhyd, Direction d, bool make_whole) {
+      const PDBDef& defroot,
+      const PDBDef& defoc, const PDBDef& defow, 
+      const PDBDef& defhyd, Direction d, bool make_whole) {
    const auto& hydindexes = selectAtoms(defhyd);
    if(hydindexes.size() != 1) 
       throw runtime_error("number of hydronium is not 1");
+   const auto& rootindexes = selectAtoms(defroot);
+   if(rootindexes.size() != 1) 
+      throw runtime_error("number of root is not 1");
+   size_t root = rootindexes[0];
    size_t hydindex = hydindexes[0];
-   const auto& oindexes = selectAtoms(defo);
+   const auto& owindexes = selectAtoms(defow);
+   const auto& ocindexes = selectAtoms(defoc);
 
-   return getHBNetwork(n, roo, theta, oindexes, hydindex, d, make_whole);
+   return getHBNetwork(n, roo, theta,  root,
+         ocindexes, owindexes, hydindex, d, make_whole);
 }
 
 //bool PDB::isMatched(size_t index, const PDBdef& def) const

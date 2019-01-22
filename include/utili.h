@@ -129,6 +129,56 @@ void DFS(Node root, int depth, F&& isAdj,
       }
 }
 
+// return a vector of size(list) indicating if the corresponding node 
+// is discovered within given depth
+/// list is the library of all nodes
+/// root is the index of root node in list
+template <class Node, typename F>
+std::vector<bool> DFS(
+      size_t root, int depth, F&& isAdj, 
+      std::vector<std::pair<Node,bool>>& list)
+{
+   for(auto& e : list) {
+      e.second = false;
+   }
+
+   // tasks.first is (node, discovered) pair
+   // tasks.second is depth
+   std::vector<
+      std::pair< std::pair<Node,bool>&, int>
+      > tasks;
+   tasks.emplace_back(list[root], 0);
+
+   while(!tasks.empty()) {
+
+      // get the last node in the stack
+      // DOES task.first IS STILL A REFERENCE???
+      auto task = tasks.back();
+      // DOES task GET DESTRUCTED???
+      tasks.pop_back();
+
+      // if this node has not been discovered
+      if(!task.first.second) {
+
+         // labdel this node as discovered
+         task.first.second = true;
+
+         // if max depth hits, do not add any children more
+         if(task.second >= depth) continue;
+
+         // find all the children of this node
+         // which has not been discovered
+         for(auto child : list) {
+            if(!child.second  and
+               isAdj(task.first.first, child.first)) {
+               tasks.emplace_back(child, task.second + 1);
+            }
+         }
+      }
+
+   }
+}
+
 //template <>
 //inline bool readField(const std::string& s, int& t) 
 //{
