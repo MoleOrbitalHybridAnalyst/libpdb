@@ -162,6 +162,8 @@ public:
 /// useful with a very strict PDB (noguess, nocheck, noreorder)
    size_t reorderWater(const PDBDef& defo, 
          const PDBDef& defh, const PDBDef& defhyd); 
+   size_t reorderWaterFast(bool guess, bool check, bool assemble,
+         const PDBDef& defo, const PDBDef& defh, const PDBDef& defhyd);
 /// move an atom (i1) to the given position (i2) keeping the order of others
    bool moveTo(const size_t i1, const size_t i2);
 /// assemble water such that they are in the order OHHOHHOHH...OHHH

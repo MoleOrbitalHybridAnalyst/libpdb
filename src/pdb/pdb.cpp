@@ -491,6 +491,140 @@ size_t PDB::reorderWater(bool guess, bool check, bool reorder,
    return hydindex;
 }
 
+size_t PDB::reorderWaterFast(bool guess, bool check, bool reorder,
+      const PDBDef& defo, const PDBDef& defh, const PDBDef& defhyd)
+{
+   // if O-H is smaller than 1.1, then consider bonded
+   constexpr float magic_number = 1.21;
+
+   if(guess) {
+      guessAllChainids();
+      guessAllSegnames();
+      guessAllAtomtypes();
+   }
+   if(check) {
+      checkDefined(defo);
+      checkDefined(defh);
+   }
+   if(reorder) { 
+      assembleWater(false, false, defo, defh);
+   }
+
+   auto hindexes = selectAtoms(defh);
+   auto oindexes = selectAtoms(defo);
+   auto hydindexes = selectAtoms(defhyd);
+   if(hydindexes.empty()) {
+      throw runtime_error("no hydronium found");
+   } else if(hydindexes.size() != 1) {
+      throw runtime_error("more than one hydronium found");
+   }
+   if(hindexes.size() != 2*oindexes.size() + 1) {
+      throw runtime_error("number of hydrogens and "
+            "number of oxygens do not match");
+   }
+
+   set<size_t> hydrogens(hindexes.begin(), hindexes.end());
+   // bonded hydrogen positions of each oxygen
+   vector<pair<Vector,Vector>> hydrogen_positions;
+
+   for(auto oxygen : oindexes) {
+
+      const Vector& pos_oxygen = getCoordinates(oxygen);
+      Vector p1 = getCoordinates(oxygen + 1);
+      Vector p2 = getCoordinates(oxygen + 2);
+
+
+      int remaining = 2;
+      int offset = 0;
+
+      // quick check on if following hydrogens are bonded
+      // to the oxygen
+      if(pbcDistance2(pos_oxygen, p1) < magic_number) {
+         // found 1 hydrogen, remaining--
+         remaining --;
+         if(!hydrogens.erase(oxygen + 1)) 
+            throw runtime_error(
+              "atom serial " + to_string(oxygen + 2) + 
+              " is not in hydrogen list");
+      } else offset = 1;
+      if(pbcDistance2(pos_oxygen, p2) < magic_number) {
+         // found 1 hydrogen, remaining--
+         remaining --;
+         if(!hydrogens.erase(oxygen + 2)) 
+            throw runtime_error(
+              "atom serial " + to_string(oxygen + 3) + 
+              " is not in hydrogen list");
+      } else offset = 2;
+
+      if(!remaining) {
+         hydrogen_positions.emplace_back(p1, p2);
+         continue;
+      }
+
+      vector<pair<size_t, double>> dist2_index;
+      for(auto hydrogen: hydrogens) {
+         dist2_index.emplace_back(
+            pbcDistance2(oxygen, hydrogen), hydrogen);
+      }
+
+      partial_sort(
+         dist2_index.begin(), dist2_index.begin()+remaining, dist2_index.end());
+
+      if(remaining == 1) {
+         const Vector& pos = getCoordinates(dist2_index[0].second);
+         hydrogens.erase(dist2_index[0].second);
+         if(offset == 1) p1 = pos;
+         else            p2 = pos;
+      } else { // must be remaining == 2
+         hydrogens.erase(dist2_index[0].second);
+         p1 = getCoordinates(dist2_index[0].second);
+         hydrogens.erase(dist2_index[1].second);
+         p2 = getCoordinates(dist2_index[1].second);
+      }
+
+      hydrogen_positions.emplace_back(p1, p2);
+   }
+
+   // now every oxygen has its hydrogens
+   //
+   // the left hydrogen should belong to the hydronium
+   if(hydrogens.empty()) 
+      throw runtime_error("no hydrogen left");
+   else if(hydrogens.size() > 1)
+      throw runtime_error("more than 1 hydrogen left");
+   size_t hydrogen = *hydrogens.begin();
+   size_t hydindex = hydindexes[0];
+   Vector pos_excess_proton = getCoordinates(hydrogen);
+   setCoordinates(hydindex + 3, pos_excess_proton);
+
+
+   // assign the correct positions of following 2 hydrogens of each oxygen
+   for(size_t i = 0; i < oindexes.size(); ++i) {
+      size_t oxygen = oindexes[i];
+      setCoordinates(oxygen + 1, hydrogen_positions[i].first);
+      setCoordinates(oxygen + 2, hydrogen_positions[i].second);
+   }
+   
+   // find the closet oxygen to the excess hydrogen
+   vector<pair<double,size_t>> dist2_index;
+   for(auto oxygen : oindexes) {
+      const auto& pos = getCoordinates(oxygen);
+      dist2_index.emplace_back(pbcDistance2(pos, pos_excess_proton), oxygen);
+   }
+   auto it = min_element(dist2_index.begin(), dist2_index.end());
+   size_t oxygen = it->second;
+   // if the oxygen is not hydronium, swap coordinates
+   if(oxygen != hydindex) {
+      swapCoordinates(oxygen, hydindex);
+      swapCoordinates(oxygen + 1, hydindex + 1);
+      swapCoordinates(oxygen + 2, hydindex + 2);
+   }
+
+
+   return oxygen;
+}
+
+
 size_t PDB::reorderWater(
       const PDBDef& defo, const PDBDef& defh, const PDBDef& defhyd)
 {
@@ -913,6 +1047,7 @@ pair<double,double> PDB::adjacencyWaterNode(WaterNode n1, WaterNode n2) const
 bool PDB::isWaterNodeHBonded(
       WaterNode n1, WaterNode n2, float roo, float theta) const
 {
+   if(n1.first == n2.first) return false;
    if(pbcDistance2(n1.first, n2.first) > roo * roo) return false;
    bool hbonded = false;
    float costheta = cos(theta);

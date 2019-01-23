@@ -42,6 +42,12 @@ BOOST_PYTHON_MODULE(pypdb_core)
       .value("tempf", PDBField::tempf)
       .value("unknown", PDBField::unknown);
 
+   enum_<Direction>("Direction")
+      .value("forward", Direction::forward)
+      .value("backward", Direction::backward)
+      .value("both", Direction::both)
+      .value("either", Direction::either);
+
    void (PDBDef::*pushBack0) (PDBField, const std::string&) = &PDBDef::pushBack;
    void (PDBDef::*pushBack1) (PDBField, const float) = &PDBDef::pushBack;
    void (PDBDef::*pushBack2) (PDBField, const int) = &PDBDef::pushBack;
@@ -130,6 +136,7 @@ BOOST_PYTHON_MODULE(pypdb_core)
       .def("select_atoms", &PDB::selectAtoms)
       .def("reorder_water", reorderWater0)
       .def("reorder_water", reorderWater1)
+      .def("reorder_water_fast", &PDB::reorderWaterFast)
       .def("guess_chainids", &PDB::guessAllChainids)
       .def("guess_segnames", &PDB::guessAllSegnames)
       .def("guess_atomtypes", &PDB::guessAllAtomtypes)
@@ -161,6 +168,11 @@ BOOST_PYTHON_MODULE(pypdb_core)
             std::vector<size_t> (PDB::*)(
                int, float, const PDBDef&, const PDBDef&) 
             >(&PDB::getHBDonors))
+      .def("get_hb_network", static_cast<
+            std::vector<size_t> (PDB::*)(
+               int, float, float, const PDBDef&, 
+               const PDBDef&, const PDBDef&, const PDBDef&, Direction, bool)
+            >(&PDB::getHBNetwork))
       .def("atoms_within", static_cast<
             std::vector<size_t> (PDB::*)(
               const list&, float) const> (&PDB::atomsWithin) )

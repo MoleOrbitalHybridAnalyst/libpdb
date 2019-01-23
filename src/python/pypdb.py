@@ -308,7 +308,33 @@ class PDB(object):
         if type(oh) is str:
             oh = pdb_def(oh)
         return self.core_data.get_hb_donors(n, cutoff, oxygens, oh)
-    def reorder_water(self, oxygens, hydrogens, oh,
+    def get_hb_network(self, n, def_ocs, def_ows, def_hyd, def_root, 
+            roo = 3.0, theta = 0.5235987756, direction = Direction.either, 
+            make_whole = False):
+        if type(def_ocs) is str:
+            def_ocs = pdb_def(def_ocs)
+        if type(def_ows) is str:
+            def_ows = pdb_def(def_ows)
+        if type(def_hyd) is str:
+            def_hyd = pdb_def(def_hyd)
+        if type(def_root) is str:
+            def_root = pdb_def(def_root)
+        if type(direction) is str:
+            if direction == "both":
+                direction = Direction.both
+            elif direction == "forward":
+                direction = Direction.forward
+            elif direction == "backward":
+                direction = Direction.backward
+            elif direction == "either":
+                direction = Direction.either
+            else:
+                raise ValueError("unkown direction option " + direction)
+        return self.core_data.get_hb_network( \
+                n, roo, theta, 
+                def_root, def_ocs, def_ows, def_hyd, 
+                direction, make_whole)
+    def reorder_water(self, oxygens, hydrogens, oh, fast = True,
             guess = False, check = False, assemble = False):
         if type(oxygens) is str:
             oxygens = pdb_def(oxygens)
@@ -316,8 +342,12 @@ class PDB(object):
             hydrogens = pdb_def(hydrogens)
         if type(oh) is str:
             oh = pdb_def(oh)
-        self.core_data.reorder_water(
-            guess, check, assemble, oxygens, hydrogens, oh)
+        if fast:
+            return self.core_data.reorder_water_fast(
+                guess, check, assemble, oxygens, hydrogens, oh)
+        else:
+            return self.core_data.reorder_water(
+                guess, check, assemble, oxygens, hydrogens, oh)
 
 #for fs in PDB.pdb_fields:
 #    setattr(PDB, "get_" + fs, \

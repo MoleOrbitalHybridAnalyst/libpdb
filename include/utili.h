@@ -134,7 +134,7 @@ void DFS(Node root, int depth, F&& isAdj,
 /// list is the library of all nodes
 /// root is the index of root node in list
 template <class Node, typename F>
-std::vector<bool> DFS(
+void DFS(
       size_t root, int depth, F&& isAdj, 
       std::vector<std::pair<Node,bool>>& list)
 {
@@ -145,9 +145,9 @@ std::vector<bool> DFS(
    // tasks.first is (node, discovered) pair
    // tasks.second is depth
    std::vector<
-      std::pair< std::pair<Node,bool>&, int>
+      std::pair< std::pair<Node,bool>*, int>
       > tasks;
-   tasks.emplace_back(list[root], 0);
+   tasks.emplace_back(&list[root], 0);
 
    while(!tasks.empty()) {
 
@@ -157,21 +157,23 @@ std::vector<bool> DFS(
       // DOES task GET DESTRUCTED???
       tasks.pop_back();
 
+//printf("%d %d %d\n", task.first->first.first, task.first->second, task.second);
+
       // if this node has not been discovered
-      if(!task.first.second) {
+      if(!task.first->second) {
 
          // labdel this node as discovered
-         task.first.second = true;
+         task.first->second = true;
 
          // if max depth hits, do not add any children more
          if(task.second >= depth) continue;
 
          // find all the children of this node
          // which has not been discovered
-         for(auto child : list) {
-            if(!child.second  and
-               isAdj(task.first.first, child.first)) {
-               tasks.emplace_back(child, task.second + 1);
+         for(size_t i = 0; i < list.size(); ++i) {
+            if(!list[i].second  and
+               isAdj(task.first->first, list[i].first)) {
+               tasks.emplace_back(&list[i], task.second + 1);
             }
          }
       }
