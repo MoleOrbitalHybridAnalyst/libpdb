@@ -68,6 +68,8 @@ public:
    Vector pbcDistance(size_t i1, size_t i2) const;
    float pbcDistance2(size_t i1, size_t i2) const;
    float pbcDistance2(const Vector& x1, const Vector& x2) const;
+/// cos(Angle(i1-i2-i3))
+   float cosAngle(size_t i1, size_t i2, size_t i3) const;
 /// calculate pbc distance of one atom and a group atoms
    std::pair<float,size_t> 
       pbcDistance2(size_t i, std::vector<size_t> group) const;
@@ -160,6 +162,8 @@ public:
 /// useful with a very strict PDB (noguess, nocheck, noreorder)
    size_t reorderWater(const PDBDef& defo, 
          const PDBDef& defh, const PDBDef& defhyd); 
+   size_t reorderWaterFast(bool guess, bool check, bool assemble,
+         const PDBDef& defo, const PDBDef& defh, const PDBDef& defhyd);
 /// move an atom (i1) to the given position (i2) keeping the order of others
    bool moveTo(const size_t i1, const size_t i2);
 /// assemble water such that they are in the order OHHOHHOHH...OHHH
@@ -217,7 +221,10 @@ public:
 /// Get the HB distance of two water nodes
    std::pair<double,double> adjacencyWaterNode(
                 WaterNode n1, WaterNode n2) const;
-/// Get HB acceptors or donors
+/// Check if there is a HB from n1 to n2 as VMD does
+   bool isWaterNodeHBonded (WaterNode n1, WaterNode n2, 
+         float roo, float theta) const;
+/// Get HB acceptors or donors according to EVB state searching
    std::vector<size_t> getHBAcceptors(int n, float cutoff, 
          const PDBDef& defo, const PDBDef& defhyd)  {
       return getSolvationShells(n, cutoff, defo, defhyd, 0, true); }
@@ -230,6 +237,15 @@ public:
    std::vector<size_t> getHBDonors(int n, float cutoff, 
          const std::vector<size_t>& oindexes, size_t hydindex)  {
       return getSolvationShells(n, cutoff, oindexes, hydindex, 1, true); }
+/// Get HB network using DA distance and DHA angle criteria
+   std::vector<size_t> getHBNetwork(int n, float roo, float theta,
+      size_t root,
+      const std::vector<size_t>& ocindexes, const std::vector<size_t>& owcindexes,
+      size_t hydindex, Direction d, bool make_whole);
+   std::vector<size_t> getHBNetwork(int n, float roo, float theta,
+      const PDBDef& defroot,
+      const PDBDef& defoc, const PDBDef& defow, const PDBDef& defhyd, 
+      Direction d, bool make_whole);
 /// make atom 2 in the same pbc images of atom1
    void make_connect(size_t i1, size_t i2) {
       setCoordinates(i2, getCoordinates(i1) + pbcDistance(i1, i2));

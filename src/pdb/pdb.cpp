@@ -445,32 +445,12 @@ size_t PDB::reorderWater(bool guess, bool check, bool reorder,
 
       for(auto jh = starth; jh != hindexesLv1.end(); ++jh) {
          float d = pbcDistance2(*io, *jh);
-
-// @@@@
-if(*io == 42) {
-if(d < 2.0) {
-printAtoms(stdout, vector<size_t>(1, *jh));
-printf("%f %f %f\n", d, d1, d2);
-}
-}
-// @@@@
-
-         if(d < d2 and d > d1) {
+         if(d <= d2 and d >= d1) {
             d2 = d; j2Lv2 = jLv2;
-
-// @@@@
-if(*io == 42) {
-if(d < 2.0) {
-printAtoms(stdout, vector<size_t>(1, *jh));
-printf("%f %f %f\n", d, d1, d2);
-}
-}
-// @@@@
-
-         } else if(d < d1 and d > d2) {
+         } else if(d <= d1 and d >= d2) {
             d1 = d; j1Lv2 = jLv2;
          } else if(d < d1 and d < d2) {
-            if(d1 < d2) {
+            if(d1 <= d2) {
                d2 = d; j2Lv2 = jLv2;
             } else {
                d1 = d; j1Lv2 = jLv2;
@@ -519,6 +499,197 @@ printf("%f %f %f\n", d, d1, d2);
    return hydindex;
 }
 
+size_t PDB::reorderWaterFast(bool guess, bool check, bool reorder,
+      const PDBDef& defo, const PDBDef& defh, const PDBDef& defhyd)
+{
+   // if O-H is smaller than 1.1, then consider bonded
+   constexpr float magic_number = 1.21;
+
+   if(guess) {
+      guessAllChainids();
+      guessAllSegnames();
+      guessAllAtomtypes();
+   }
+   if(check) {
+      checkDefined(defo);
+      checkDefined(defh);
+   }
+   if(reorder) { 
+      assembleWater(false, false, defo, defh);
+   }
+
+   auto hindexes = selectAtoms(defh);
+   auto oindexes = selectAtoms(defo);
+   auto hydindexes = selectAtoms(defhyd);
+   if(hydindexes.empty()) {
+      throw runtime_error("no hydronium found");
+   } else if(hydindexes.size() != 1) {
+      throw runtime_error("more than one hydronium found");
+   }
+   if(hindexes.size() != 2*oindexes.size() + 1) {
+      throw runtime_error("number of hydrogens and "
+            "number of oxygens do not match");
+   }
+
+   set<size_t> hydrogens(hindexes.begin(), hindexes.end());
+   // bonded hydrogen positions of each oxygen
+   vector<pair<Vector,Vector>> hydrogen_positions;
+
+   for(auto oxygen : oindexes) {
+
+      const Vector& pos_oxygen = getCoordinates(oxygen);
+      Vector p1 = getCoordinates(oxygen + 1);
+      Vector p2 = getCoordinates(oxygen + 2);
+
+
+      int remaining = 2;
+      int offset = 0;
+////@@@
+//if(oxygen == 42262 or oxygen == 54967) {
+//   cout << oxygen << "p1 p2 " << pbcDistance2(pos_oxygen, p1) << ' ' << pbcDistance2(pos_oxygen, p2) << endl;
+//}
+////@@@
+
+      // quick check on if following hydrogens are bonded
+      // to the oxygen
+      if(pbcDistance2(pos_oxygen, p1) < magic_number) {
+         // found 1 hydrogen, remaining--
+         remaining --;
+         if(!hydrogens.erase(oxygen + 1)) 
+            throw runtime_error(
+              "atom serial " + to_string(oxygen + 2) + 
+              " is not in hydrogen list");
+      } else offset = 1;
+      if(pbcDistance2(pos_oxygen, p2) < magic_number) {
+         // found 1 hydrogen, remaining--
+         remaining --;
+         if(!hydrogens.erase(oxygen + 2)) 
+            throw runtime_error(
+              "atom serial " + to_string(oxygen + 3) + 
+              " is not in hydrogen list");
+////@@@
+//if(oxygen == 42262 or oxygen == 54967) {
+//   cout << oxygen << "p2 is good" << pbcDistance2(pos_oxygen, p2) << ' ' << remaining << endl;
+//}
+////@@@
+      } else offset = 2;
+
+      if(!remaining) {
+////@@@
+//if(oxygen == 42262 or oxygen == 54967) {
+//   cout << oxygen << "direct " << p1[0] << ' ' << p1[1] << ' ' << p1[2] << endl;
+//   cout << oxygen << "direct " << p2[0] << ' ' << p2[1] << ' ' << p2[2] << endl;
+//}
+////@@@
+         hydrogen_positions.emplace_back(p1, p2);
+         continue;
+      }
+
+      vector<pair<double, size_t>> dist2_index;
+      for(auto hydrogen: hydrogens) {
+         dist2_index.emplace_back(
+            pbcDistance2(oxygen, hydrogen), hydrogen);
+////@@@
+//if(oxygen == 42262) {
+//   cout << oxygen << "dist2_42262_" << dist2_index.back().second << " = " << dist2_index.back().first << endl;
+//}
+////@@@
+      }
+
+      partial_sort(
+         dist2_index.begin(), dist2_index.begin()+remaining, dist2_index.end());
+
+      if(remaining == 1) {
+         const Vector& pos = getCoordinates(dist2_index[0].second);
+////@@@
+//if(dist2_index[0].second == 54969) {
+//   cout << "54969 is assigned to " << oxygen << endl;;
+//}
+//if(dist2_index[0].second == 56183) {
+//   cout << "56183 is assigned to " << oxygen << endl;;
+//}
+////@@@
+         hydrogens.erase(dist2_index[0].second);
+         if(offset == 1) p1 = pos;
+         else            p2 = pos;
+////@@@
+//if(oxygen == 42262 or oxygen == 54967) {
+//   cout << oxygen << "psort " << offset << ' ' << p1[0] << ' ' << p1[1] << ' ' << p1[2] << endl;
+//   cout << oxygen << "psort " << offset << ' ' << p2[0] << ' ' << p2[1] << ' ' << p2[2] << endl;
+//   for(const auto p : dist2_index) {
+//      if(p.second == 56183) {
+//         cout << oxygen << "dist2_index "  << p.first << ' ' << p.second << endl;
+//      }
+//   }
+//   cout << oxygen << "dist2_index[0] "  << dist2_index[0].first << ' ' << dist2_index[0].second << endl;
+//   cout << oxygen << "dist2_oxygen_56183 " << pbcDistance2(oxygen, 56183) << endl;
+//   cout << oxygen << "dist2_oxygen_54969 " << pbcDistance2(oxygen, 54969) << endl;
+//}
+////@@@
+      } else { // must be remaining == 2
+         hydrogens.erase(dist2_index[0].second);
+         p1 = getCoordinates(dist2_index[0].second);
+         hydrogens.erase(dist2_index[1].second);
+         p2 = getCoordinates(dist2_index[1].second);
+////@@@
+//if(dist2_index[0].second == 54969 or dist2_index[1].first == 54969) {
+//   cout << "54969 is assigned to " << oxygen << endl;;
+//}
+//if(dist2_index[0].second == 56183 or dist2_index[1].first == 56183) {
+//   cout << "56183 is assigned to " << oxygen << endl;;
+//}
+////@@@
+      }
+
+////@@@
+//if(oxygen == 42262 or oxygen == 54967) {
+//   cout << oxygen << "sort " << p1[0] << ' ' << p1[1] << ' ' << p1[2] << endl;
+//   cout << oxygen << "sort " << p2[0] << ' ' << p2[1] << ' ' << p2[2] << endl;
+//}
+////@@@
+      hydrogen_positions.emplace_back(p1, p2);
+   }
+
+   // now every oxygen has its hydrogens
+   //
+   // the left hydrogen should belong to the hydronium
+   if(hydrogens.empty()) 
+      throw runtime_error("no hydrogen left");
+   else if(hydrogens.size() > 1)
+      throw runtime_error("more than 1 hydrogen left");
+   size_t hydrogen = *hydrogens.begin();
+   size_t hydindex = hydindexes[0];
+   Vector pos_excess_proton = getCoordinates(hydrogen);
+   setCoordinates(hydindex + 3, pos_excess_proton);
+
+
+   // assign the correct positions of following 2 hydrogens of each oxygen
+   for(size_t i = 0; i < oindexes.size(); ++i) {
+      size_t oxygen = oindexes[i];
+      setCoordinates(oxygen + 1, hydrogen_positions[i].first);
+      setCoordinates(oxygen + 2, hydrogen_positions[i].second);
+   }
+   
+   // find the closet oxygen to the excess hydrogen
+   vector<pair<double,size_t>> dist2_index;
+   for(auto oxygen : oindexes) {
+      const auto& pos = getCoordinates(oxygen);
+      dist2_index.emplace_back(pbcDistance2(pos, pos_excess_proton), oxygen);
+   }
+   auto it = min_element(dist2_index.begin(), dist2_index.end());
+   size_t oxygen = it->second;
+   // if the oxygen is not hydronium, swap coordinates
+   if(oxygen != hydindex) {
+      swapCoordinates(oxygen, hydindex);
+      swapCoordinates(oxygen + 1, hydindex + 1);
+      swapCoordinates(oxygen + 2, hydindex + 2);
+   }
+
+
+   return oxygen;
+}
+
+
 size_t PDB::reorderWater(
       const PDBDef& defo, const PDBDef& defh, const PDBDef& defhyd)
 {
@@ -540,6 +711,15 @@ Vector PDB::pbcDistance(size_t i1, size_t i2) const
    //x1[0] = xs[i1]; x1[1] = ys[i1]; x1[2] = zs[i1];
    //x2[0] = xs[i2]; x2[1] = ys[i2]; x2[2] = zs[i2];
    return pbcDistance(x1, x2);
+}
+
+float PDB::cosAngle(size_t i1, size_t i2, size_t i3) const
+{
+   auto v21 = pbcDistance(i2, i1);
+   auto v23 = pbcDistance(i2, i3);
+   double cos = dotProduct(v21, v23);
+   double norm = dotProduct(v21, v21) * dotProduct(v23, v23);
+   return cos / sqrt(norm);
 }
 
 bool PDB::isMatched(size_t index, const PDBDef& def) const
@@ -929,6 +1109,22 @@ pair<double,double> PDB::adjacencyWaterNode(WaterNode n1, WaterNode n2) const
    return make_pair(mindist2,mindist2_);
 }
 
+bool PDB::isWaterNodeHBonded(
+      WaterNode n1, WaterNode n2, float roo, float theta) const
+{
+   if(n1.first == n2.first) return false;
+   if(pbcDistance2(n1.first, n2.first) > roo * roo) return false;
+   bool hbonded = false;
+   float costheta = cos(theta);
+   for(int offset = 1; offset <= n1.second; ++offset) {
+      // angle H-D...A
+      if(cosAngle(n1.first + offset, n1.first, n2.first) > costheta) {
+         hbonded = true; break;
+      }
+   }
+   return hbonded;
+}
+
 vector<size_t> PDB::getSolvationShells(int n, float cutoff,
       const vector<size_t>& oindexes, size_t hydindex, int direction, bool m)  
 {
@@ -988,6 +1184,105 @@ vector<size_t> PDB::getSolvationShells(int n, float cutoff,
    const auto& oindexes = selectAtoms(defo);
 
    return getSolvationShells(n, cutoff, oindexes, hydindex, direction, make_whole);
+}
+
+vector<size_t> PDB::getHBNetwork(int n, float roo, float theta,
+      size_t root,
+      const vector<size_t>& ocindexes, const vector<size_t>& owindexes, 
+      size_t hydindex, Direction d, bool make_whole) {
+
+   vector<pair<WaterNode, bool>> list;
+   for(auto oindex : ocindexes)  {
+      // carboxyl oxygens have no hydrogens bonded
+      WaterNode node(oindex, 0);
+      list.emplace_back(node, false);
+   }
+   for(auto oindex : owindexes)  {
+      // 2 hydrogens bonded to water 
+      WaterNode node(oindex, 2);
+      list.emplace_back(node, false);
+   }
+   {
+      // 3 hydrogens bonded to hydronium
+      WaterNode node(hydindex, 3);
+      list.emplace_back(node, false);
+   }
+
+   // need to find root's positionin list
+   bool found_root = false;
+   size_t root_pos = 0;
+   {
+      auto it = std::find(ocindexes.begin(), ocindexes.end(), root);
+      if(it != ocindexes.end()) {
+         found_root = true;
+         root_pos += static_cast<size_t>(it - ocindexes.begin());
+      }
+   }
+   if(!found_root) {
+      root_pos = ocindexes.size();
+      auto it = std::find(owindexes.begin(), owindexes.end(), root);
+      if(it != owindexes.end()) {
+         found_root = true;
+         root_pos += static_cast<size_t>(it - owindexes.begin());
+      }
+   }
+   if(!found_root) {
+      root_pos = ocindexes.size() + owindexes.size();
+      if(root == hydindex) {
+         found_root = true;
+      }
+   }
+   if(!found_root) 
+      std::runtime_error("cannot find root in given oxygens");
+
+   DFS(root_pos, n, 
+            [this,&roo,&theta,&d,&make_whole](WaterNode a, WaterNode b) {
+               bool adj = false;
+               if(d == Direction::forward)
+                  adj = isWaterNodeHBonded(a, b, roo, theta);
+               if(d == Direction::backward)
+                  adj = isWaterNodeHBonded(b, a, roo, theta);
+               if(d == Direction::both)
+                  adj = (isWaterNodeHBonded(b, a, roo, theta)) 
+                     && (isWaterNodeHBonded(a, b, roo, theta));
+               if(d == Direction::either)
+                  adj = (isWaterNodeHBonded(b, a, roo, theta)) 
+                     || (isWaterNodeHBonded(a, b, roo, theta));
+               if(make_whole && adj) 
+                  for(int i = 0; i <= b.second; ++i)
+                     make_connect(a.first, b.first + i);
+               return adj;
+            }
+         , list);
+
+
+   vector<size_t> results;
+   for(const auto& l : list) {
+      if(l.second) {
+         results.push_back(l.first.first);
+      }
+   }
+
+   return results;
+}
+
+vector<size_t> PDB::getHBNetwork(int n, float roo, float theta,
+      const PDBDef& defroot,
+      const PDBDef& defoc, const PDBDef& defow, 
+      const PDBDef& defhyd, Direction d, bool make_whole) {
+   const auto& hydindexes = selectAtoms(defhyd);
+   if(hydindexes.size() != 1) 
+      throw runtime_error("number of hydronium is not 1");
+   const auto& rootindexes = selectAtoms(defroot);
+   if(rootindexes.size() != 1) 
+      throw runtime_error("number of root is not 1");
+   size_t root = rootindexes[0];
+   size_t hydindex = hydindexes[0];
+   const auto& owindexes = selectAtoms(defow);
+   const auto& ocindexes = selectAtoms(defoc);
+
+   return getHBNetwork(n, roo, theta,  root,
+         ocindexes, owindexes, hydindex, d, make_whole);
 }
 
 //bool PDB::isMatched(size_t index, const PDBdef& def) const

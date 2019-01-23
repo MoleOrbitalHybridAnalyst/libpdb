@@ -13,7 +13,7 @@ BOOST_PYTHON_MODULE(pypdb_core)
    //obsolete after I use vector_indexing_suite:
    //to_python_converter<std::vector<size_t>, VecToList<size_t>>();
    //to_python_converter<std::vector<std::string>, VecToList<std::string>>();
-   to_python_converter<Vector, SubscrToList<Vector>>();
+   //to_python_converter<Vector, SubscrToList<Vector>>();
 
 /// wrap vectors 
 /// http://www.boost.org/doc/libs/1_51_0/libs/python/doc/v2/indexing.html
@@ -25,6 +25,8 @@ BOOST_PYTHON_MODULE(pypdb_core)
       .def(vector_indexing_suite<std::vector<size_t>>());
    class_<std::vector<int>>("std_vector_int")
       .def(vector_indexing_suite<std::vector<int>>());
+   class_<Vector>("Vector")
+      .def(vector_indexing_suite<Vector>());
 
    enum_<PDBField>("pdb_field")
       .value("atomname", PDBField::atomname)
@@ -39,6 +41,12 @@ BOOST_PYTHON_MODULE(pypdb_core)
       .value("occ", PDBField::occ)
       .value("tempf", PDBField::tempf)
       .value("unknown", PDBField::unknown);
+
+   enum_<Direction>("Direction")
+      .value("forward", Direction::forward)
+      .value("backward", Direction::backward)
+      .value("both", Direction::both)
+      .value("either", Direction::either);
 
    void (PDBDef::*pushBack0) (PDBField, const std::string&) = &PDBDef::pushBack;
    void (PDBDef::*pushBack1) (PDBField, const float) = &PDBDef::pushBack;
@@ -128,6 +136,7 @@ BOOST_PYTHON_MODULE(pypdb_core)
       .def("select_atoms", &PDB::selectAtoms)
       .def("reorder_water", reorderWater0)
       .def("reorder_water", reorderWater1)
+      .def("reorder_water_fast", &PDB::reorderWaterFast)
       .def("guess_chainids", &PDB::guessAllChainids)
       .def("guess_segnames", &PDB::guessAllSegnames)
       .def("guess_atomtypes", &PDB::guessAllAtomtypes)
@@ -159,6 +168,11 @@ BOOST_PYTHON_MODULE(pypdb_core)
             std::vector<size_t> (PDB::*)(
                int, float, const PDBDef&, const PDBDef&) 
             >(&PDB::getHBDonors))
+      .def("get_hb_network", static_cast<
+            std::vector<size_t> (PDB::*)(
+               int, float, float, const PDBDef&, 
+               const PDBDef&, const PDBDef&, const PDBDef&, Direction, bool)
+            >(&PDB::getHBNetwork))
       .def("atoms_within", static_cast<
             std::vector<size_t> (PDB::*)(
               const list&, float) const> (&PDB::atomsWithin) )
@@ -181,6 +195,7 @@ BOOST_PYTHON_MODULE(pypdb_core)
             void (PDB::*) (const std::string&, const std::string&) const
             > (&PDB::writeIndexFile) )
       .def("moveto", &PDB::moveTo)
+      .def("get_coordinates", &PDB::getCoordinates)
    ;
 }
 

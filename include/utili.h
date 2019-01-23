@@ -31,6 +31,45 @@ class Vector {
    std::array<float,3> d;
 
 public:
+/// Things needed for boost::vector_indexing_suite
+   typedef float value_type;
+   typedef size_t size_type;
+   typedef std::ptrdiff_t difference_type;
+   typedef std::array<float,3>::iterator iterator;
+   typedef std::array<float,3>::const_iterator const_iterator;
+   iterator begin() {return d.begin();}
+   iterator end() {return d.end();}
+   iterator erase(iterator it) {
+      (void) it;
+      std::runtime_error("Vector::erase should not be called");
+      return d.end();
+   }
+   iterator erase(iterator f, iterator l) {
+      (void) f; (void) l;
+      std::runtime_error("Vector::erase should not be called");
+      return d.end();
+   }
+   iterator insert(iterator pos, const float& value) {
+      (void) pos; (void) value;
+      std::runtime_error("Vector::insert should not be called");
+      return d.end();
+   }
+   template< class InputIt >
+   iterator insert(const_iterator pos, InputIt f, InputIt l) {
+      (void) pos; (void) f; (void) l;
+      std::runtime_error("Vector::insert should not be called");
+      return d.end();
+   }
+   void push_back(const float& value) {
+      (void) value;
+      std::runtime_error("Vector::push_back should not be called");
+   }
+   template< class InputIt >
+   Vector(InputIt f, InputIt l) {
+      (void) f; (void) l;
+      std::runtime_error("Vector::(InputIt f, InputIt l) should not be called");
+   }
+/// default constructor
    Vector() = default;
 /// create a vector with same value
    Vector(float d0);
@@ -88,6 +127,58 @@ void DFS(Node root, int depth, F&& isAdj,
          results.insert(i);
          DFS(i, depth - 1, isAdj, list, results);
       }
+}
+
+// return a vector of size(list) indicating if the corresponding node 
+// is discovered within given depth
+/// list is the library of all nodes
+/// root is the index of root node in list
+template <class Node, typename F>
+void DFS(
+      size_t root, int depth, F&& isAdj, 
+      std::vector<std::pair<Node,bool>>& list)
+{
+   for(auto& e : list) {
+      e.second = false;
+   }
+
+   // tasks.first is (node, discovered) pair
+   // tasks.second is depth
+   std::vector<
+      std::pair< std::pair<Node,bool>*, int>
+      > tasks;
+   tasks.emplace_back(&list[root], 0);
+
+   while(!tasks.empty()) {
+
+      // get the last node in the stack
+      // DOES task.first IS STILL A REFERENCE???
+      auto task = tasks.back();
+      // DOES task GET DESTRUCTED???
+      tasks.pop_back();
+
+//printf("%d %d %d\n", task.first->first.first, task.first->second, task.second);
+
+      // if this node has not been discovered
+      if(!task.first->second) {
+
+         // labdel this node as discovered
+         task.first->second = true;
+
+         // if max depth hits, do not add any children more
+         if(task.second >= depth) continue;
+
+         // find all the children of this node
+         // which has not been discovered
+         for(size_t i = 0; i < list.size(); ++i) {
+            if(!list[i].second  and
+               isAdj(task.first->first, list[i].first)) {
+               tasks.emplace_back(&list[i], task.second + 1);
+            }
+         }
+      }
+
+   }
 }
 
 //template <>
