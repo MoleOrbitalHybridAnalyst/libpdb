@@ -536,6 +536,11 @@ size_t PDB::reorderWaterFast(bool guess, bool check, bool reorder,
 
       int remaining = 2;
       int offset = 0;
+////@@@
+//if(oxygen == 42262 or oxygen == 54967) {
+//   cout << oxygen << "p1 p2 " << pbcDistance2(pos_oxygen, p1) << ' ' << pbcDistance2(pos_oxygen, p2) << endl;
+//}
+////@@@
 
       // quick check on if following hydrogens are bonded
       // to the oxygen
@@ -554,17 +559,33 @@ size_t PDB::reorderWaterFast(bool guess, bool check, bool reorder,
             throw runtime_error(
               "atom serial " + to_string(oxygen + 3) + 
               " is not in hydrogen list");
+////@@@
+//if(oxygen == 42262 or oxygen == 54967) {
+//   cout << oxygen << "p2 is good" << pbcDistance2(pos_oxygen, p2) << ' ' << remaining << endl;
+//}
+////@@@
       } else offset = 2;
 
       if(!remaining) {
+////@@@
+//if(oxygen == 42262 or oxygen == 54967) {
+//   cout << oxygen << "direct " << p1[0] << ' ' << p1[1] << ' ' << p1[2] << endl;
+//   cout << oxygen << "direct " << p2[0] << ' ' << p2[1] << ' ' << p2[2] << endl;
+//}
+////@@@
          hydrogen_positions.emplace_back(p1, p2);
          continue;
       }
 
-      vector<pair<size_t, double>> dist2_index;
+      vector<pair<double, size_t>> dist2_index;
       for(auto hydrogen: hydrogens) {
          dist2_index.emplace_back(
             pbcDistance2(oxygen, hydrogen), hydrogen);
+////@@@
+//if(oxygen == 42262) {
+//   cout << oxygen << "dist2_42262_" << dist2_index.back().second << " = " << dist2_index.back().first << endl;
+//}
+////@@@
       }
 
       partial_sort(
@@ -572,16 +593,52 @@ size_t PDB::reorderWaterFast(bool guess, bool check, bool reorder,
 
       if(remaining == 1) {
          const Vector& pos = getCoordinates(dist2_index[0].second);
+////@@@
+//if(dist2_index[0].second == 54969) {
+//   cout << "54969 is assigned to " << oxygen << endl;;
+//}
+//if(dist2_index[0].second == 56183) {
+//   cout << "56183 is assigned to " << oxygen << endl;;
+//}
+////@@@
          hydrogens.erase(dist2_index[0].second);
          if(offset == 1) p1 = pos;
          else            p2 = pos;
+////@@@
+//if(oxygen == 42262 or oxygen == 54967) {
+//   cout << oxygen << "psort " << offset << ' ' << p1[0] << ' ' << p1[1] << ' ' << p1[2] << endl;
+//   cout << oxygen << "psort " << offset << ' ' << p2[0] << ' ' << p2[1] << ' ' << p2[2] << endl;
+//   for(const auto p : dist2_index) {
+//      if(p.second == 56183) {
+//         cout << oxygen << "dist2_index "  << p.first << ' ' << p.second << endl;
+//      }
+//   }
+//   cout << oxygen << "dist2_index[0] "  << dist2_index[0].first << ' ' << dist2_index[0].second << endl;
+//   cout << oxygen << "dist2_oxygen_56183 " << pbcDistance2(oxygen, 56183) << endl;
+//   cout << oxygen << "dist2_oxygen_54969 " << pbcDistance2(oxygen, 54969) << endl;
+//}
+////@@@
       } else { // must be remaining == 2
          hydrogens.erase(dist2_index[0].second);
          p1 = getCoordinates(dist2_index[0].second);
          hydrogens.erase(dist2_index[1].second);
          p2 = getCoordinates(dist2_index[1].second);
+////@@@
+//if(dist2_index[0].second == 54969 or dist2_index[1].first == 54969) {
+//   cout << "54969 is assigned to " << oxygen << endl;;
+//}
+//if(dist2_index[0].second == 56183 or dist2_index[1].first == 56183) {
+//   cout << "56183 is assigned to " << oxygen << endl;;
+//}
+////@@@
       }
 
+////@@@
+//if(oxygen == 42262 or oxygen == 54967) {
+//   cout << oxygen << "sort " << p1[0] << ' ' << p1[1] << ' ' << p1[2] << endl;
+//   cout << oxygen << "sort " << p2[0] << ' ' << p2[1] << ' ' << p2[2] << endl;
+//}
+////@@@
       hydrogen_positions.emplace_back(p1, p2);
    }
 
