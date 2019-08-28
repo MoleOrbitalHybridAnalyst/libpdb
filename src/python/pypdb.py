@@ -349,6 +349,28 @@ class PDB(object):
             return self.core_data.reorder_water(
                 guess, check, assemble, oxygens, hydrogens, oh)
 
+    def find_closest(self, atomid, sel, global_index = True):
+        if sel is str:
+            sel = self.select_atoms(sel)
+        dist2 = [self.distance2(atomid, i) for i in sel]
+        min_dist2 = min(dist2)
+        if global_index:
+            return [sel[dist2.index(min_dist2)], min_dist2]
+        else:
+            return [dist2.index(min_dist2), min_dist2]
+
+    def shift2middle(self, sel):
+        if sel is str:
+            sel = self.select_atoms(sel)
+        try:
+            self.core_data.shift2middle(sel)
+        except Exception as err:
+            if not str(err).startswith("Python argument types in"): 
+                raise err
+            else:
+                self.core_data.shift2middle(\
+                        self.hfs.make_vector_size_t(sel))
+
 #for fs in PDB.pdb_fields:
 #    setattr(PDB, "get_" + fs, \
 #      lambda *args: \
