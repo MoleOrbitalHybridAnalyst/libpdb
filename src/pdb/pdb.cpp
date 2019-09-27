@@ -1061,7 +1061,8 @@ bool PDB::isWaterNodeHBonded(
 }
 
 vector<size_t> PDB::getSolvationShells(int n, float cutoff,
-      const vector<size_t>& oindexes, size_t hydindex, int direction, bool m)  
+      const vector<size_t>& oindexes, size_t pivot, size_t nh, 
+      int direction, bool m)  
 {
    // in this subroutine, 
    // I assume that reorderWater has already been done
@@ -1071,18 +1072,18 @@ vector<size_t> PDB::getSolvationShells(int n, float cutoff,
    
    vector<WaterNode> onodes;
    for(size_t oindex : oindexes)  {
-      if(oindex == hydindex)
-         // hydronium has 3 hydrogens
-         onodes.emplace_back(oindex, 3);
+      if(oindex == pivot)
+         // pivot has nh hydrogens
+         onodes.emplace_back(oindex, nh);
       else
          // every water has 2 hydrogens
          onodes.emplace_back(oindex, 2);
    }
    // Do DFS here
    set<WaterNode> solvation_nodes;
-   solvation_nodes.emplace(hydindex,3);
+   solvation_nodes.emplace(pivot,nh);
    if(!direction)
-      DFS(WaterNode(hydindex,3), n, 
+      DFS(WaterNode(pivot,nh), n, 
             [this,&cutoff,&m](WaterNode a, WaterNode b) {
                bool adj = adjacencyWaterNode(a, b).first <= cutoff*cutoff;
                if(m && adj) 
@@ -1092,7 +1093,7 @@ vector<size_t> PDB::getSolvationShells(int n, float cutoff,
             }
             , onodes, solvation_nodes);
    else
-      DFS(WaterNode(hydindex,3), n, 
+      DFS(WaterNode(pivot,nh), n, 
             [this,&cutoff,&m](WaterNode a, WaterNode b) {
                bool adj = adjacencyWaterNode(a, b).second <= cutoff*cutoff;
                if(m && adj) 
@@ -1110,15 +1111,16 @@ vector<size_t> PDB::getSolvationShells(int n, float cutoff,
 }
 
 vector<size_t> PDB::getSolvationShells(int n, float cutoff, 
-      const PDBDef& defo, const PDBDef& defhyd, int direction, bool make_whole) 
+      const PDBDef& defo, const PDBDef& defpivot, size_t nh, 
+      int direction, bool make_whole) 
 {
-   const auto& hydindexes = selectAtoms(defhyd);
-   if(hydindexes.size() != 1) 
-      throw runtime_error("number of hydronium is not 1");
-   size_t hydindex = hydindexes[0];
+   const auto& pivotindexes = selectAtoms(defpivot);
+   if(pivotindexes.size() != 1) 
+      throw runtime_error("number of pivot is not 1");
+   size_t pivotindex = pivotindexes[0];
    const auto& oindexes = selectAtoms(defo);
 
-   return getSolvationShells(n, cutoff, oindexes, hydindex, direction, make_whole);
+   return getSolvationShells(n, cutoff, oindexes, pivotindex, nh, direction, make_whole);
 }
 
 vector<size_t> PDB::getHBNetwork(int n, float roo, float theta,

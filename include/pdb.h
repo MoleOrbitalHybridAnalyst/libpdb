@@ -215,9 +215,17 @@ public:
 /// hydrogen instead of returning a vector of WaterNode is for the convenience
 /// in Python interface. WE NEED OVERLOAD BY RETURN TYPE!!!
    std::vector<size_t> getSolvationShells(int n, float cutoff, 
-         const std::vector<size_t>& oindexes, size_t hydindex, int, bool) ;
+         const std::vector<size_t>& oindexes, size_t hydindex, size_t nh, int, bool) ;
    std::vector<size_t> getSolvationShells(int n, float cutoff, 
-         const PDBDef& defo, const PDBDef& defhyd, int, bool make_whole) ;
+         const PDBDef& defo, const PDBDef& defhyd, size_t nh, int, bool make_whole) ;
+   std::vector<size_t> getSolvationShells(int n, float cutoff, 
+         const std::vector<size_t>& oindexes, size_t hydindex, int d, bool m) {
+      return getSolvationShells(n, cutoff, oindexes, hydindex, 3, d, m);
+   }
+   std::vector<size_t> getSolvationShells(int n, float cutoff, 
+         const PDBDef& defo, const PDBDef& defhyd, int d, bool make_whole) {
+      return getSolvationShells(n, cutoff, defo, defhyd, 3, d, make_whole);
+   }
 /// Get the HB distance of two water nodes
    std::pair<double,double> adjacencyWaterNode(
                 WaterNode n1, WaterNode n2) const;
@@ -237,6 +245,18 @@ public:
    std::vector<size_t> getHBDonors(int n, float cutoff, 
          const std::vector<size_t>& oindexes, size_t hydindex)  {
       return getSolvationShells(n, cutoff, oindexes, hydindex, 1, true); }
+   std::vector<size_t> getHBAcceptors(int n, float cutoff, 
+         const PDBDef& defo, const PDBDef& defhyd, size_t nh)  {
+      return getSolvationShells(n, cutoff, defo, defhyd, nh, 0, true); }
+   std::vector<size_t> getHBAcceptors(int n, float cutoff, 
+         const std::vector<size_t>& oindexes, size_t hydindex, size_t nh)  {
+      return getSolvationShells(n, cutoff, oindexes, hydindex, nh, 0, true); }
+   std::vector<size_t> getHBDonors(int n, float cutoff, 
+         const PDBDef& defo, const PDBDef& defhyd, size_t nh)  {
+      return getSolvationShells(n, cutoff, defo, defhyd, nh, 1, true); }
+   std::vector<size_t> getHBDonors(int n, float cutoff, 
+         const std::vector<size_t>& oindexes, size_t hydindex, size_t nh)  {
+      return getSolvationShells(n, cutoff, oindexes, hydindex, nh, 1, true); }
 /// Get HB network using DA distance and DHA angle criteria
    std::vector<size_t> getHBNetwork(int n, float roo, float theta,
       size_t root,

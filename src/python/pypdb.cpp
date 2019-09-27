@@ -168,6 +168,22 @@ BOOST_PYTHON_MODULE(pypdb_core)
             std::vector<size_t> (PDB::*)(
                int, float, const PDBDef&, const PDBDef&) 
             >(&PDB::getHBDonors))
+      .def("get_hb_acceptors", static_cast<
+            std::vector<size_t> (PDB::*)(
+               int, float, const std::vector<size_t>&, size_t, size_t) 
+            >(&PDB::getHBAcceptors))
+      .def("get_hb_acceptors", static_cast<
+            std::vector<size_t> (PDB::*)(
+               int, float, const PDBDef&, const PDBDef&, size_t) 
+            >(&PDB::getHBAcceptors))
+      .def("get_hb_donors", static_cast<
+            std::vector<size_t> (PDB::*)(
+               int, float, const std::vector<size_t>&, size_t, size_t) 
+            >(&PDB::getHBDonors))
+      .def("get_hb_donors", static_cast<
+            std::vector<size_t> (PDB::*)(
+               int, float, const PDBDef&, const PDBDef&, size_t) 
+            >(&PDB::getHBDonors))
       .def("get_hb_network", static_cast<
             std::vector<size_t> (PDB::*)(
                int, float, float, const PDBDef&, 

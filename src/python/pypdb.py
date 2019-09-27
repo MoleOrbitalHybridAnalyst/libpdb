@@ -296,18 +296,28 @@ class PDB(object):
           return self.hfs.make_Vector([_-__ for _,__ in zip(arg1,arg0)])
     def distance2(self, arg0, arg1, pbc = True):
        return sum([_**2 for _ in self.distance(arg0, arg1, pbc = pbc)])
-    def get_hb_acceptors(self, n, cutoff, oxygens, oh):
+    def get_hb_acceptors(self, n, cutoff, oxygens, oh, nh = 3):
         if type(oxygens) is str:
             oxygens = pdb_def(oxygens)
         if type(oh) is str:
             oh = pdb_def(oh)
-        return self.core_data.get_hb_acceptors(n, cutoff, oxygens, oh)
-    def get_hb_donors(self, n, cutoff, oxygens, oh):
+        if type(oh) is int:
+            try:
+                oxygens = self.hfs.make_vector_size_t(oxygens)
+            except:
+                oxygens = self.hfs.make_vector_size_t(self.select_atoms(oxygens))
+        return self.core_data.get_hb_acceptors(n, cutoff, oxygens, oh, nh)
+    def get_hb_donors(self, n, cutoff, oxygens, oh, nh = 3):
         if type(oxygens) is str:
             oxygens = pdb_def(oxygens)
         if type(oh) is str:
             oh = pdb_def(oh)
-        return self.core_data.get_hb_donors(n, cutoff, oxygens, oh)
+        if type(oh) is int:
+            try:
+                oxygens = self.hfs.make_vector_size_t(oxygens)
+            except:
+                oxygens = self.hfs.make_vector_size_t(self.select_atoms(oxygens))
+        return self.core_data.get_hb_donors(n, cutoff, oxygens, oh, nh)
     def get_hb_network(self, n, def_ocs, def_ows, def_hyd, def_root, 
             roo = 3.0, theta = 0.5235987756, direction = Direction.either, 
             make_whole = False):
@@ -350,7 +360,7 @@ class PDB(object):
                 guess, check, assemble, oxygens, hydrogens, oh)
 
     def find_closest(self, atomid, sel, global_index = True):
-        if sel is str:
+        if type(sel) is str:
             sel = self.select_atoms(sel)
         dist2 = [self.distance2(atomid, i) for i in sel]
         min_dist2 = min(dist2)
@@ -360,7 +370,7 @@ class PDB(object):
             return [dist2.index(min_dist2), min_dist2]
 
     def shift2middle(self, sel):
-        if sel is str:
+        if type(sel) is str:
             sel = self.select_atoms(sel)
         try:
             self.core_data.shift2middle(sel)
